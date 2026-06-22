@@ -4,8 +4,9 @@ import { User, Product, Order, Consultation, Testimonial, FAQ } from '../types';
 import { 
   BarChart3, Plus, Edit2, Trash2, CheckCircle, XCircle, Search, 
   Download, Filter, ArrowUp, Calendar, ClipboardList, HelpCircle, 
-  MessageSquare, Sparkles, Tag
+  MessageSquare, Sparkles, Tag, Settings, GitCompare, Layers, DollarSign, Ticket
 } from 'lucide-react';
+import { SiteSettingsTab, ComparisonTab, FunnelsTab, ValueStackTab, CouponsTab } from './admin/CmsTabs';
 
 export default function AdminDashboard() {
   const {
@@ -17,7 +18,7 @@ export default function AdminDashboard() {
   } = useApp();
 
   // Active admin tab switcher
-  const [activeTab, setActiveTab] = useState<'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 'faqs'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 'faqs' | 'site-settings' | 'comparison' | 'funnels' | 'value-stack' | 'coupons'>('stats');
 
   // Customer List states (Orders matched with Subscribers)
   const [customerSearch, setCustomerSearch] = useState('');
@@ -150,8 +151,13 @@ export default function AdminDashboard() {
             { id: 'products', label: "إدارة الكتب والمنتجات الرقمية", icon: Tag },
             { id: 'orders', label: "إدارة عمليات الطلب والدفع", icon: ClipboardList },
             { id: 'consultations', label: "إدارة جلسات الاستشارات", icon: Calendar },
-            { id: 'testimonials', label: "مراجعة واعتماد آراء العملاء", icon: MessageSquare },
-            { id: 'faqs', label: "أدوات مراجعة الأسئلة الشائعة", icon: HelpCircle }
+            { id: 'testimonials', label: "مراجعة آراء العملاء", icon: MessageSquare },
+            { id: 'faqs', label: "الأسئلة الشائعة", icon: HelpCircle },
+            { id: 'site-settings', label: "إعدادات الموقع والنصوص", icon: Settings },
+            { id: 'comparison', label: "جدول المقارنة (التحول)", icon: GitCompare },
+            { id: 'funnels', label: "مراحل الفنل التسويقي", icon: Layers },
+            { id: 'value-stack', label: "الحزمة والقيمة المضافة", icon: DollarSign },
+            { id: 'coupons', label: "كوبونات الخصم", icon: Ticket }
           ].map(tab => {
             const Icon = tab.icon;
             return (
@@ -756,6 +762,41 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* TAB 7: Site Settings CMS */}
+          {activeTab === 'site-settings' && (
+            <div className="animate-fadeIn">
+              <SiteSettingsTab />
+            </div>
+          )}
+
+          {/* TAB 8: Comparison Table CMS */}
+          {activeTab === 'comparison' && (
+            <div className="animate-fadeIn">
+              <ComparisonTab />
+            </div>
+          )}
+
+          {/* TAB 9: Funnel Stages CMS */}
+          {activeTab === 'funnels' && (
+            <div className="animate-fadeIn">
+              <FunnelsTab />
+            </div>
+          )}
+
+          {/* TAB 10: Value Stack CMS */}
+          {activeTab === 'value-stack' && (
+            <div className="animate-fadeIn">
+              <ValueStackTab />
+            </div>
+          )}
+
+          {/* TAB 11: Coupons CMS */}
+          {activeTab === 'coupons' && (
+            <div className="animate-fadeIn">
+              <CouponsTab />
             </div>
           )}
 

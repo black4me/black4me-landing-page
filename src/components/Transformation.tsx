@@ -1,31 +1,10 @@
 import React, { useState } from 'react';
-import { ShieldX, ShieldCheck, ArrowLeftRight, Coins, RefreshCw, Star } from 'lucide-react';
+import { ShieldX, ShieldCheck, ArrowLeftRight } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 
 export default function Transformation() {
   const [activeTab, setActiveTab] = useState<'both' | 'before' | 'after'>('both');
-
-  const comparisonItems = [
-    {
-      aspect: "آلية جلب العملاء والمهتمين",
-      before: "ملاحقة مستمرة وإرسال مئات الرسائل العشوائية المكتوبة بالذكاء الاصطناعي دون إنصات أو استجابة.",
-      after: "الفنل يقوم بجذب وغربلة العملاء عاليي الملاءة وجلبهم مهيئين للشراء بنسبة 80% قبل التحدث الفردي.",
-    },
-    {
-      aspect: "قواعد التسعير والتحصيل المالي",
-      before: "النزول بالتسعير للحد الأدنى لجذب المترددين، ما يؤثر على جودة الخدمة ويبقي أرباحك متعثرة.",
-      after: "بناء وتصميم عروض نخبوية (High-Ticket Program) بأسعار تبدأ من $2,000 وتبريرها بقيمتها الحقيقية.",
-    },
-    {
-      aspect: "العائد الزمني والمجهود التشغيلي",
-      before: "تعمل 14 ساعة يومياً بمحاولات ترويجية مبعثرة، دون أي تكرار منهجي أو بنية أصول حقيقية لعلامتك.",
-      after: "نظام مؤتمت مكرر ومستقر، يحتاج فقط 3-4 ساعات مراجعة أسبوعية وتحديثات فنية لتوسيع الأرقام.",
-    },
-    {
-      aspect: "صناعة الأثر والهيبة المعرفية",
-      before: "صانع محتوى عام ينشر يومياً 'أفضل 5 نصائح برمجية' دون ترابط حقيقي يهدف للبيع.",
-      after: "هيبة فكرية كقائد رأي مستهدف، يفصل بدقة خريطة طريق تحل مشكلة العميل العميقة بوضوح.",
-    }
-  ];
+  const { comparisonItems, siteSettings } = useApp();
 
   return (
     <section className="bg-brand-black text-brand-white py-24 px-4 border-b border-brand-purple/10" dir="rtl">
@@ -36,10 +15,10 @@ export default function Transformation() {
             قوة التحول الحتمي المالي والمعرفي
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
-            قارن وشاهد الفارق: هندسة التحول الجذري لعملك
+            {siteSettings.comparison_title || 'قارن وشاهد الفارق: هندسة التحول الجذري لعملك'}
           </h2>
           <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">
-            الانتقال من مرحلة العشوائية الفردية إلى مرحلة العلامة التجارية الممتازة ذات الدخل البارد المؤتمت.
+            {siteSettings.comparison_subtitle || 'الانتقال من مرحلة العشوائية الفردية إلى مرحلة العلامة التجارية الممتازة ذات الدخل البارد المؤتمت.'}
           </p>
 
           {/* Interactive filter toggle for mobile overview */}
@@ -69,9 +48,9 @@ export default function Transformation() {
 
         {/* Comparative Interactive Cards Grid */}
         <div className="space-y-6 max-w-5xl mx-auto">
-          {comparisonItems.map((item, index) => (
+          {comparisonItems.map((item) => (
             <div 
-              key={index} 
+              key={item.id} 
               className="bg-brand-darkgray border border-brand-white/5 rounded-2xl p-6 md:p-8 hover:border-brand-purple/30 transition duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
             >
               <h4 className="text-brand-gold font-extrabold text-base md:text-lg mb-6 border-r-4 border-brand-gold pr-3 leading-none self-start">
@@ -88,7 +67,7 @@ export default function Transformation() {
                       <span>النمط التقليدي المهدر للفائدة</span>
                     </div>
                     <p className="text-sm text-gray-400 leading-relaxed font-semibold">
-                      {item.before}
+                      {item.beforeSystem}
                     </p>
                     <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-brand-red/5 rounded-full blur-xl" />
                   </div>
@@ -109,7 +88,7 @@ export default function Transformation() {
                       <span>النظام الفاخر لـ BLACK4ME</span>
                     </div>
                     <p className="text-sm text-gray-200 leading-relaxed font-bold">
-                      {item.after}
+                      {item.afterSystem}
                     </p>
                     <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-brand-green/5 rounded-full blur-xl" />
                   </div>

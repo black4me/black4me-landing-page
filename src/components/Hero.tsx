@@ -8,7 +8,7 @@ interface HeroProps {
 }
 
 export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
-  const { products } = useApp();
+  const { products, siteSettings } = useApp();
   const mainProduct = products.find(p => p.id === 'prod-main-book') || {
     title: 'بدون التسويق... كارثة تهدد ثروتك المستقبلية',
     description: 'قد تمتلك أفضل مهارة أو خدمة في العالم، ولكن السوق لن يشتري منك شيئاً بدون نظام تسويقي حقيقي يحول المشاهدات إلى أرباح طائلة وقابلة للتنبؤ.',
@@ -38,7 +38,7 @@ export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
           {/* Right Column: Text and Action items */}
           <div className="lg:col-span-7 py-12 flex flex-col justify-center text-right">
             <span className="text-brand-gold font-bold text-lg mb-4 block tracking-wide">
-              JASIM MOHAMMED يقدم
+              {siteSettings.hero_subtitle || 'JASIM MOHAMMED يقدم'}
             </span>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] mb-6">

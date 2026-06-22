@@ -1,59 +1,14 @@
 import React, { useState } from 'react';
-import { ArrowDown, Layers, BookOpen, Lightbulb, PenTool, CheckSquare, MessageSquareCode, Rocket } from 'lucide-react';
+import { ArrowDown, Layers, BookOpen, Lightbulb, PenTool, CheckSquare, MessageSquareCode, Rocket, LucideIcon } from 'lucide-react';
+import { useApp } from '../context/AppContext';
+
+const iconMap: Record<string, LucideIcon> = {
+  BookOpen, Lightbulb, PenTool, CheckSquare, MessageSquareCode, Rocket, Layers
+};
 
 export default function Funnel() {
   const [activeStage, setActiveStage] = useState<number | null>(null);
-
-  const stages = [
-    {
-      num: 1,
-      title: "قراءة الكتاب التأسيسي الاستراتيجي",
-      icon: BookOpen,
-      subtitle: "المرحلة الأولى: امتلاك العقلية القيادية وفك شفرة الغموض التسويقي",
-      details: "تبدأ رحلتك بتصفح كتاب 'بدون التسويق... كارثة تهدد ثروتك المستقبلية'. ستتعلم فيه تفكيك المفاهيم الصعبة التي تعوق تقدمك المالي، وتكتشف نماذج الاستهداف النخبوية لسلوك المستهلك المعاصر.",
-      badge: "نقطة الدخول التأسيسية"
-    },
-    {
-      num: 2,
-      title: "بناء وتصميم عرضك فائق القيمة",
-      icon: Lightbulb,
-      subtitle: "المرحلة الثانية: تحويل المعرفة والمهارة إلى حل جاهز ومطلوب بشدة",
-      details: "تطبيق التمارين المرفقة لوضع هيكل تسعيري متدرج لخدماتك ومنتجاتك. ستخرج من صراع السعر المنخفض لتصعد لعرض ذو تذكرة مرتفعة (High-Ticket Offer) يستحقه جمهورك الحقيقي.",
-      badge: "صياغة الميزة الفريدة"
-    },
-    {
-      num: 3,
-      title: "هندسة المحتوى التحويلي المستهدف",
-      icon: PenTool,
-      subtitle: "المرحلة الثالثة: صياغة الرسائل التسويقية وصنع هيبتك القيادية",
-      details: "هنا سنعير اهتمامنا لجذب عقول المهتمين عاليي الدخل. تتوقف عن النشر العشوائي وتبدأ باتخاذ أساليب صناعة محتوى مصممة بعناية لإغلاق الصفقات وإقناع متلقيها بجودة عروضك.",
-      badge: "محرك السيطرة المعرفية"
-    },
-    {
-      num: 4,
-      title: "إطلاق نظام قمع المبيعات والفنل",
-      icon: CheckSquare,
-      subtitle: "المرحلة الرابعة: الأتمتة الكاملة لقمع المبيعات وبناء قوائم البيانات",
-      details: "ربط النماذج وقواعد البيانات، وإعداد بوابات الدفع (Stripe & PayPal) التلقائية. النظام يضمن جمع الأسماء والايميلات وتسهيل عملية السداد وتحميل المنتجات بنقرة واحدة.",
-      badge: "التحصيل والأتمتة الرقمية"
-    },
-    {
-      num: 5,
-      title: "جلسة الاستشارة الاستراتيجية الفردية",
-      icon: MessageSquareCode,
-      subtitle: "المرحلة الخامسة: تشريح عملك والتحقق المباشر مع جاسم محمد",
-      details: "جلسة مباشرة وجهاً لوجه لغربلة الهيكل، ومعالجة الثغرات التقنية، والتحقق التام من قابلية نظامك للتوسع والربح السلبي المستقر.",
-      badge: "المصادقة وتعديل الثغرات"
-    },
-    {
-      num: 6,
-      title: "النمو الرقمي الشامل ومضاعفة الأرقام",
-      icon: Rocket,
-      subtitle: "المرحلة السادسة: توسيع النطاق ومرحلة بناء الثروة المتكاملة",
-      details: "بعد اختبار وصيانة المراحل السابقة، نطلق العنان للمبيعات عبر توسيع الجمهور، وتحسين التحويل، وزيادة معدل الشراء المتكرر لبناء قيمة لا تنتهي لعلامتك الموثوقة.",
-      badge: "الهروب نحو الحرية المالية"
-    }
-  ];
+  const { funnelStages, siteSettings } = useApp();
 
   return (
     <section id="funnel-section" className="bg-brand-black text-brand-white py-24 px-4 border-b border-brand-purple/10" dir="rtl">
@@ -64,10 +19,10 @@ export default function Funnel() {
             خريطة العميل التسويقية المتكاملة
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
-            نظام BLACK4ME الفَنَل البصري المتعاقب
+            {siteSettings.funnel_title || 'نظام BLACK4ME الفَنَل البصري المتعاقب'}
           </h2>
           <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">
-            اضغط على أي مرحلة من مراحل قمع المبيعات تالياً لعرض الخريطة التشغيلية وتفاصيل رحلة التحول لعملائنا.
+            {siteSettings.funnel_subtitle || 'اضغط على أي مرحلة من مراحل قمع المبيعات تالياً لعرض الخريطة التشغيلية وتفاصيل رحلة التحول لعملائنا.'}
           </p>
         </div>
 
@@ -77,7 +32,7 @@ export default function Funnel() {
           <div className="lg:col-span-6 space-y-3">
             <h3 className="text-sm font-bold text-gray-400 mb-6 text-center lg:text-right">اضغط لمشاهدة التفاصيل الهيكلية</h3>
             <div className="flex flex-col items-center">
-              {stages.map((stage) => {
+              {funnelStages.map((stage) => {
                 const isSelected = activeStage === stage.num;
                 // Dynamically narrowing widths to represent a funnel shape
                 const widthStyle = [
@@ -87,7 +42,7 @@ export default function Funnel() {
                   "w-[85%]",
                   "w-[80%]",
                   "w-[75%]"
-                ][stage.num - 1];
+                ][stage.num - 1] || "w-[75%]";
 
                 return (
                   <div key={stage.num} className={`contents`}>
@@ -118,7 +73,7 @@ export default function Funnel() {
                       </span>
                     </button>
 
-                    {stage.num < 6 && (
+                    {stage.num < funnelStages.length && (
                       <div className="my-1.5 flex justify-center text-brand-purple/40 items-center animate-bounce">
                         <ArrowDown className="w-5 h-5" />
                       </div>
@@ -149,8 +104,9 @@ export default function Funnel() {
               </div>
             ) : (
               (() => {
-                const current = stages.find(s => s.num === activeStage)!;
-                const Icon = current.icon;
+                const current = funnelStages.find(s => s.num === activeStage);
+                if (!current) return null;
+                const Icon = iconMap[current.iconName] || Layers;
                 return (
                   <div className="space-y-6 text-right flex-1 flex flex-col justify-between">
                     <div>
@@ -173,7 +129,7 @@ export default function Funnel() {
                     <div className="pt-6 border-t border-brand-white/5 flex items-center justify-between text-xs">
                       <span className="text-gray-500 font-mono">BLACK4ME © Core Path</span>
                       <button 
-                        onClick={() => setActiveStage(activeStage === 6 ? 1 : activeStage + 1)}
+                        onClick={() => setActiveStage(activeStage === funnelStages.length ? 1 : activeStage + 1)}
                         className="text-brand-purple font-bold hover:text-brand-gold transition duration-200 cursor-pointer"
                       >
                         الانتقال للمرحلة التالية ←
