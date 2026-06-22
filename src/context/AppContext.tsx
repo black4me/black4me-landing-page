@@ -7,7 +7,7 @@ import { useSiteSettings, useComparisonItems, useFunnelStages, useValueStackItem
 
 // ─── Fallback data (used when Supabase tables don't exist yet) ─────────────
 
-const FALLBACK_PRODUCTS: Product[] = [
+export const FALLBACK_PRODUCTS: Product[] = [
   {
     id: 'prod-main-book',
     title: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
