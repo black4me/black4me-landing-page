@@ -1,0 +1,48 @@
+import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+  apiVersion: '2025-02-24.acacia', // Update to latest known API version if necessary, but this is safe
+});
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { productId, title, price, customerEmail } = body;
+
+    if (!productId || !title || !price || !customerEmail) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Convert price to cents (assuming price is in USD/etc)
+    const unitAmount = Math.round(Number(price) * 100);
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      customer_email: customerEmail,
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product: productId, // Using the actual Stripe Product ID
+            unit_amount: unitAmount,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      // We'll use absolute URLs for redirects. In dev it's localhost, in prod it's the real domain.
+      success_url: `${req.headers.get('origin') || 'http://localhost:3000'}/thankyou?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get('origin') || 'http://localhost:3000'}/`,
+      metadata: {
+        product_id: productId, // CRITICAL: This is passed to the webhook
+        customer_email: customerEmail,
+      },
+    });
+
+    return NextResponse.json({ url: session.url });
+  } catch (err: any) {
+    console.error('Stripe Checkout Error:', err);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "BLACK4ME",
+  "description": "منصة رقمية متكاملة لعلامة BLACK4ME التابعة لـ JASIM MOHAMMED لبيع المنتجات الرقمية والاستشارات.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

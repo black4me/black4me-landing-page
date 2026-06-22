@@ -8,7 +8,8 @@ interface CheckoutPageProps {
 }
 
 export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps) {
-  const { createOrder, coupons } = useApp();
+  const { createOrder, coupons, products } = useApp();
+  const mainProduct = products.find(p => p.id === 'prod-main-book') || products[0];
 
   // Form input states
   const [name, setName] = useState('');
@@ -41,36 +42,39 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
     }
   };
 
-  const handlePay = (e: React.FormEvent) => {
+  const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email) return;
 
-    if (paymentGateway === 'stripe') {
-      if (cardNumber.length < 16 || cardCvv.length < 3) {
-        alert('الرجاء التأكد من إدخال معلومات بطاقة ائتمانية صالحة للاختبار (16 رقم للبطاقة و 3 للرمز المالي Cvv).');
-        return;
-      }
-    }
-
     setIsProcessing(true);
 
-    // Simulate 2 seconds loading for server side authentication and bank query
-    setTimeout(() => {
-      // Create order into persistent context state
-      createOrder({
-        customerId: `cust-${Math.random().toString(36).substr(2, 9)}`,
-        customerName: name,
-        customerEmail: email,
-        productId: 'prod-main-book',
-        productTitle: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
-        amount: finalPrice,
-        paymentGateway,
-        status: 'completed'
+    try {
+      const endpoint = paymentGateway === 'stripe' ? '/api/checkout/stripe' : '/api/checkout/paypal';
+      
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId: 'prod_UYmxupwPOgV7da',
+          title: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
+          price: finalPrice,
+          customerEmail: email,
+        })
       });
 
+      const data = await res.json();
+      
+      if (data.url) {
+        window.location.href = data.url; // Redirect to Stripe/PayPal Checkout
+      } else {
+        alert('حدث خطأ أثناء فتح بوابة الدفع: ' + (data.error || 'Unknown error'));
+        setIsProcessing(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('فشل الاتصال بخادم الدفع الآمن.');
       setIsProcessing(false);
-      onSuccess(); // Redirect to thank-you downloads page
-    }, 2000);
+    }
   };
 
   return (

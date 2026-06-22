@@ -16,6 +16,7 @@ export interface Product {
   salePrice?: number;
   coverUrl?: string;
   fileUrl?: string; // Links for actual digital downloads (PDF, etc.)
+  paymentLink?: string; // External checkout URL like Stripe Payment Link
   features: string[];
   chapters?: string[];
   isActive: boolean;
