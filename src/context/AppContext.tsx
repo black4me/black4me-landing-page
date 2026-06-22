@@ -1,59 +1,18 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
 import { User, Product, Order, Consultation, NewsletterSubscriber, Testimonial, FAQ, Coupon } from '../types';
 
-interface AppContextType {
-  currentUser: User | null;
-  products: Product[];
-  orders: Order[];
-  consultations: Consultation[];
-  subscribers: NewsletterSubscriber[];
-  testimonials: Testimonial[];
-  faqs: FAQ[];
-  coupons: Coupon[];
-  loginAs: (role: 'admin' | 'customer' | 'guest', userDetails?: Partial<User>) => void;
-  logout: () => void;
-  
-  // Products API
-  addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => void;
-  updateProduct: (id: string, product: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
-  
-  // Orders API
-  createOrder: (order: Omit<Order, 'id' | 'createdAt'>) => Order;
-  updateOrder: (id: string, status: Order['status']) => void;
-  
-  // Consultations API
-  bookConsultation: (consultation: Omit<Consultation, 'id' | 'createdAt' | 'status'>) => void;
-  updateConsultationStatus: (id: string, status: Consultation['status']) => void;
-  
-  // Newsletter API
-  subscribeNewsletter: (name: string, email: string, country: string) => { success: boolean; message: string };
-  
-  // Testimonials API
-  submitTestimonial: (name: string, country: string, rating: number, comment: string) => void;
-  approveTestimonial: (id: string) => void;
-  rejectTestimonial: (id: string) => void;
-  
-  // FAQ API
-  addFAQ: (faq: Omit<FAQ, 'id'>) => void;
-  updateFAQ: (id: string, faq: Partial<FAQ>) => void;
-  deleteFAQ: (id: string) => void;
-  reorderFAQs: (faqs: FAQ[]) => void;
-}
+// ─── Fallback data (used when Supabase tables don't exist yet) ─────────────
 
-const AppContext = createContext<AppContextType | undefined>(undefined);
-
-// Initial Mock Seed Data
-const DEFAULT_PRODUCTS: Product[] = [
+const FALLBACK_PRODUCTS: Product[] = [
   {
     id: 'prod-main-book',
     title: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
     description: 'الدليل العملي الشامل لهندسة الأنظمة التسويقية وصناعة المبيعات المستقرة وبناء عروض عالية القيمة تتجاوز المنافسة التقليدية.',
     price: 199,
     salePrice: 49,
-    coverUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=400',
     features: [
       'فهم عميق لسلوك المشترين ذوي الدخل المرتفع وكيفية جذبهم',
       'صياغة العرض الذي لا يمكن رفضه (The Irresistible Offer) بالتفصيل',
@@ -77,8 +36,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     title: 'كتاب "10 مبادئ للنجاح المالي والشخصي"',
     description: 'كتاب إرشادي خاص وحصري من تأليف جاسم محمد، يغطي القواعد الأساسية لإعادة برمجة عقليتك المالية وبناء عادات الثروة والإنتاجية الشخصية.',
     price: 29,
-    salePrice: 0, // Free bundle
-    coverUrl: 'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&q=80&w=400',
+    salePrice: 0,
     features: [
       'المبادئ الذهبية لترتيب المدخرات والاستثمار وإدارة التدفق المالي',
       'تشريح لصوص العقل والوقت وبناء جدول عالي الكفاءة ومصمم لتوليد الفرص',
@@ -89,187 +47,202 @@ const DEFAULT_PRODUCTS: Product[] = [
   }
 ];
 
-const DEFAULT_FAQS: FAQ[] = [
-  {
-    id: 'faq-1',
-    question: 'ما الذي سأحصل عليه بدقة عند شراء الحزمة الآن؟',
-    answer: 'ستحصل على وصول فوري وبمدى الحياة لكتاب "بدون التسويق كارثة تهدد ثروتك المستقبلية" بصيغة PDF عالية الدقة، بالإضافة إلى كتاب الهدية المجانية "10 مبادئ للنجاح المالي والشخصي" وكافة التمارين التفاعلية والقوالب الجاهزة للتنزيل.',
-    orderIndex: 1
-  },
-  {
-    id: 'faq-2',
-    question: 'كيف يمكنني تنزيل الملفات بعد تأكيد الشراء؟',
-    answer: 'بمجرد استكمال الدفع بنجاح عبر Stripe أو PayPal، سيتم توجيهك تلقائياً لصفحة الشكر لتحميل الكتب مباشرة بجودة فائقة. كما سنرسل لك بريداً إلكترونياً يحتوي على روابط التنزيل الفورية مدى الحياة ومعلومات لوحة العميل الخاصة بك للمتابعة.',
-    orderIndex: 2
-  },
-  {
-    id: 'faq-3',
-    question: 'هل هذا الكتاب مناسب للمبتدئين تماماً؟',
-    answer: 'نعم، الكتاب يركز على العقلية والأساسيات العملية وتفصيل المصطلحات المعقدة بلغة عربية مبسطة وواضحة جداً بعيداً عن الفلسفة النظرية. سينقلك خطوة بخطوة من العشوائية إلى بناء أسرار الأنظمة المتكاملة بذكاء.',
-    orderIndex: 3
-  },
-  {
-    id: 'faq-4',
-    question: 'كيف تعمل جلسات الاستشارات الاستراتيجية المحجوزة؟',
-    answer: 'بعد حجز موعدك من خلال منصة جدولة المواعيد (Calendly) المضمنة، نرسل لك استبياناً قصيراً لتفاصيل مشروعك لكي يدرسها المؤسس جاسم محمد بدقة قبل الجلسة. الجلسة تتم عبر اتصال مرئي مباشر لمناقشة التحديات وبناء الخريطة التشغيلية.',
-    orderIndex: 4
+const FALLBACK_FAQS: FAQ[] = [
+  { id: 'faq-1', question: 'ما الذي سأحصل عليه بدقة عند شراء الحزمة الآن؟', answer: 'ستحصل على وصول فوري وبمدى الحياة لكتاب "بدون التسويق كارثة تهدد ثروتك المستقبلية" بصيغة PDF عالية الدقة، بالإضافة إلى كتاب الهدية المجانية "10 مبادئ للنجاح المالي والشخصي" وكافة التمارين التفاعلية والقوالب الجاهزة للتنزيل.', orderIndex: 1 },
+  { id: 'faq-2', question: 'كيف يمكنني تنزيل الملفات بعد تأكيد الشراء؟', answer: 'بمجرد استكمال الدفع بنجاح عبر Stripe أو PayPal، سيتم توجيهك تلقائياً لصفحة الشكر لتحميل الكتب مباشرة. كما سنرسل لك بريداً إلكترونياً يحتوي على روابط التنزيل.', orderIndex: 2 },
+  { id: 'faq-3', question: 'هل هذا الكتاب مناسب للمبتدئين تماماً؟', answer: 'نعم، الكتاب يركز على العقلية والأساسيات العملية بلغة عربية مبسطة. سينقلك خطوة بخطوة من العشوائية إلى بناء الأنظمة المتكاملة.', orderIndex: 3 },
+  { id: 'faq-4', question: 'كيف تعمل جلسات الاستشارات الاستراتيجية؟', answer: 'بعد حجز موعدك عبر Calendly، نرسل لك استبياناً قصيراً ثم يقوم جاسم محمد بدراسة مشروعك بدقة قبل الجلسة المرئية المباشرة.', orderIndex: 4 },
+];
+
+const FALLBACK_TESTIMONIALS: Testimonial[] = [
+  { id: 'test-1', customerName: 'فيصل الشمري', country: 'المملكة العربية السعودية', rating: 5, comment: 'قرأت مئات الكتب في التسويق لكن هذا الكتاب يقدم خريطة عملية مبنية للسوق الخليجي. تغير مستوى مبيعاتي بالكامل.', isApproved: true, createdAt: new Date(2026, 5, 15).toISOString() },
+  { id: 'test-2', customerName: 'مريم الصايغ', country: 'دولة الإمارات العربية المتحدة', rating: 5, comment: 'محتوى استثنائي ومرتب بعناية. الفصول تشرح بدقة كيف تصنع نظام مبيعات مؤتمت مستدام. الهدية المرفقة كنز مالي حقيقي.', isApproved: true, createdAt: new Date(2026, 5, 18).toISOString() },
+  { id: 'test-3', customerName: 'عبدالرحمن الكواري', country: 'دولة قطر', rating: 5, comment: 'الكتاب فتح عيني على ثغرات خطيرة كنت أقوم بها في عملي. أنصح بشدة باقتناء الحزمة ومتابعة الاستشارات.', isApproved: true, createdAt: new Date(2026, 5, 21).toISOString() },
+];
+
+// ─── Context Interface ───────────────────────────────────────────────────────
+
+interface AppContextType {
+  currentUser: User | null;
+  products: Product[];
+  orders: Order[];
+  consultations: Consultation[];
+  subscribers: NewsletterSubscriber[];
+  testimonials: Testimonial[];
+  faqs: FAQ[];
+  coupons: Coupon[];
+  loginAs: (role: 'admin' | 'customer' | 'guest', userDetails?: Partial<User>) => void;
+  logout: () => void;
+  addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => void;
+  updateProduct: (id: string, product: Partial<Product>) => void;
+  deleteProduct: (id: string) => void;
+  createOrder: (order: Omit<Order, 'id' | 'createdAt'>) => Order;
+  updateOrder: (id: string, status: Order['status']) => void;
+  bookConsultation: (consultation: Omit<Consultation, 'id' | 'createdAt' | 'status'>) => void;
+  updateConsultationStatus: (id: string, status: Consultation['status']) => void;
+  subscribeNewsletter: (name: string, email: string, country: string) => { success: boolean; message: string };
+  submitTestimonial: (name: string, country: string, rating: number, comment: string) => void;
+  approveTestimonial: (id: string) => void;
+  rejectTestimonial: (id: string) => void;
+  addFAQ: (faq: Omit<FAQ, 'id'>) => void;
+  updateFAQ: (id: string, faq: Partial<FAQ>) => void;
+  deleteFAQ: (id: string) => void;
+  reorderFAQs: (faqs: FAQ[]) => void;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+// ─── Supabase helpers ─────────────────────────────────────────────────────────
+
+// Convert snake_case DB row to camelCase Product
+function dbToProduct(row: any): Product {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    price: row.price,
+    salePrice: row.sale_price || undefined,
+    fileUrl: row.file_url || undefined,
+    paymentLink: row.payment_link || undefined,
+    features: row.features || [],
+    chapters: row.chapters || [],
+    isActive: row.is_active ?? true,
+    createdAt: row.created_at,
+  };
+}
+
+function dbToFAQ(row: any): FAQ {
+  return {
+    id: row.id,
+    question: row.question,
+    answer: row.answer,
+    orderIndex: row.order_index ?? 1,
+  };
+}
+
+function dbToTestimonial(row: any): Testimonial {
+  return {
+    id: row.id,
+    customerName: row.customer_name,
+    country: row.country,
+    rating: row.rating,
+    comment: row.comment,
+    isApproved: row.is_approved ?? false,
+    createdAt: row.created_at,
+  };
+}
+
+function dbToConsultation(row: any): Consultation {
+  return {
+    id: row.id,
+    customerName: row.customer_name,
+    customerEmail: row.customer_email,
+    appointmentDate: row.appointment_date,
+    appointmentTime: row.appointment_time,
+    status: row.status as 'scheduled' | 'completed' | 'cancelled',
+    notes: row.notes,
+    createdAt: row.created_at,
+  };
+}
+
+function dbToSubscriber(row: any): NewsletterSubscriber {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    country: row.country,
+    createdAt: row.created_at,
+  };
+}
+
+function dbToOrder(row: any): Order {
+  return {
+    id: row.id,
+    customerId: row.customer_id || '',
+    customerName: row.customer_name || '',
+    customerEmail: row.customer_email,
+    productId: row.product_id,
+    productTitle: row.product_title || '',
+    amount: row.amount,
+    paymentGateway: row.payment_gateway as 'stripe' | 'paypal',
+    status: row.status as 'pending' | 'completed' | 'failed',
+    createdAt: row.created_at,
+  };
+}
+
+// ─── Safe Supabase fetch (returns fallback on table-not-found) ─────────────
+
+async function safeFetch<T>(
+  table: string,
+  converter: (row: any) => T,
+  fallback: T[],
+  options?: { filter?: { column: string; value: any }; order?: { column: string; ascending: boolean } }
+): Promise<T[]> {
+  try {
+    let query = supabase.from(table).select('*');
+    if (options?.filter) {
+      query = query.eq(options.filter.column, options.filter.value);
+    }
+    if (options?.order) {
+      query = query.order(options.order.column, { ascending: options.order.ascending });
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn(`[B4M] Table "${table}" not available, using fallback:`, error.message);
+      return fallback;
+    }
+    if (!data || data.length === 0) return fallback;
+    return data.map(converter);
+  } catch {
+    return fallback;
   }
-];
+}
 
-const DEFAULT_TESTIMONIALS: Testimonial[] = [
-  {
-    id: 'test-1',
-    customerName: 'فيصل الشمري',
-    country: 'المملكة العربية السعودية',
-    rating: 5,
-    comment: 'قرأت مئات الكتب في التسويق والمبيعات، لكن هذا الكتاب يقدم خريطة عملية مبنية خصيصاً لتفاصيل السوق الخليجي وبناء العروض النخبوية. طبقت فلسفة العرض عالي القيمة على خدماتي الاستشارية وتغير مستوى مبيعاتي بالكامل بفضل الله.',
-    isApproved: true,
-    createdAt: new Date(2026, 5, 15).toISOString()
-  },
-  {
-    id: 'test-2',
-    customerName: 'مريم الصايغ',
-    country: 'دولة الإمارات العربية المتحدة',
-    rating: 5,
-    comment: 'محتوى استثنائي ومرتب بعناية. الفصول تشرح بدقة كيف تصنع نظام مبيعات مؤتمت مستدام بدلاً من ملاحقة العملاء وإزعاجهم. الهدية المرفقة بحد ذاتها كنز مالي حقيقي للإدارة والإنتاجية الشخصية.',
-    isApproved: true,
-    createdAt: new Date(2026, 5, 18).toISOString()
-  },
-  {
-    id: 'test-3',
-    customerName: 'عبدالرحمن الكواري',
-    country: 'دولة قطر',
-    rating: 5,
-    comment: 'الكتاب فتح عيني على ثغرات خطيرة كنت أقوم بها في عملي وتتسبب في إهدار نسبة تحويل العملاء. أنصح بشدة باقتناء الحزمة ومتابعة نصائح الاستشارات.',
-    isApproved: false, // Pending approval for review moderation demo
-    createdAt: new Date(2026, 5, 21).toISOString()
-  }
-];
+// ─── Provider ─────────────────────────────────────────────────────────────────
 
-const DEFAULT_ORDERS: Order[] = [
-  {
-    id: 'B4M-100234',
-    customerId: 'cust-1',
-    customerName: 'خالد اليوسف',
-    customerEmail: 'khaled@example.com',
-    productId: 'prod-main-book',
-    productTitle: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
-    amount: 49,
-    paymentGateway: 'stripe',
-    status: 'completed',
-    createdAt: new Date(2026, 5, 19, 14, 30).toISOString()
-  },
-  {
-    id: 'B4M-100235',
-    customerId: 'cust-2',
-    customerName: 'ريم المطيري',
-    customerEmail: 'reem.m@example.com',
-    productId: 'prod-main-book',
-    productTitle: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
-    amount: 49,
-    paymentGateway: 'paypal',
-    status: 'completed',
-    createdAt: new Date(2026, 5, 20, 11, 15).toISOString()
-  },
-  {
-    id: 'B4M-100236',
-    customerId: 'cust-3',
-    customerName: 'أنس الحربي',
-    customerEmail: 'anas@example.com',
-    productId: 'prod-main-book',
-    productTitle: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
-    amount: 49,
-    paymentGateway: 'stripe',
-    status: 'failed',
-    createdAt: new Date(2026, 5, 21, 18, 45).toISOString()
-  }
-];
-
-const DEFAULT_SUBSCRIBERS: NewsletterSubscriber[] = [
-  {
-    id: 'sub-1',
-    name: 'سلطان القحطاني',
-    email: 'sultan@example.com',
-    country: 'المملكة العربية السعودية',
-    createdAt: new Date(2026, 5, 10).toISOString()
-  },
-  {
-    id: 'sub-2',
-    name: 'فاطمة العوضي',
-    email: 'fatma.a@example.com',
-    country: 'دولة الكويت',
-    createdAt: new Date(2026, 5, 14).toISOString()
-  }
-];
-
-const DEFAULT_CONSULTATIONS: Consultation[] = [
-  {
-    id: 'con-1',
-    customerName: 'فهد الرشيد',
-    customerEmail: 'fahad@example.com',
-    appointmentDate: '2026-06-25',
-    appointmentTime: '18:00',
-    status: 'scheduled',
-    notes: 'أحتاج مراجعة قمع المبيعات الخاص بمشروعي لبيع البرمجيات كخدمة SaaS',
-    createdAt: new Date(2026, 5, 20).toISOString()
-  }
-];
-
-const DEFAULT_COUPONS: Coupon[] = [
-  { code: 'BLACK20', discountPercent: 20, isActive: true },
-  { code: 'JASIM10', discountPercent: 10, isActive: true }
-];
-
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
   const [orders, setOrders] = useState<Order[]>([]);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
-  const [faqs, setFaqs] = useState<FAQ[]>([]);
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(FALLBACK_TESTIMONIALS);
+  const [faqs, setFaqs] = useState<FAQ[]>(FALLBACK_FAQS);
+  const [coupons] = useState<Coupon[]>([
+    { code: 'BLACK20', discountPercent: 20, isActive: true },
+    { code: 'JASIM10', discountPercent: 10, isActive: true }
+  ]);
 
-  // Load from LocalStorage or seed defaults
+  // ─── Load data from Supabase on mount ───────────────────────────────────
   useEffect(() => {
-    const loadData = <T,>(key: string, defaults: T): T => {
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch (e) {
-          console.error(`Error parsing stored key "${key}":`, e);
-        }
-      }
-      localStorage.setItem(key, JSON.stringify(defaults));
-      return defaults;
+    const loadAll = async () => {
+      const [dbProducts, dbFaqs, dbTestimonials, dbOrders, dbConsultations, dbSubscribers] = await Promise.all([
+        safeFetch('products', dbToProduct, FALLBACK_PRODUCTS, { filter: { column: 'is_active', value: true }, order: { column: 'created_at', ascending: false } }),
+        safeFetch('faqs', dbToFAQ, FALLBACK_FAQS, { order: { column: 'order_index', ascending: true } }),
+        safeFetch('testimonials', dbToTestimonial, FALLBACK_TESTIMONIALS, { filter: { column: 'is_approved', value: true }, order: { column: 'created_at', ascending: false } }),
+        safeFetch('orders', dbToOrder, [], { order: { column: 'created_at', ascending: false } }),
+        safeFetch('consultations', dbToConsultation, [], { order: { column: 'created_at', ascending: false } }),
+        safeFetch('subscribers', dbToSubscriber, [], { order: { column: 'created_at', ascending: false } }),
+      ]);
+
+      setProducts(dbProducts);
+      setFaqs(dbFaqs);
+      setTestimonials(dbTestimonials);
+      setOrders(dbOrders);
+      setConsultations(dbConsultations);
+      setSubscribers(dbSubscribers);
     };
 
-    setProducts(loadData('b4m_products', DEFAULT_PRODUCTS));
-    setOrders(loadData('b4m_orders', DEFAULT_ORDERS));
-    setConsultations(loadData('b4m_consultations', DEFAULT_CONSULTATIONS));
-    setSubscribers(loadData('b4m_subscribers', DEFAULT_SUBSCRIBERS));
-    setTestimonials(loadData('b4m_testimonials', DEFAULT_TESTIMONIALS));
-    setFaqs(loadData('b4m_faqs', DEFAULT_FAQS));
-    setCoupons(loadData('b4m_coupons', DEFAULT_COUPONS));
-    
-    // Auto login as a default demo admin to make initial inspection easy, or let user switch
+    loadAll();
+
+    // Restore user from localStorage
     const storedUser = localStorage.getItem('b4m_current_user');
     if (storedUser) {
-      try {
-        setCurrentUser(JSON.parse(storedUser));
-      } catch (e) {
-        // Safe default
-      }
-    } else {
-      // Setup default guest or let it be null. Let's make it null (Guest) by default.
+      try { setCurrentUser(JSON.parse(storedUser)); } catch { /* ignore */ }
     }
   }, []);
 
-  // Save changes to LocalStorage
-  const saveToStorage = (key: string, data: any) => {
-    localStorage.setItem(key, JSON.stringify(data));
-  };
+  // ─── Auth ───────────────────────────────────────────────────────────────
 
   const loginAs = (role: 'admin' | 'customer' | 'guest', userDetails?: Partial<User>) => {
     if (role === 'guest') {
@@ -277,17 +250,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.removeItem('b4m_current_user');
       return;
     }
-
     const newUser: User = {
       id: role === 'admin' ? 'admin-1' : (userDetails?.id || 'cust-new'),
       name: userDetails?.name || (role === 'admin' ? 'جاسم محمد (مسؤول)' : 'مستخدم تجريبي'),
       email: userDetails?.email || (role === 'admin' ? 'admin@black4me.com' : 'user@example.com'),
-      role: role,
+      role,
       country: userDetails?.country || 'المملكة العربية السعودية',
       createdAt: new Date().toISOString()
     };
     setCurrentUser(newUser);
-    saveToStorage('b4m_current_user', newUser);
+    localStorage.setItem('b4m_current_user', JSON.stringify(newUser));
   };
 
   const logout = () => {
@@ -295,211 +267,199 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.removeItem('b4m_current_user');
   };
 
-  // Products CRUD
-  const addProduct = (prodData: Omit<Product, 'id' | 'createdAt'>) => {
-    const newProduct: Product = {
-      ...prodData,
-      id: `prod-${Math.random().toString(36).substr(2, 9)}`,
-      createdAt: new Date().toISOString()
-    };
-    const updated = [newProduct, ...products];
-    setProducts(updated);
-    saveToStorage('b4m_products', updated);
+  // ─── Products CRUD → Supabase ───────────────────────────────────────────
+
+  const addProduct = async (prodData: Omit<Product, 'id' | 'createdAt'>) => {
+    const { data, error } = await supabase.from('products').insert([{
+      title: prodData.title,
+      description: prodData.description,
+      price: prodData.price,
+      sale_price: prodData.salePrice || null,
+      file_url: prodData.fileUrl || null,
+      payment_link: prodData.paymentLink || null,
+      features: prodData.features || [],
+      chapters: prodData.chapters || [],
+      is_active: prodData.isActive ?? true,
+    }]).select();
+
+    if (!error && data) {
+      setProducts(prev => [dbToProduct(data[0]), ...prev]);
+    } else {
+      // Fallback to local
+      const newProduct: Product = { ...prodData, id: `prod-${Date.now()}`, createdAt: new Date().toISOString() };
+      setProducts(prev => [newProduct, ...prev]);
+    }
   };
 
-  const updateProduct = (id: string, prodData: Partial<Product>) => {
-    const updated = products.map(p => p.id === id ? { ...p, ...prodData } : p);
-    setProducts(updated);
-    saveToStorage('b4m_products', updated);
+  const updateProduct = async (id: string, prodData: Partial<Product>) => {
+    const payload: any = {};
+    if (prodData.title !== undefined) payload.title = prodData.title;
+    if (prodData.description !== undefined) payload.description = prodData.description;
+    if (prodData.price !== undefined) payload.price = prodData.price;
+    if (prodData.salePrice !== undefined) payload.sale_price = prodData.salePrice;
+    if (prodData.isActive !== undefined) payload.is_active = prodData.isActive;
+    if (prodData.fileUrl !== undefined) payload.file_url = prodData.fileUrl;
+    if (prodData.paymentLink !== undefined) payload.payment_link = prodData.paymentLink;
+    if (prodData.features !== undefined) payload.features = prodData.features;
+    if (prodData.chapters !== undefined) payload.chapters = prodData.chapters;
+
+    await supabase.from('products').update(payload).eq('id', id);
+    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...prodData } : p));
   };
 
-  const deleteProduct = (id: string) => {
-    const updated = products.filter(p => p.id !== id);
-    setProducts(updated);
-    saveToStorage('b4m_products', updated);
+  const deleteProduct = async (id: string) => {
+    await supabase.from('products').delete().eq('id', id);
+    setProducts(prev => prev.filter(p => p.id !== id));
   };
 
-  // Orders API
+  // ─── Orders CRUD → Supabase ─────────────────────────────────────────────
+
   const createOrder = (orderData: Omit<Order, 'id' | 'createdAt'>): Order => {
     const newOrder: Order = {
       ...orderData,
       id: `B4M-${Math.floor(100000 + Math.random() * 900000)}`,
       createdAt: new Date().toISOString()
     };
-    const updated = [newOrder, ...orders];
-    setOrders(updated);
-    saveToStorage('b4m_orders', updated);
 
-    // If order was completed successfully, promote the user is logged in as Customer
+    // Insert to Supabase async
+    supabase.from('orders').insert([{
+      customer_email: newOrder.customerEmail,
+      product_id: newOrder.productId,
+      amount: newOrder.amount,
+      payment_gateway: newOrder.paymentGateway,
+      status: newOrder.status,
+    }]).then(() => {});
+
+    setOrders(prev => [newOrder, ...prev]);
+
     if (newOrder.status === 'completed' && (!currentUser || currentUser.role !== 'admin')) {
-      loginAs('customer', {
-        id: newOrder.customerId,
-        name: newOrder.customerName,
-        email: newOrder.customerEmail
-      });
+      loginAs('customer', { id: newOrder.customerId, name: newOrder.customerName, email: newOrder.customerEmail });
     }
 
     return newOrder;
   };
 
-  const updateOrder = (id: string, status: Order['status']) => {
-    const updated = orders.map(o => o.id === id ? { ...o, status } : o);
-    setOrders(updated);
-    saveToStorage('b4m_orders', updated);
+  const updateOrder = async (id: string, status: Order['status']) => {
+    await supabase.from('orders').update({ status }).eq('id', id);
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
   };
 
-  // Consultations API
-  const bookConsultation = (consData: Omit<Consultation, 'id' | 'createdAt' | 'status'>) => {
-    const newCons: Consultation = {
-      ...consData,
-      id: `con-${Math.random().toString(36).substr(2, 9)}`,
+  // ─── Consultations → Supabase ───────────────────────────────────────────
+
+  const bookConsultation = async (consData: Omit<Consultation, 'id' | 'createdAt' | 'status'>) => {
+    const { data, error } = await supabase.from('consultations').insert([{
+      customer_name: consData.customerName,
+      customer_email: consData.customerEmail,
+      appointment_date: consData.appointmentDate,
+      appointment_time: consData.appointmentTime,
+      notes: consData.notes || null,
       status: 'scheduled',
-      createdAt: new Date().toISOString()
-    };
-    const updated = [newCons, ...consultations];
-    setConsultations(updated);
-    saveToStorage('b4m_consultations', updated);
+    }]).select();
 
-    // Call simulated Make / webhook integration here
-    triggerWebhookNotification({
-      type: 'CONSULTATION_BOOKED',
-      title: 'جدولة موعد استشارة جديدة',
-      customerName: newCons.customerName,
-      customerEmail: newCons.customerEmail,
-      date: `${newCons.appointmentDate} مـ في تمام الساعة ${newCons.appointmentTime}`,
-      notes: newCons.notes
-    });
+    if (!error && data) {
+      setConsultations(prev => [dbToConsultation(data[0]), ...prev]);
+    } else {
+      // Fallback to local
+      const newCons: Consultation = {
+        ...consData, id: `con-${Date.now()}`, status: 'scheduled', createdAt: new Date().toISOString()
+      };
+      setConsultations(prev => [newCons, ...prev]);
+    }
   };
 
-  const updateConsultationStatus = (id: string, status: Consultation['status']) => {
-    const updated = consultations.map(c => c.id === id ? { ...c, status } : c);
-    setConsultations(updated);
-    saveToStorage('b4m_consultations', updated);
+  const updateConsultationStatus = async (id: string, status: Consultation['status']) => {
+    await supabase.from('consultations').update({ status }).eq('id', id);
+    setConsultations(prev => prev.map(c => c.id === id ? { ...c, status } : c));
   };
 
-  // Newsletter API
+  // ─── Newsletter → Supabase ──────────────────────────────────────────────
+
   const subscribeNewsletter = (name: string, email: string, country: string) => {
-    // Check if check duplicate email
     if (subscribers.some(sub => sub.email.toLowerCase() === email.toLowerCase())) {
       return { success: false, message: 'مرحبًا بك، هذا البريد الإلكتروني مسجل مسبقًا معنا!' };
     }
 
-    const newSub: NewsletterSubscriber = {
-      id: `sub-${Math.random().toString(36).substr(2, 9)}`,
-      name,
-      email,
-      country,
-      createdAt: new Date().toISOString()
-    };
-    const updated = [newSub, ...subscribers];
-    setSubscribers(updated);
-    saveToStorage('b4m_subscribers', updated);
+    // Insert to Supabase async
+    supabase.from('subscribers').upsert([{ name, email, country }], { onConflict: 'email', ignoreDuplicates: true }).then(() => {});
 
-    // Simulate Brevo / newsletter hook
-    triggerWebhookNotification({
-      type: 'NEWSLETTER_SUBSCRIBE',
-      title: 'مشترك جديد في النشرة البريدية',
-      customerName: name,
-      customerEmail: email,
-      country: country,
-      date: new Date().toLocaleString('ar-SA')
-    });
+    const newSub: NewsletterSubscriber = {
+      id: `sub-${Date.now()}`, name, email, country, createdAt: new Date().toISOString()
+    };
+    setSubscribers(prev => [newSub, ...prev]);
 
     return { success: true, message: 'تهانينا! تم تسجيل اشتراكك بنجاح في رسائلنا التسويقية الحصرية.' };
   };
 
-  // Testimonials API
-  const submitTestimonial = (name: string, country: string, rating: number, comment: string) => {
-    const newTestimonial: Testimonial = {
-      id: `test-${Math.random().toString(36).substr(2, 9)}`,
-      customerName: name,
-      avatarUrl: undefined,
-      country,
-      rating,
-      comment,
-      isApproved: false, // Must be approved by admin
-      createdAt: new Date().toISOString()
-    };
-    const updated = [newTestimonial, ...testimonials];
-    setTestimonials(updated);
-    saveToStorage('b4m_testimonials', updated);
+  // ─── Testimonials → Supabase ────────────────────────────────────────────
+
+  const submitTestimonial = async (name: string, country: string, rating: number, comment: string) => {
+    await supabase.from('testimonials').insert([{
+      customer_name: name, country, rating, comment, is_approved: false,
+    }]);
+    // Don't add to local state since it needs admin approval
   };
 
-  const approveTestimonial = (id: string) => {
-    const updated = testimonials.map(t => t.id === id ? { ...t, isApproved: true } : t);
-    setTestimonials(updated);
-    saveToStorage('b4m_testimonials', updated);
+  const approveTestimonial = async (id: string) => {
+    await supabase.from('testimonials').update({ is_approved: true }).eq('id', id);
+    setTestimonials(prev => prev.map(t => t.id === id ? { ...t, isApproved: true } : t));
   };
 
-  const rejectTestimonial = (id: string) => {
-    const updated = testimonials.filter(t => t.id !== id);
-    setTestimonials(updated);
-    saveToStorage('b4m_testimonials', updated);
+  const rejectTestimonial = async (id: string) => {
+    await supabase.from('testimonials').delete().eq('id', id);
+    setTestimonials(prev => prev.filter(t => t.id !== id));
   };
 
-  // FAQ API
-  const addFAQ = (faqData: Omit<FAQ, 'id'>) => {
-    const newFaq: FAQ = {
-      ...faqData,
-      id: `faq-${Math.random().toString(36).substr(2, 9)}`,
-    };
-    const updated = [...faqs, newFaq];
-    setFaqs(updated);
-    saveToStorage('b4m_faqs', updated);
+  // ─── FAQs → Supabase ───────────────────────────────────────────────────
+
+  const addFAQ = async (faqData: Omit<FAQ, 'id'>) => {
+    const { data, error } = await supabase.from('faqs').insert([{
+      question: faqData.question, answer: faqData.answer, order_index: faqData.orderIndex,
+    }]).select();
+
+    if (!error && data) {
+      setFaqs(prev => [...prev, dbToFAQ(data[0])]);
+    } else {
+      const newFaq: FAQ = { ...faqData, id: `faq-${Date.now()}` };
+      setFaqs(prev => [...prev, newFaq]);
+    }
   };
 
-  const updateFAQ = (id: string, faqData: Partial<FAQ>) => {
-    const updated = faqs.map(f => f.id === id ? { ...f, ...faqData } : f);
-    setFaqs(updated);
-    saveToStorage('b4m_faqs', updated);
+  const updateFAQ = async (id: string, faqData: Partial<FAQ>) => {
+    const payload: any = {};
+    if (faqData.question !== undefined) payload.question = faqData.question;
+    if (faqData.answer !== undefined) payload.answer = faqData.answer;
+    if (faqData.orderIndex !== undefined) payload.order_index = faqData.orderIndex;
+
+    await supabase.from('faqs').update(payload).eq('id', id);
+    setFaqs(prev => prev.map(f => f.id === id ? { ...f, ...faqData } : f));
   };
 
-  const deleteFAQ = (id: string) => {
-    const updated = faqs.filter(f => f.id !== id);
-    setFaqs(updated);
-    saveToStorage('b4m_faqs', updated);
+  const deleteFAQ = async (id: string) => {
+    await supabase.from('faqs').delete().eq('id', id);
+    setFaqs(prev => prev.filter(f => f.id !== id));
   };
 
   const reorderFAQs = (reorderedFaqs: FAQ[]) => {
     setFaqs(reorderedFaqs);
-    saveToStorage('b4m_faqs', reorderedFaqs);
+    // Update order_index in Supabase for each
+    reorderedFaqs.forEach((f, i) => {
+      supabase.from('faqs').update({ order_index: i + 1 }).eq('id', f.id).then(() => {});
+    });
   };
 
-  // Webhook notifier simulator (Brevo / Make integrations)
-  const triggerWebhookNotification = (payload: any) => {
-    console.log('[INTEGRATION EVENT] Webhook Sent to Make & Brevo:', payload);
-    // Visual indicator of simulation
-    const alertText = `[تكامل خارجي - محاكاة] تم إرسال إشعار فوري إلى Brevo و Make:\n${payload.title}\nشخص: ${payload.customerName}\nبريد: ${payload.customerEmail}`;
-    console.log(alertText);
-  };
+  // ─── Provide context ───────────────────────────────────────────────────
 
   return (
     <AppContext.Provider value={{
-      currentUser,
-      products,
-      orders,
-      consultations,
-      subscribers,
-      testimonials,
-      faqs,
-      coupons,
-      loginAs,
-      logout,
-      addProduct,
-      updateProduct,
-      deleteProduct,
-      createOrder,
-      updateOrder,
-      bookConsultation,
-      updateConsultationStatus,
+      currentUser, products, orders, consultations, subscribers,
+      testimonials, faqs, coupons,
+      loginAs, logout,
+      addProduct, updateProduct, deleteProduct,
+      createOrder, updateOrder,
+      bookConsultation, updateConsultationStatus,
       subscribeNewsletter,
-      submitTestimonial,
-      approveTestimonial,
-      rejectTestimonial,
-      addFAQ,
-      updateFAQ,
-      deleteFAQ,
-      reorderFAQs
+      submitTestimonial, approveTestimonial, rejectTestimonial,
+      addFAQ, updateFAQ, deleteFAQ, reorderFAQs
     }}>
       {children}
     </AppContext.Provider>

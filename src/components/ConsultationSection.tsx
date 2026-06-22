@@ -24,11 +24,11 @@ export default function ConsultationSection() {
     "10:00", "11:30", "14:00", "16:30", "18:00", "19:30"
   ];
 
-  const handleBook = (e: React.FormEvent) => {
+  const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName || !customerEmail) return;
 
-    bookConsultation({
+    await bookConsultation({
       customerName,
       customerEmail,
       appointmentDate: appDate,

@@ -10,7 +10,7 @@ export default function FAQAccordion() {
     setOpenIndex(openIndex === id ? null : id);
   };
 
-  // Sort descending/ascending order
+  // Sort by orderIndex
   const sortedFaqs = [...faqs].sort((a, b) => a.orderIndex - b.orderIndex);
 
   return (
