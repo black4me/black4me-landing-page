@@ -1,5 +1,6 @@
 import React from 'react';
 import { Target, ShieldCheck, Download, Zap, Sparkles, ArrowLeft } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 
 interface HeroProps {
   onBuyClick: () => void;
@@ -7,6 +8,19 @@ interface HeroProps {
 }
 
 export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
+  const { products } = useApp();
+  const mainProduct = products.find(p => p.id === 'prod-main-book') || {
+    title: 'بدون التسويق... كارثة تهدد ثروتك المستقبلية',
+    description: 'قد تمتلك أفضل مهارة أو خدمة في العالم، ولكن السوق لن يشتري منك شيئاً بدون نظام تسويقي حقيقي يحول المشاهدات إلى أرباح طائلة وقابلة للتنبؤ.',
+    price: 199,
+    salePrice: 49
+  };
+
+  // Helper to split title for styling
+  const titleParts = mainProduct.title.split('...');
+  const titlePart1 = titleParts[0] ? titleParts[0] + '...' : mainProduct.title;
+  const titlePart2 = titleParts[1] ? titleParts[1] : '';
+
   return (
     <section className="relative bg-[#000000] text-brand-white pt-20 pb-0 overflow-hidden border-b border-white/10" dir="rtl">
       {/* Immersive Dot Matrix Grid Background */}
@@ -28,14 +42,14 @@ export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
             </span>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] mb-6">
-              بدون التسويق... <br />
+              {titlePart1} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F5C542] via-[#F5C542] to-[#6C3BFF] drop-shadow-[0_2px_15px_rgba(245,197,66,0.15)]">
-                كارثة تهدد ثروتك المستقبلية
+                {titlePart2}
               </span>
             </h1>
 
             <p className="text-lg sm:text-xl text-white/70 mb-8 max-w-xl leading-relaxed">
-              قد تمتلك أفضل مهارة أو خدمة في العالم، ولكن السوق لن يشتري منك شيئاً بدون نظام تسويقي حقيقي يحول المشاهدات إلى أرباح طائلة وقابلة للتنبؤ.
+              {mainProduct.description}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
