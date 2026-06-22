@@ -1,0 +1,11 @@
+{
+  "/AdminDashboard": "pages/AdminDashboard.js",
+  "/AdminLogin": "pages/AdminLogin.js",
+  "/CheckoutPage": "pages/CheckoutPage.js",
+  "/CustomerDashboard": "pages/CustomerDashboard.js",
+  "/LandingPage": "pages/LandingPage.js",
+  "/ThankYouPage": "pages/ThankYouPage.js",
+  "/_app": "pages/_app.js",
+  "/_document": "pages/_document.js",
+  "/_error": "pages/_error.js"
+}

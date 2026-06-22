@@ -1,0 +1,12 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/admin/page": "/admin",
+  "/api/checkout/paypal/route": "/api/checkout/paypal",
+  "/api/checkout/stripe/route": "/api/checkout/stripe",
+  "/api/webhooks/stripe/route": "/api/webhooks/stripe",
+  "/favicon.ico/route": "/favicon.ico",
+  "/login/page": "/login",
+  "/page": "/",
+  "/portal/page": "/portal"
+}

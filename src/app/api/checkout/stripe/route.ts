@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { supabaseAdmin } from '../../../../lib/supabase-admin';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-02-24.acacia', // Update to latest known API version if necessary, but this is safe
+// Initialize stripe carefully to prevent build-time crashes if env var is missing
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build', {
+  apiVersion: '2024-12-18.acacia' as any,
 });
 
 export async function POST(req: Request) {
