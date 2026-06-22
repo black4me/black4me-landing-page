@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS public.products (
 CREATE TABLE IF NOT EXISTS public.orders (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_email text NOT NULL,
-  product_id uuid REFERENCES public.products(id) ON DELETE CASCADE,
+  product_id text, -- Changed to text to support Stripe Product IDs
   amount numeric DEFAULT 0,
   payment_gateway text,
   status text DEFAULT 'completed',
