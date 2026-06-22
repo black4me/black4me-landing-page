@@ -11,7 +11,7 @@ import {
   ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Settings, GitCompare, Layers, Ticket
 } from 'lucide-react';
 import { SiteSettingsTab, ComparisonTab, FunnelsTab, ValueStackTab, CouponsTab } from '../../views/admin/CmsTabs';
-import { AppProvider } from '../../context/AppContext';
+import { AppProvider, FALLBACK_PRODUCTS } from '../../context/AppContext';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
   // Product form
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [productForm, setProductForm] = useState({ title: '', description: '', price: 49, sale_price: 0, file_url: '', payment_link: '', is_active: true });
+  const [productForm, setProductForm] = useState({ title: '', description: '', price: 49, sale_price: 0, file_url: '', payment_link: '', is_active: true, features: '', chapters: '' });
 
   // FAQ form
   const [showFAQForm, setShowFAQForm] = useState(false);
@@ -127,7 +127,11 @@ export default function AdminDashboard() {
     ]);
 
     if (ordersRes.data) setOrders(ordersRes.data);
-    if (productsRes.data) setProducts(productsRes.data);
+    if (productsRes.data && productsRes.data.length > 0) {
+      setProducts(productsRes.data);
+    } else {
+      setProducts(FALLBACK_PRODUCTS);
+    }
     if (consultRes.data) setConsultations(consultRes.data);
     if (testimonRes.data) setTestimonials(testimonRes.data);
     if (faqsRes.data) setFaqs(faqsRes.data);
@@ -153,23 +157,45 @@ export default function AdminDashboard() {
 
   const openAddProduct = () => {
     setEditingProduct(null);
-    setProductForm({ title: '', description: '', price: 49, sale_price: 0, file_url: '', payment_link: '', is_active: true });
+    setProductForm({ title: '', description: '', price: 49, sale_price: 0, file_url: '', payment_link: '', is_active: true, features: '', chapters: '' });
     setShowProductForm(true);
   };
 
   const openEditProduct = (p: Product) => {
     setEditingProduct(p);
-    setProductForm({ title: p.title, description: p.description, price: p.price, sale_price: p.sale_price || 0, file_url: p.file_url || '', payment_link: p.payment_link || '', is_active: p.is_active });
+    setProductForm({ 
+      title: p.title, 
+      description: p.description, 
+      price: p.price, 
+      sale_price: p.salePrice || 0, 
+      file_url: p.fileUrl || '', 
+      payment_link: p.paymentLink || '', 
+      is_active: p.isActive,
+      features: p.features ? p.features.join('\n') : '',
+      chapters: p.chapters ? p.chapters.join('\n') : ''
+    });
     setShowProductForm(true);
   };
 
   const handleProductSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { ...productForm, sale_price: productForm.sale_price > 0 ? productForm.sale_price : null };
+    const payload = { 
+      title: productForm.title,
+      description: productForm.description,
+      price: productForm.price,
+      sale_price: productForm.sale_price > 0 ? productForm.sale_price : null,
+      file_url: productForm.file_url,
+      payment_link: productForm.payment_link,
+      is_active: productForm.is_active,
+      features: productForm.features.split('\n').map(f => f.trim()).filter(Boolean),
+      chapters: productForm.chapters.split('\n').map(c => c.trim()).filter(Boolean)
+    };
+    
     if (editingProduct) {
-      await supabase.from('products').update(payload).eq('id', editingProduct.id);
+      // Using upsert in case the product is a fallback product that doesn't exist in the DB yet
+      await supabase.from('products').upsert({ ...payload, id: editingProduct.id });
     } else {
-      await supabase.from('products').insert([payload]);
+      await supabase.from('products').insert([{ ...payload, id: `prod-${Date.now()}` }]);
     }
     setShowProductForm(false);
     fetchAllData();
@@ -461,6 +487,16 @@ export default function AdminDashboard() {
                       <textarea required rows={3} value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})}
                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#6C3BFF] resize-none" placeholder="اكتب وصفاً شاملاً للمنتج وقيمته..." />
                     </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold text-gray-400 mb-1.5">المميزات (ما الذي سيتعلمه؟) - كل ميزة في سطر منفصل</label>
+                      <textarea rows={4} value={productForm.features} onChange={e => setProductForm({...productForm, features: e.target.value})}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#6C3BFF] resize-none" placeholder="ميزة 1&#10;ميزة 2&#10;ميزة 3..." />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold text-gray-400 mb-1.5">الفصول / المحتويات - كل فصل في سطر منفصل</label>
+                      <textarea rows={4} value={productForm.chapters} onChange={e => setProductForm({...productForm, chapters: e.target.value})}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#6C3BFF] resize-none" placeholder="الفصل الأول: كذا...&#10;الفصل الثاني: كذا..." />
+                    </div>
                     <div>
                       <label className="block text-xs font-bold text-gray-400 mb-1.5">السعر الأصلي ($)</label>
                       <input type="number" value={productForm.price} onChange={e => setProductForm({...productForm, price: Number(e.target.value)})}
@@ -510,15 +546,15 @@ export default function AdminDashboard() {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="text-sm font-bold text-white leading-snug">{p.title}</h3>
-                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${p.is_active ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'}`}>
-                        {p.is_active ? 'منشور' : 'مخفي'}
+                      <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${(p.isActive ?? p.is_active) ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-gray-500/10 text-gray-500 border border-gray-500/20'}`}>
+                        {(p.isActive ?? p.is_active) ? 'منشور' : 'مخفي'}
                       </span>
                     </div>
                     <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">{p.description}</p>
                     <div className="flex items-center gap-2 pt-1">
-                      {p.sale_price ? (
+                      {p.salePrice || p.sale_price ? (
                         <>
-                          <span className="text-[#F5C542] font-black font-mono text-base">${p.sale_price}</span>
+                          <span className="text-[#F5C542] font-black font-mono text-base">${p.salePrice || p.sale_price}</span>
                           <span className="text-gray-500 font-mono text-xs line-through">${p.price}</span>
                         </>
                       ) : (
@@ -530,9 +566,9 @@ export default function AdminDashboard() {
                     <button onClick={() => openEditProduct(p)} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold text-gray-300 hover:text-white border border-white/10 hover:border-[#6C3BFF]/40 hover:bg-[#6C3BFF]/10 py-2 rounded-xl transition">
                       <Edit2 className="w-3.5 h-3.5" /> تعديل
                     </button>
-                    <button onClick={() => toggleProductActive(p)} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-xl transition border" style={{ color: p.is_active ? '#F97316' : '#22C55E', borderColor: p.is_active ? '#F97316' : '#22C55E', background: p.is_active ? 'rgba(249,115,22,0.05)' : 'rgba(34,197,94,0.05)' }}>
-                      {p.is_active ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                      {p.is_active ? 'إخفاء' : 'نشر'}
+                    <button onClick={() => toggleProductActive(p)} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-xl transition border" style={{ color: (p.isActive ?? p.is_active) ? '#F97316' : '#22C55E', borderColor: (p.isActive ?? p.is_active) ? '#F97316' : '#22C55E', background: (p.isActive ?? p.is_active) ? 'rgba(249,115,22,0.05)' : 'rgba(34,197,94,0.05)' }}>
+                      {(p.isActive ?? p.is_active) ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      {(p.isActive ?? p.is_active) ? 'إخفاء' : 'نشر'}
                     </button>
                     <button onClick={() => handleDeleteProduct(p.id)} className="p-2 text-red-400 hover:text-red-300 border border-red-500/20 hover:bg-red-500/10 rounded-xl transition">
                       <Trash2 className="w-3.5 h-3.5" />
