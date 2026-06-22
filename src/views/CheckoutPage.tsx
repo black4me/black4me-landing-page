@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabase';
 import { useApp } from '../context/AppContext';
 import { CreditCard, ShieldCheck, Ticket, Calendar, AlertCircle, Sparkles, Receipt } from 'lucide-react';
 
@@ -27,10 +28,24 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
   const [paymentGateway, setPaymentGateway] = useState<'stripe' | 'paypal'>('stripe');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Pricing math
   const originalPrice = 49;
   const discountAmount = Math.round((originalPrice * discountPercent) / 100);
   const finalPrice = originalPrice - discountAmount;
+
+  const handleEmailBlur = async () => {
+    if (email && email.includes('@')) {
+      try {
+        await supabase.from('checkout_sessions').insert([{
+          email,
+          status: 'pending',
+          product_id: mainProduct.id,
+          price: finalPrice
+        }]);
+      } catch (e) {
+        // Silent fail for tracking
+      }
+    }
+  };
 
   const applyCoupon = () => {
     const found = coupons.find(c => c.code.toUpperCase() === couponCode.toUpperCase() && c.isActive);
@@ -123,6 +138,7 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onBlur={handleEmailBlur}
                     placeholder="user@example.com"
                     className="w-full bg-brand-black border border-brand-white/10 p-3 rounded-xl text-white text-sm focus:outline-none focus:border-brand-purple transition text-left font-mono" 
                   />

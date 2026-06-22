@@ -11,6 +11,7 @@ import {
   ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Settings, GitCompare, Layers, Ticket
 } from 'lucide-react';
 import { SiteSettingsTab, ComparisonTab, FunnelsTab, ValueStackTab, CouponsTab } from '../../views/admin/CmsTabs';
+import { EmailCampaignsTab } from '../../views/admin/EmailCampaignsTab';
 import { AppProvider, FALLBACK_PRODUCTS } from '../../context/AppContext';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -73,7 +74,7 @@ interface Subscriber {
   created_at: string;
 }
 
-type Tab = 'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 'faqs' | 'subscribers' | 'site-settings' | 'comparison' | 'funnels' | 'value-stack' | 'coupons';
+type Tab = 'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 'faqs' | 'subscribers' | 'site-settings' | 'comparison' | 'funnels' | 'value-stack' | 'coupons' | 'campaigns';
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -301,6 +302,7 @@ export default function AdminDashboard() {
     { id: 'testimonials', label: 'الآراء', icon: MessageSquare, count: testimonials.length },
     { id: 'faqs', label: 'الأسئلة الشائعة', icon: HelpCircle, count: faqs.length },
     { id: 'subscribers', label: 'المشتركون', icon: Users, count: subscribers.length },
+    { id: 'campaigns', label: 'التسويق البريدي', icon: Mail },
     { id: 'site-settings', label: 'إعدادات الموقع والنصوص', icon: Settings },
     { id: 'comparison', label: 'جدول المقارنة', icon: GitCompare },
     { id: 'funnels', label: 'مراحل الفنل', icon: Layers },
@@ -876,35 +878,42 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* TAB 8: Site Settings CMS */}
+        {/* TAB 8: Email Campaigns CMS */}
+        {activeTab === 'campaigns' && (
+          <div className="animate-fadeIn">
+            <EmailCampaignsTab />
+          </div>
+        )}
+
+        {/* TAB 9: Site Settings CMS */}
         {activeTab === 'site-settings' && (
           <div className="animate-fadeIn">
             <SiteSettingsTab />
           </div>
         )}
 
-        {/* TAB 9: Comparison Table CMS */}
+        {/* TAB 10: Comparison Table CMS */}
         {activeTab === 'comparison' && (
           <div className="animate-fadeIn">
             <ComparisonTab />
           </div>
         )}
 
-        {/* TAB 10: Funnel Stages CMS */}
+        {/* TAB 11: Funnel Stages CMS */}
         {activeTab === 'funnels' && (
           <div className="animate-fadeIn">
             <FunnelsTab />
           </div>
         )}
 
-        {/* TAB 11: Value Stack CMS */}
+        {/* TAB 12: Value Stack CMS */}
         {activeTab === 'value-stack' && (
           <div className="animate-fadeIn">
             <ValueStackTab />
           </div>
         )}
 
-        {/* TAB 12: Coupons CMS */}
+        {/* TAB 13: Coupons CMS */}
         {activeTab === 'coupons' && (
           <div className="animate-fadeIn">
             <CouponsTab />
