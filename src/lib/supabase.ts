@@ -7,4 +7,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('تنبيه: الرجاء التأكد من وجود NEXT_PUBLIC_SUPABASE_URL و NEXT_PUBLIC_SUPABASE_ANON_KEY في ملف .env');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl || 'https://dummy.supabase.co', supabaseAnonKey || 'dummy_key');
