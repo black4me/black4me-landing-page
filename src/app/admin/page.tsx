@@ -11,6 +11,7 @@ import {
   ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Settings, GitCompare, Layers, Ticket
 } from 'lucide-react';
 import { SiteSettingsTab, ComparisonTab, FunnelsTab, ValueStackTab, CouponsTab } from '../../views/admin/CmsTabs';
+import { AppProvider } from '../../context/AppContext';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -284,7 +285,8 @@ export default function AdminDashboard() {
   // ─── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans" dir="rtl">
+    <AppProvider>
+      <div className="min-h-screen bg-[#050505] text-white font-sans" dir="rtl">
 
       {/* ─── Header ─── */}
       <header className="bg-black/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50">
@@ -874,6 +876,7 @@ export default function AdminDashboard() {
         )}
 
       </main>
-    </div>
+      </div>
+    </AppProvider>
   );
 }
