@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+"use client";
+
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Product, Order, Consultation, NewsletterSubscriber, Testimonial, FAQ, Coupon } from '../types';
 
 interface AppContextType {

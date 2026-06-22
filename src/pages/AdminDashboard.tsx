@@ -30,6 +30,8 @@ export default function AdminDashboard() {
   const [newPrice, setNewPrice] = useState(49);
   const [newSalePrice, setNewSalePrice] = useState(0);
   const [newDesc, setNewDesc] = useState('');
+  const [newFileUrl, setNewFileUrl] = useState('');
+  const [newPaymentLink, setNewPaymentLink] = useState('');
 
   // FAQ CRUD states
   const [isAddingFAQ, setIsAddingFAQ] = useState(false);
@@ -77,7 +79,9 @@ export default function AdminDashboard() {
         title: newTitle,
         price: Number(newPrice),
         salePrice: Number(newSalePrice) > 0 ? Number(newSalePrice) : undefined,
-        description: newDesc
+        description: newDesc,
+        fileUrl: newFileUrl,
+        paymentLink: newPaymentLink
       });
       setEditingProduct(null);
     } else {
@@ -86,6 +90,8 @@ export default function AdminDashboard() {
         description: newDesc,
         price: Number(newPrice),
         salePrice: Number(newSalePrice) > 0 ? Number(newSalePrice) : undefined,
+        fileUrl: newFileUrl,
+        paymentLink: newPaymentLink,
         features: ["ميزة مضافة مخصصة"],
         isActive: true
       });
@@ -95,6 +101,8 @@ export default function AdminDashboard() {
     setNewPrice(49);
     setNewSalePrice(0);
     setNewDesc('');
+    setNewFileUrl('');
+    setNewPaymentLink('');
   };
 
   // Handler for FAQ CRUD
@@ -282,7 +290,10 @@ export default function AdminDashboard() {
                     setEditingProduct(null);
                     setNewTitle('');
                     setNewPrice(49);
+                    setNewSalePrice(0);
                     setNewDesc('');
+                    setNewFileUrl('');
+                    setNewPaymentLink('');
                     setIsAddingProduct(!isAddingProduct);
                   }}
                   className="bg-brand-gold hover:bg-yellow-500 text-brand-black font-extrabold text-xs px-4 py-2.5 rounded-xl transition cursor-pointer flex items-center gap-1.5"
@@ -346,6 +357,29 @@ export default function AdminDashboard() {
                       />
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-gray-400 block mb-1">رابط الدفع المباشر (Stripe/PayPal)</label>
+                        <input 
+                          type="url" 
+                          value={newPaymentLink}
+                          onChange={(e) => setNewPaymentLink(e.target.value)}
+                          placeholder="https://buy.stripe.com/..."
+                          className="w-full bg-brand-black border border-brand-white/10 p-3 rounded-lg text-white" 
+                        />
+                      </div>
+                      <div>
+                        <label className="text-gray-400 block mb-1">رابط تحميل/تسليم المنتج (PDF/Drive)</label>
+                        <input 
+                          type="url" 
+                          value={newFileUrl}
+                          onChange={(e) => setNewFileUrl(e.target.value)}
+                          placeholder="https://drive.google.com/..."
+                          className="w-full bg-brand-black border border-brand-white/10 p-3 rounded-lg text-white" 
+                        />
+                      </div>
+                    </div>
+
                     <div className="flex gap-2">
                       <button 
                         type="submit"
@@ -388,6 +422,8 @@ export default function AdminDashboard() {
                             setNewPrice(p.price);
                             setNewSalePrice(p.salePrice || 0);
                             setNewDesc(p.description);
+                            setNewFileUrl(p.fileUrl || '');
+                            setNewPaymentLink(p.paymentLink || '');
                           }}
                           className="p-1 px-2.5 bg-brand-purple/10 border border-brand-purple/30 text-brand-gold rounded hover:bg-brand-purple/20 transition cursor-pointer text-[10px]"
                         >

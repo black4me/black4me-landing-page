@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { User, BookOpen, Download, Calendar, History, UserCheck, ShieldCheck, Mail } from 'lucide-react';
 
 export default function CustomerDashboard() {
-  const { currentUser, orders, consultations, loginAs, logout } = useApp();
+  const { currentUser, orders, consultations, products, loginAs, logout } = useApp();
 
   // Profile update form states
   const [name, setName] = useState(currentUser?.name || 'عبدالله اليافعي');
@@ -107,38 +107,43 @@ export default function CustomerDashboard() {
 
               <div className="space-y-4">
                 
-                {/* Book 1 */}
-                <div className="bg-brand-black p-5 rounded-xl border border-brand-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-brand-gold font-bold bg-brand-gold/10 px-2 py-0.5 rounded">كتاب فك شفرات المبیعات</span>
-                    <h4 className="text-base font-bold text-white mt-1">كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"</h4>
-                    <p className="text-xs text-gray-400 font-semibold">المرجع الهيكلي الشامل لتأسيس وقمع التسويق</p>
+                {userOrders.map(ord => {
+                  const product = products.find(p => p.id === ord.productId);
+                  if (!product) return null;
+                  return (
+                    <div key={ord.id} className="bg-brand-black p-5 rounded-xl border border-brand-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-brand-gold font-bold bg-brand-gold/10 px-2 py-0.5 rounded">محتوى رقمي مرخص</span>
+                        <h4 className="text-base font-bold text-white mt-1">{product.title}</h4>
+                        <p className="text-xs text-gray-400 font-semibold">{product.description}</p>
+                      </div>
+                      {product.fileUrl ? (
+                        <a
+                          href={product.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-brand-gold hover:bg-yellow-500 text-brand-black text-xs font-bold rounded-lg transition duration-150 cursor-pointer flex items-center gap-1.5 shrink-0"
+                        >
+                          <Download className="w-4 h-4" />
+                          <span>تحميل / استلام المنتج</span>
+                        </a>
+                      ) : (
+                        <button
+                          onClick={() => handleDownload(`${product.title}.pdf`)}
+                          className="px-4 py-2 bg-brand-gold hover:bg-yellow-500 text-brand-black text-xs font-bold rounded-lg transition duration-150 cursor-pointer flex items-center gap-1.5 shrink-0"
+                        >
+                          <Download className="w-4 h-4" />
+                          <span>تحميل نسخة الـ PDF المفصلة</span>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+                {userOrders.length === 0 && (
+                  <div className="text-center py-6 text-xs text-gray-500 font-semibold bg-brand-black/30 p-4 rounded-xl">
+                    لا توجد منتجات رقمية في مكتبتك حالياً.
                   </div>
-                  <button
-                    onClick={() => handleDownload('بدون التسويق كارثة تهدد ثروتك.pdf')}
-                    className="px-4 py-2 bg-brand-gold hover:bg-yellow-500 text-brand-black text-xs font-bold rounded-lg transition duration-150 cursor-pointer flex items-center gap-1.5 shrink-0"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>تحميل نسخة الـ PDF المفصلة</span>
-                  </button>
-                </div>
-
-                {/* Book 2 */}
-                <div className="bg-brand-black p-5 rounded-xl border border-brand-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-brand-purple font-bold bg-brand-purple/15 px-2 py-0.5 rounded">كتاب النجاح المالي المستقل</span>
-                    <h4 className="text-base font-bold text-white mt-1">كتاب "10 مبادئ للنجاح المالي والشخصي"</h4>
-                    <p className="text-xs text-gray-400 font-semibold font-medium">هدية التنمية وتأسيس الوعي البنكي</p>
-                  </div>
-                  <button
-                    onClick={() => handleDownload('10 مبادئ للنجاح المالي والشخصي.pdf')}
-                    className="px-4 py-2 bg-brand-purple hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition duration-150 cursor-pointer flex items-center gap-1.5 shrink-0"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>تحميل الهدية المجانية المضمونة</span>
-                  </button>
-                </div>
-
+                )}
               </div>
             </div>
 

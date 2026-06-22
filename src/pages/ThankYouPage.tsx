@@ -1,4 +1,5 @@
 import React from 'react';
+import { useApp } from '../context/AppContext';
 import { Download, MessageCircle, PhoneCall, Mail, CheckCircle, Sparkles } from 'lucide-react';
 
 interface ThankYouPageProps {
@@ -7,6 +8,9 @@ interface ThankYouPageProps {
 }
 
 export default function ThankYouPage({ onBackToHome, onNavigateToPortal }: ThankYouPageProps) {
+  const { products } = useApp();
+  const mainProduct = products.find(p => p.id === 'prod-main-book') || products[0];
+  const bonusProduct = products.find(p => p.id === 'prod-bonus-gift');
   
   // Custom dummy download links that generate native browser file transfers
   const handleDownload = (fileName: string) => {
@@ -47,32 +51,56 @@ export default function ThankYouPage({ onBackToHome, onNavigateToPortal }: Thank
             <div className="bg-brand-black p-4 rounded-xl border border-brand-gold/20 flex flex-col justify-between items-start gap-4">
               <div>
                 <span className="text-[10px] text-brand-gold font-bold uppercase block">المنتج الأساسي</span>
-                <h4 className="text-sm font-bold text-white mt-1">كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"</h4>
+                <h4 className="text-sm font-bold text-white mt-1">{mainProduct?.title || 'كتاب بدون التسويق'}</h4>
                 <p className="text-[10px] text-gray-500 font-mono mt-0.5">SIZE: 14.5 MB | FORMAT: PDF High-Res</p>
               </div>
-              <button
-                onClick={() => handleDownload('بدون التسويق كارثة تهدد ثروتك.pdf')}
-                className="w-full py-2.5 bg-brand-gold hover:bg-yellow-500 text-brand-black font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>تحميل كتاب المبيعات</span>
-              </button>
+              {mainProduct?.fileUrl ? (
+                <a
+                  href={mainProduct.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 bg-brand-gold hover:bg-yellow-500 text-brand-black font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>تحميل / استلام المنتج</span>
+                </a>
+              ) : (
+                <button
+                  onClick={() => handleDownload(`${mainProduct?.title || 'المنتج'}.pdf`)}
+                  className="w-full py-2.5 bg-brand-gold hover:bg-yellow-500 text-brand-black font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>تحميل كتاب المبيعات</span>
+                </button>
+              )}
             </div>
 
             {/* Download Gift Book */}
             <div className="bg-brand-black p-4 rounded-xl border border-brand-purple/20 flex flex-col justify-between items-start gap-4">
               <div>
                 <span className="text-[10px] text-brand-purple font-bold uppercase block">الهدية الكبرى المرفقة</span>
-                <h4 className="text-sm font-bold text-white mt-1">كتاب "10 مبادئ للنجاح المالي والشخصي"</h4>
+                <h4 className="text-sm font-bold text-white mt-1">{bonusProduct?.title || 'كتاب 10 مبادئ'}</h4>
                 <p className="text-[10px] text-gray-500 font-mono mt-0.5">SIZE: 8.2 MB | FORMAT: PDF Complete</p>
               </div>
-              <button
-                onClick={() => handleDownload('10 مبادئ للنجاح المالي والشخصي.pdf')}
-                className="w-full py-2.5 bg-brand-purple hover:bg-indigo-700 text-white font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>تحميل كتاب النجاح المالي</span>
-              </button>
+              {bonusProduct?.fileUrl ? (
+                <a
+                  href={bonusProduct.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 bg-brand-purple hover:bg-indigo-700 text-white font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>تحميل الهدية</span>
+                </a>
+              ) : (
+                <button
+                  onClick={() => handleDownload(`${bonusProduct?.title || 'الهدية'}.pdf`)}
+                  className="w-full py-2.5 bg-brand-purple hover:bg-indigo-700 text-white font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>تحميل كتاب النجاح المالي</span>
+                </button>
+              )}
             </div>
 
           </div>

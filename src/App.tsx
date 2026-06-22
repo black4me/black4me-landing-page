@@ -1,30 +1,31 @@
+"use client";
+
 import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
-import QuickSwitcher from './components/QuickSwitcher';
 import LandingPage from './pages/LandingPage';
 import CheckoutPage from './pages/CheckoutPage';
 import ThankYouPage from './pages/ThankYouPage';
-import CustomerDashboard from './pages/CustomerDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/AdminLogin';
 import { Sparkles, Menu, ShieldCheck } from 'lucide-react';
 
 function AppContent() {
   const { currentUser, loginAs } = useApp();
-  const [view, setView] = useState<'landing' | 'checkout' | 'thankyou' | 'customer' | 'admin'>('landing');
+  const [view, setView] = useState<'landing' | 'checkout' | 'thankyou' | 'admin_login'>('landing');
 
   return (
     <div className="min-h-screen bg-brand-black text-brand-white select-none selection:bg-brand-gold selection:text-brand-black font-sans">
       
-      {/* Floating global switcher on top of everything for quick evaluations */}
-      <QuickSwitcher currentView={view} setView={setView} />
-
       {/* Corporate Luxury Core Navbar */}
       <nav className="bg-brand-black/80 backdrop-blur-md border-b border-brand-white/10 py-4 px-6 md:px-12 sticky top-0 z-30" dir="rtl">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           
           {/* Right Brand Logo & Founder */}
           <div className="flex items-center gap-2">
-            <span className="w-10 h-10 rounded-xl bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono hover:scale-105 transition shadow-lg shadow-brand-gold/10 text-sm">
+            <span 
+              onDoubleClick={() => setView('admin_login')}
+              className="w-10 h-10 rounded-xl bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono hover:scale-105 transition shadow-lg shadow-brand-gold/10 text-sm cursor-pointer"
+              title="BLACK4ME"
+            >
               B4M
             </span>
             <div className="text-right">
@@ -45,22 +46,16 @@ function AppContent() {
           </div>
 
           {/* Left quick actions Portal */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             
-            {/* Customer Area and Admin Toggle buttons */}
-            {view !== 'admin' && (
-              <button
-                onClick={() => {
-                  loginAs('admin');
-                  setView('admin');
-                }}
-                className="hidden md:flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-white border border-brand-white/10 bg-brand-darkgray/90 hover:bg-brand-white/5 py-1.5 px-3 rounded-lg cursor-pointer transition"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-brand-gold" />
-                <span>لوحة المسؤول</span>
-              </button>
-            )}
-
+            <a
+              href="/login"
+              className="hidden md:flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-white border border-brand-white/10 bg-brand-darkgray/90 hover:bg-brand-white/5 py-1.5 px-3 rounded-lg cursor-pointer transition"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-gray-400" />
+              <span>دخول العملاء والإدارة</span>
+            </a>
+            
             <button
               onClick={() => {
                 if(view === 'landing') {
@@ -94,14 +89,20 @@ function AppContent() {
         {view === 'thankyou' && (
           <ThankYouPage 
             onBackToHome={() => setView('landing')}
-            onNavigateToPortal={() => setView('customer')}
+            onNavigateToPortal={() => setView('landing')}
           />
         )}
         
-        {view === 'customer' && (
-          <CustomerDashboard />
+        {view === 'admin_login' && (
+          <AdminLogin 
+            onBack={() => setView('landing')}
+            onSuccess={() => {
+              loginAs('admin');
+              setView('admin');
+            }}
+          />
         )}
-        
+
         {view === 'admin' && (
           <AdminDashboard />
         )}
