@@ -69,6 +69,13 @@ const FALLBACK_SITE_SETTINGS: SiteSettings = {
   funnel_subtitle: 'اضغط على أي مرحلة من مراحل قمع المبيعات تالياً لعرض الخريطة التشغيلية وتفاصيل رحلة التحول لعملائنا.',
   payment_stripe_enabled: 'true',
   payment_paypal_enabled: 'true',
+  seo_title: 'BLACK4ME - نظام التسويق الذكي',
+  seo_description: 'المنصة المتكاملة للتسويق الذكي والمبيعات الرقمية المتقدمة',
+  seo_keywords: 'تسويق, مبيعات, تجارة إلكترونية, كورسات, جاسم محمد',
+  og_image: '',
+  ga_id: '',
+  meta_pixel_id: '',
+  tiktok_pixel_id: '',
 };
 
 const FALLBACK_COMPARISON_ITEMS: ComparisonItem[] = [

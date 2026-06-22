@@ -101,6 +101,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../src/app/api/cron/abandoned-cart/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/cron/abandoned-cart">> = Specific
+  const handler = {} as typeof import("../../../src/app/api/cron/abandoned-cart/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../src/app/api/cron/newsletters/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/cron/newsletters">> = Specific
+  const handler = {} as typeof import("../../../src/app/api/cron/newsletters/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../src/app/api/webhooks/stripe/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/webhooks/stripe">> = Specific
