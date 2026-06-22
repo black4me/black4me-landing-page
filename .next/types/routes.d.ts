@@ -3,7 +3,7 @@
 
 type AppRoutes = "/" | "/admin" | "/login" | "/portal"
 type AppRouteHandlerRoutes = "/api/checkout/paypal" | "/api/checkout/stripe" | "/api/webhooks/stripe"
-type PageRoutes = "/AdminDashboard" | "/AdminLogin" | "/CheckoutPage" | "/CustomerDashboard" | "/LandingPage" | "/ThankYouPage"
+type PageRoutes = never
 type LayoutRoutes = "/"
 type RedirectRoutes = never
 type RewriteRoutes = never
@@ -13,17 +13,11 @@ type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRo
 interface ParamMap {
   "/": {}
   "/admin": {}
-  "/AdminDashboard": {}
-  "/AdminLogin": {}
   "/api/checkout/paypal": {}
   "/api/checkout/stripe": {}
   "/api/webhooks/stripe": {}
-  "/CheckoutPage": {}
-  "/CustomerDashboard": {}
-  "/LandingPage": {}
   "/login": {}
   "/portal": {}
-  "/ThankYouPage": {}
 }
 
 

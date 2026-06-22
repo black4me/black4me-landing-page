@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
-import LandingPage from './pages/LandingPage';
-import CheckoutPage from './pages/CheckoutPage';
-import ThankYouPage from './pages/ThankYouPage';
-import AdminLogin from './pages/AdminLogin';
+import LandingPage from './views/LandingPage';
+import CheckoutPage from './views/CheckoutPage';
+import ThankYouPage from './views/ThankYouPage';
+import AdminLogin from './views/AdminLogin';
+import AdminDashboard from './views/AdminDashboard';
 import { Sparkles, Menu, ShieldCheck } from 'lucide-react';
 
 function AppContent() {

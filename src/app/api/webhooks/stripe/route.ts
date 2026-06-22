@@ -10,7 +10,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_fo
   apiVersion: '2024-12-18.acacia' as any,
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
 
 // We need the SERVICE ROLE KEY to bypass RLS and create users safely from the backend.
 const supabaseAdmin = createClient(
