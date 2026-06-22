@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
-import { User, Product, Order, Consultation, NewsletterSubscriber, Testimonial, FAQ, Coupon } from '../types';
+import { User, Product, Order, Consultation, NewsletterSubscriber, Testimonial, FAQ, Coupon, SiteSettings, ComparisonItem, FunnelStage, ValueStackItem } from '../types';
+import { useSiteSettings, useComparisonItems, useFunnelStages, useValueStackItems, useCoupons, DbSiteSetting, DbComparisonItem, DbFunnelStage, DbValueStackItem, DbCoupon } from '../hooks/useSupabaseData';
 
 // ─── Fallback data (used when Supabase tables don't exist yet) ─────────────
 
@@ -60,6 +61,46 @@ const FALLBACK_TESTIMONIALS: Testimonial[] = [
   { id: 'test-3', customerName: 'عبدالرحمن الكواري', country: 'دولة قطر', rating: 5, comment: 'الكتاب فتح عيني على ثغرات خطيرة كنت أقوم بها في عملي. أنصح بشدة باقتناء الحزمة ومتابعة الاستشارات.', isApproved: true, createdAt: new Date(2026, 5, 21).toISOString() },
 ];
 
+const FALLBACK_SITE_SETTINGS: SiteSettings = {
+  hero_subtitle: 'JASIM MOHAMMED يقدم',
+  comparison_title: 'قارن وشاهد الفارق: هندسة التحول الجذري لعملك',
+  comparison_subtitle: 'الانتقال من مرحلة العشوائية الفردية إلى مرحلة العلامة التجارية الممتازة ذات الدخل البارد المؤتمت.',
+  funnel_title: 'نظام BLACK4ME الفَنَل البصري المتعاقب',
+  funnel_subtitle: 'اضغط على أي مرحلة من مراحل قمع المبيعات تالياً لعرض الخريطة التشغيلية وتفاصيل رحلة التحول لعملائنا.',
+  payment_stripe_enabled: 'true',
+  payment_paypal_enabled: 'true',
+};
+
+const FALLBACK_COMPARISON_ITEMS: ComparisonItem[] = [
+  { id: 'comp-1', aspect: 'آلية جلب العملاء والمهتمين', beforeSystem: 'ملاحقة مستمرة وإرسال مئات الرسائل العشوائية المكتوبة بالذكاء الاصطناعي دون إنصات أو استجابة.', afterSystem: 'الفنل يقوم بجذب وغربلة العملاء عاليي الملاءة وجلبهم مهيئين للشراء بنسبة 80% قبل التحدث الفردي.', orderIndex: 1 },
+  { id: 'comp-2', aspect: 'قواعد التسعير والتحصيل المالي', beforeSystem: 'النزول بالتسعير للحد الأدنى لجذب المترددين، ما يؤثر على جودة الخدمة ويبقي أرباحك متعثرة.', afterSystem: 'بناء وتصميم عروض نخبوية (High-Ticket Program) بأسعار تبدأ من $2,000 وتبريرها بقيمتها الحقيقية.', orderIndex: 2 },
+  { id: 'comp-3', aspect: 'العائد الزمني والمجهود التشغيلي', beforeSystem: 'تعمل 14 ساعة يومياً بمحاولات ترويجية مبعثرة، دون أي تكرار منهجي أو بنية أصول حقيقية لعلامتك.', afterSystem: 'نظام مؤتمت مكرر ومستقر، يحتاج فقط 3-4 ساعات مراجعة أسبوعية وتحديثات فنية لتوسيع الأرقام.', orderIndex: 3 },
+  { id: 'comp-4', aspect: 'صناعة الأثر والهيبة المعرفية', beforeSystem: 'صانع محتوى عام ينشر يومياً "أفضل 5 نصائح برمجية" دون ترابط حقيقي يهدف للبيع.', afterSystem: 'هيبة فكرية كقائد رأي مستهدف، يفصل بدقة خريطة طريق تحل مشكلة العميل العميقة بوضوح.', orderIndex: 4 },
+];
+
+const FALLBACK_FUNNEL_STAGES: FunnelStage[] = [
+  { id: 'fs-1', num: 1, title: 'قراءة الكتاب التأسيسي الاستراتيجي', subtitle: 'المرحلة الأولى: امتلاك العقلية القيادية وفك شفرة الغموض التسويقي', details: 'تبدأ رحلتك بتصفح كتاب...', badge: 'نقطة الدخول التأسيسية', iconName: 'BookOpen' },
+  { id: 'fs-2', num: 2, title: 'بناء وتصميم عرضك فائق القيمة', subtitle: 'المرحلة الثانية: تحويل المعرفة والمهارة إلى حل جاهز ومطلوب بشدة', details: 'تطبيق التمارين المرفقة...', badge: 'صياغة الميزة الفريدة', iconName: 'Lightbulb' },
+  { id: 'fs-3', num: 3, title: 'هندسة المحتوى التحويلي المستهدف', subtitle: 'المرحلة الثالثة: صياغة الرسائل التسويقية وصنع هيبتك القيادية', details: 'هنا سنعير اهتمامنا لجذب عقول المهتمين...', badge: 'محرك السيطرة المعرفية', iconName: 'PenTool' },
+  { id: 'fs-4', num: 4, title: 'إطلاق نظام قمع المبيعات والفنل', subtitle: 'المرحلة الرابعة: الأتمتة الكاملة لقمع المبيعات وبناء قوائم البيانات', details: 'ربط النماذج وقواعد البيانات...', badge: 'التحصيل والأتمتة الرقمية', iconName: 'CheckSquare' },
+  { id: 'fs-5', num: 5, title: 'جلسة الاستشارة الاستراتيجية الفردية', subtitle: 'المرحلة الخامسة: تشريح عملك والتحقق المباشر', details: 'جلسة مباشرة وجهاً لوجه لغربلة الهيكل...', badge: 'المصادقة وتعديل الثغرات', iconName: 'MessageSquareCode' },
+  { id: 'fs-6', num: 6, title: 'النمو الرقمي الشامل ومضاعفة الأرقام', subtitle: 'المرحلة السادسة: توسيع النطاق ومرحلة بناء الثروة المتكاملة', details: 'بعد اختبار وصيانة المراحل السابقة...', badge: 'الهروب نحو الحرية المالية', iconName: 'Rocket' },
+];
+
+const FALLBACK_VALUE_STACK: ValueStackItem[] = [
+  { id: 'vs-1', name: "كتاب 'بدون التسويق... كارثة تهدد ثروتك المستقبلية'", realValue: 99, notes: "النسخة الرقمية الكاملة عالية الجودة", orderIndex: 1 },
+  { id: 'vs-2', name: "كتاب الهدية الممتازة '10 مبادئ للنجاح المالي والشخصي'", realValue: 29, notes: "بقلم جاسم محمد - غير متاحة للبيع المنفرد", orderIndex: 2 },
+  { id: 'vs-3', name: "الحقيبة التسويقية الشاملة والقوالب العملية الجاهزة", realValue: 39, notes: "نماذج ملفات وهياكل جاهزة للاستخدام", orderIndex: 3 },
+  { id: 'vs-4', name: "تمارين تفاعلية ودفتر تمارين لكل فصل", realValue: 19, notes: "لضمان تطبيق الأفكار التسويقية فورياً", orderIndex: 4 },
+  { id: 'vs-5', name: "التحديثات الدورية وكافة الفصول الإضافية مدى الحياة", realValue: 25, notes: "ترقية مستمرة لأحدث استراتيجيات السوق", orderIndex: 5 },
+  { id: 'vs-6', name: "الوصول الحصري لمجتمع BLACK4ME ودعم الخبراء والمؤسس", realValue: 49, notes: "قنوات تفاعلية لحل مشكلات أعمالك", orderIndex: 6 }
+];
+
+const FALLBACK_COUPONS: Coupon[] = [
+  { id: 'cpn-1', code: 'BLACK20', discountPercent: 20, isActive: true },
+  { id: 'cpn-2', code: 'JASIM10', discountPercent: 10, isActive: true }
+];
+
 // ─── Context Interface ───────────────────────────────────────────────────────
 
 interface AppContextType {
@@ -71,6 +112,10 @@ interface AppContextType {
   testimonials: Testimonial[];
   faqs: FAQ[];
   coupons: Coupon[];
+  siteSettings: SiteSettings;
+  comparisonItems: ComparisonItem[];
+  funnelStages: FunnelStage[];
+  valueStackItems: ValueStackItem[];
   loginAs: (role: 'admin' | 'customer' | 'guest', userDetails?: Partial<User>) => void;
   logout: () => void;
   addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => void;
@@ -88,6 +133,19 @@ interface AppContextType {
   updateFAQ: (id: string, faq: Partial<FAQ>) => void;
   deleteFAQ: (id: string) => void;
   reorderFAQs: (faqs: FAQ[]) => void;
+  updateSiteSetting: (key: string, value: string) => void;
+  addComparisonItem: (item: Omit<ComparisonItem, 'id'>) => void;
+  updateComparisonItem: (id: string, item: Partial<ComparisonItem>) => void;
+  deleteComparisonItem: (id: string) => void;
+  addFunnelStage: (stage: Omit<FunnelStage, 'id'>) => void;
+  updateFunnelStage: (id: string, stage: Partial<FunnelStage>) => void;
+  deleteFunnelStage: (id: string) => void;
+  addValueStackItem: (item: Omit<ValueStackItem, 'id'>) => void;
+  updateValueStackItem: (id: string, item: Partial<ValueStackItem>) => void;
+  deleteValueStackItem: (id: string) => void;
+  addCoupon: (coupon: Omit<Coupon, 'id'>) => void;
+  updateCoupon: (id: string, coupon: Partial<Coupon>) => void;
+  deleteCoupon: (id: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -170,6 +228,47 @@ function dbToOrder(row: any): Order {
   };
 }
 
+function dbToComparisonItem(row: any): ComparisonItem {
+  return {
+    id: row.id,
+    aspect: row.aspect,
+    beforeSystem: row.before_system,
+    afterSystem: row.after_system,
+    orderIndex: row.order_index ?? 0,
+  };
+}
+
+function dbToFunnelStage(row: any): FunnelStage {
+  return {
+    id: row.id,
+    num: row.num,
+    title: row.title,
+    subtitle: row.subtitle,
+    details: row.details,
+    badge: row.badge,
+    iconName: row.icon_name || 'Layers',
+  };
+}
+
+function dbToValueStackItem(row: any): ValueStackItem {
+  return {
+    id: row.id,
+    name: row.name,
+    realValue: row.real_value,
+    notes: row.notes || '',
+    orderIndex: row.order_index ?? 0,
+  };
+}
+
+function dbToCoupon(row: any): Coupon {
+  return {
+    id: row.id,
+    code: row.code,
+    discountPercent: row.discount_percentage,
+    isActive: row.is_active ?? true,
+  };
+}
+
 // ─── Safe Supabase fetch (returns fallback on table-not-found) ─────────────
 
 async function safeFetch<T>(
@@ -208,21 +307,27 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(FALLBACK_TESTIMONIALS);
   const [faqs, setFaqs] = useState<FAQ[]>(FALLBACK_FAQS);
-  const [coupons] = useState<Coupon[]>([
-    { code: 'BLACK20', discountPercent: 20, isActive: true },
-    { code: 'JASIM10', discountPercent: 10, isActive: true }
-  ]);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(FALLBACK_SITE_SETTINGS);
+  const [comparisonItems, setComparisonItems] = useState<ComparisonItem[]>(FALLBACK_COMPARISON_ITEMS);
+  const [funnelStages, setFunnelStages] = useState<FunnelStage[]>(FALLBACK_FUNNEL_STAGES);
+  const [valueStackItems, setValueStackItems] = useState<ValueStackItem[]>(FALLBACK_VALUE_STACK);
+  const [coupons, setCoupons] = useState<Coupon[]>(FALLBACK_COUPONS);
 
   // ─── Load data from Supabase on mount ───────────────────────────────────
   useEffect(() => {
     const loadAll = async () => {
-      const [dbProducts, dbFaqs, dbTestimonials, dbOrders, dbConsultations, dbSubscribers] = await Promise.all([
+      const [dbProducts, dbFaqs, dbTestimonials, dbOrders, dbConsultations, dbSubscribers, dbSettings, dbComparisons, dbFunnels, dbValueStack, dbCoupons] = await Promise.all([
         safeFetch('products', dbToProduct, FALLBACK_PRODUCTS, { filter: { column: 'is_active', value: true }, order: { column: 'created_at', ascending: false } }),
         safeFetch('faqs', dbToFAQ, FALLBACK_FAQS, { order: { column: 'order_index', ascending: true } }),
         safeFetch('testimonials', dbToTestimonial, FALLBACK_TESTIMONIALS, { filter: { column: 'is_approved', value: true }, order: { column: 'created_at', ascending: false } }),
         safeFetch('orders', dbToOrder, [], { order: { column: 'created_at', ascending: false } }),
         safeFetch('consultations', dbToConsultation, [], { order: { column: 'created_at', ascending: false } }),
         safeFetch('subscribers', dbToSubscriber, [], { order: { column: 'created_at', ascending: false } }),
+        supabase.from('site_settings').select('*').then(({data, error}) => ({data, error})),
+        safeFetch('comparison_items', dbToComparisonItem, FALLBACK_COMPARISON_ITEMS, { order: { column: 'order_index', ascending: true } }),
+        safeFetch('funnel_stages', dbToFunnelStage, FALLBACK_FUNNEL_STAGES, { order: { column: 'num', ascending: true } }),
+        safeFetch('value_stack_items', dbToValueStackItem, FALLBACK_VALUE_STACK, { order: { column: 'order_index', ascending: true } }),
+        safeFetch('coupons', dbToCoupon, FALLBACK_COUPONS, { order: { column: 'created_at', ascending: false } }),
       ]);
 
       setProducts(dbProducts);
@@ -231,6 +336,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setOrders(dbOrders);
       setConsultations(dbConsultations);
       setSubscribers(dbSubscribers);
+      setComparisonItems(dbComparisons);
+      setFunnelStages(dbFunnels);
+      setValueStackItems(dbValueStack);
+      setCoupons(dbCoupons);
+
+      if (dbSettings.data && !dbSettings.error) {
+        const s: SiteSettings = { ...FALLBACK_SITE_SETTINGS };
+        dbSettings.data.forEach(item => { s[item.key] = item.value; });
+        setSiteSettings(s);
+      }
     };
 
     loadAll();
@@ -447,19 +562,133 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   };
 
+  // ─── CMS Functions ───────────────────────────────────────────────────────
+  
+  const updateSiteSetting = async (key: string, value: string) => {
+    await supabase.from('site_settings').upsert({ key, value });
+    setSiteSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const addComparisonItem = async (itemData: Omit<ComparisonItem, 'id'>) => {
+    const { data, error } = await supabase.from('comparison_items').insert([{
+      aspect: itemData.aspect,
+      before_system: itemData.beforeSystem,
+      after_system: itemData.afterSystem,
+      order_index: itemData.orderIndex
+    }]).select();
+    if (!error && data) setComparisonItems(prev => [...prev, dbToComparisonItem(data[0])]);
+  };
+
+  const updateComparisonItem = async (id: string, itemData: Partial<ComparisonItem>) => {
+    const payload: any = {};
+    if (itemData.aspect !== undefined) payload.aspect = itemData.aspect;
+    if (itemData.beforeSystem !== undefined) payload.before_system = itemData.beforeSystem;
+    if (itemData.afterSystem !== undefined) payload.after_system = itemData.afterSystem;
+    if (itemData.orderIndex !== undefined) payload.order_index = itemData.orderIndex;
+    await supabase.from('comparison_items').update(payload).eq('id', id);
+    setComparisonItems(prev => prev.map(c => c.id === id ? { ...c, ...itemData } : c));
+  };
+
+  const deleteComparisonItem = async (id: string) => {
+    await supabase.from('comparison_items').delete().eq('id', id);
+    setComparisonItems(prev => prev.filter(c => c.id !== id));
+  };
+
+  const addFunnelStage = async (stageData: Omit<FunnelStage, 'id'>) => {
+    const { data, error } = await supabase.from('funnel_stages').insert([{
+      num: stageData.num,
+      title: stageData.title,
+      subtitle: stageData.subtitle,
+      details: stageData.details,
+      badge: stageData.badge,
+      icon_name: stageData.iconName
+    }]).select();
+    if (!error && data) setFunnelStages(prev => [...prev, dbToFunnelStage(data[0])]);
+  };
+
+  const updateFunnelStage = async (id: string, stageData: Partial<FunnelStage>) => {
+    const payload: any = {};
+    if (stageData.num !== undefined) payload.num = stageData.num;
+    if (stageData.title !== undefined) payload.title = stageData.title;
+    if (stageData.subtitle !== undefined) payload.subtitle = stageData.subtitle;
+    if (stageData.details !== undefined) payload.details = stageData.details;
+    if (stageData.badge !== undefined) payload.badge = stageData.badge;
+    if (stageData.iconName !== undefined) payload.icon_name = stageData.iconName;
+    await supabase.from('funnel_stages').update(payload).eq('id', id);
+    setFunnelStages(prev => prev.map(s => s.id === id ? { ...s, ...stageData } : s));
+  };
+
+  const deleteFunnelStage = async (id: string) => {
+    await supabase.from('funnel_stages').delete().eq('id', id);
+    setFunnelStages(prev => prev.filter(s => s.id !== id));
+  };
+
+  const addValueStackItem = async (itemData: Omit<ValueStackItem, 'id'>) => {
+    const { data, error } = await supabase.from('value_stack_items').insert([{
+      name: itemData.name,
+      real_value: itemData.realValue,
+      notes: itemData.notes,
+      order_index: itemData.orderIndex
+    }]).select();
+    if (!error && data) setValueStackItems(prev => [...prev, dbToValueStackItem(data[0])]);
+  };
+
+  const updateValueStackItem = async (id: string, itemData: Partial<ValueStackItem>) => {
+    const payload: any = {};
+    if (itemData.name !== undefined) payload.name = itemData.name;
+    if (itemData.realValue !== undefined) payload.real_value = itemData.realValue;
+    if (itemData.notes !== undefined) payload.notes = itemData.notes;
+    if (itemData.orderIndex !== undefined) payload.order_index = itemData.orderIndex;
+    await supabase.from('value_stack_items').update(payload).eq('id', id);
+    setValueStackItems(prev => prev.map(v => v.id === id ? { ...v, ...itemData } : v));
+  };
+
+  const deleteValueStackItem = async (id: string) => {
+    await supabase.from('value_stack_items').delete().eq('id', id);
+    setValueStackItems(prev => prev.filter(v => v.id !== id));
+  };
+
+  const addCoupon = async (couponData: Omit<Coupon, 'id'>) => {
+    const { data, error } = await supabase.from('coupons').insert([{
+      code: couponData.code,
+      discount_percentage: couponData.discountPercent,
+      is_active: couponData.isActive
+    }]).select();
+    if (!error && data) setCoupons(prev => [...prev, dbToCoupon(data[0])]);
+  };
+
+  const updateCoupon = async (id: string, couponData: Partial<Coupon>) => {
+    const payload: any = {};
+    if (couponData.code !== undefined) payload.code = couponData.code;
+    if (couponData.discountPercent !== undefined) payload.discount_percentage = couponData.discountPercent;
+    if (couponData.isActive !== undefined) payload.is_active = couponData.isActive;
+    await supabase.from('coupons').update(payload).eq('id', id);
+    setCoupons(prev => prev.map(c => c.id === id ? { ...c, ...couponData } : c));
+  };
+
+  const deleteCoupon = async (id: string) => {
+    await supabase.from('coupons').delete().eq('id', id);
+    setCoupons(prev => prev.filter(c => c.id !== id));
+  };
+
   // ─── Provide context ───────────────────────────────────────────────────
 
   return (
     <AppContext.Provider value={{
       currentUser, products, orders, consultations, subscribers,
-      testimonials, faqs, coupons,
+      testimonials, faqs, coupons, siteSettings, comparisonItems, funnelStages, valueStackItems,
       loginAs, logout,
       addProduct, updateProduct, deleteProduct,
       createOrder, updateOrder,
       bookConsultation, updateConsultationStatus,
       subscribeNewsletter,
       submitTestimonial, approveTestimonial, rejectTestimonial,
-      addFAQ, updateFAQ, deleteFAQ, reorderFAQs
+      addFAQ, updateFAQ, deleteFAQ, reorderFAQs,
+      updateSiteSetting,
+      addComparisonItem, updateComparisonItem, deleteComparisonItem,
+      addFunnelStage, updateFunnelStage, deleteFunnelStage,
+      addValueStackItem, updateValueStackItem, deleteValueStackItem,
+      addCoupon, updateCoupon, deleteCoupon
     }}>
       {children}
     </AppContext.Provider>

@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
 import { Tag, Sparkles, AlertCircle, ShoppingCart } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 
 interface ValuePricingProps {
   onBuyClick: () => void;
 }
 
 export default function ValuePricing({ onBuyClick }: ValuePricingProps) {
-  const valueItems = [
-    { name: "كتاب 'بدون التسويق... كارثة تهدد ثروتك المستقبلية'", realValue: 99, notes: "النسخة الرقمية الكاملة عالية الجودة" },
-    { name: "كتاب الهدية الممتازة '10 مبادئ للنجاح المالي والشخصي'", realValue: 29, notes: "بقلم جاسم محمد - غير متاحة للبيع المنفرد" },
-    { name: "الحقيبة التسويقية الشاملة والقوالب العملية الجاهزة", realValue: 39, notes: "نماذج ملفات وهياكل جاهزة للاستخدام" },
-    { name: "تمارين تفاعلية ودفتر تمارين لكل فصل", realValue: 19, notes: "لضمان تطبيق الأفكار التسويقية فورياً" },
-    { name: "التحديثات الدورية وكافة الفصول الإضافية مدى الحياة", realValue: 25, notes: "ترقية مستمرة لأحدث استراتيجيات السوق" },
-    { name: "الوصول الحصري لمجتمع BLACK4ME ودعم الخبراء والمؤسس", realValue: 49, notes: "قنوات تفاعلية لحل مشكلات أعمالك" }
-  ];
+  const { valueStackItems, products } = useApp();
 
-  const totalValue = valueItems.reduce((acc, item) => acc + item.realValue, 0);
+  const mainProduct = products.find(p => p.id === 'prod-main-book') || products[0];
+  
+  const totalValue = valueStackItems.reduce((acc, item) => acc + item.realValue, 0);
 
   return (
     <section id="pricing-section" className="bg-brand-darkgray text-brand-white py-24 px-4 border-b border-brand-purple/10" dir="rtl">
@@ -45,8 +41,8 @@ export default function ValuePricing({ onBuyClick }: ValuePricingProps) {
           </div>
 
           <div className="divide-y divide-brand-white/5">
-            {valueItems.map((item, idx) => (
-              <div key={idx} className="p-5 sm:p-6 grid sm:grid-cols-12 gap-4 items-center hover:bg-brand-white/[0.01] transition duration-200">
+            {valueStackItems.map((item, idx) => (
+              <div key={item.id || idx} className="p-5 sm:p-6 grid sm:grid-cols-12 gap-4 items-center hover:bg-brand-white/[0.01] transition duration-200">
                 <div className="sm:col-span-8 space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-brand-gold" />
@@ -91,10 +87,10 @@ export default function ValuePricing({ onBuyClick }: ValuePricingProps) {
           </p>
 
           <div className="space-y-1 mb-8">
-            <p className="text-gray-500 text-sm line-through">القيمة الحقيقية: $260 دولار أمريكي</p>
+            <p className="text-gray-500 text-sm line-through">القيمة الحقيقية: ${totalValue} دولار أمريكي</p>
             <div className="flex justify-center items-baseline gap-2">
               <span className="text-5xl font-black text-brand-gold drop-shadow-[0_0_10px_rgba(245,197,66,0.3)]">
-                $49
+                ${mainProduct?.salePrice || mainProduct?.price || 49}
               </span>
               <span className="text-lg text-gray-400 font-medium">دولار فقط لمرة واحدة</span>
             </div>

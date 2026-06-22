@@ -74,7 +74,38 @@ export interface FAQ {
 }
 
 export interface Coupon {
+  id?: string;
   code: string;
   discountPercent: number;
   isActive: boolean;
+}
+
+export interface SiteSettings {
+  [key: string]: string;
+}
+
+export interface ComparisonItem {
+  id: string;
+  aspect: string;
+  beforeSystem: string;
+  afterSystem: string;
+  orderIndex: number;
+}
+
+export interface FunnelStage {
+  id: string;
+  num: number;
+  title: string;
+  subtitle: string;
+  details: string;
+  badge: string;
+  iconName: string;
+}
+
+export interface ValueStackItem {
+  id: string;
+  name: string;
+  realValue: number;
+  notes: string;
+  orderIndex: number;
 }
