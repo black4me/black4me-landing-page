@@ -8,8 +8,9 @@ import {
   TrendingUp, RefreshCw, BarChart3, Filter, CheckCircle2,
   Tag, ClipboardList, Calendar, MessageSquare, HelpCircle,
   Plus, Edit2, Trash2, Search, Download, XCircle, Star,
-  ChevronDown, ChevronUp, Eye, EyeOff, Save, X
+  ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Settings, GitCompare, Layers, Ticket
 } from 'lucide-react';
+import { SiteSettingsTab, ComparisonTab, FunnelsTab, ValueStackTab, CouponsTab } from '../../views/admin/CmsTabs';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -71,7 +72,7 @@ interface Subscriber {
   created_at: string;
 }
 
-type Tab = 'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 'faqs' | 'subscribers';
+type Tab = 'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 'faqs' | 'subscribers' | 'site-settings' | 'comparison' | 'funnels' | 'value-stack' | 'coupons';
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
@@ -273,6 +274,11 @@ export default function AdminDashboard() {
     { id: 'testimonials', label: 'الآراء', icon: MessageSquare, count: testimonials.length },
     { id: 'faqs', label: 'الأسئلة الشائعة', icon: HelpCircle, count: faqs.length },
     { id: 'subscribers', label: 'المشتركون', icon: Users, count: subscribers.length },
+    { id: 'site-settings', label: 'إعدادات الموقع والنصوص', icon: Settings },
+    { id: 'comparison', label: 'جدول المقارنة', icon: GitCompare },
+    { id: 'funnels', label: 'مراحل الفنل', icon: Layers },
+    { id: 'value-stack', label: 'الحزمة المضافة', icon: DollarSign },
+    { id: 'coupons', label: 'كوبونات الخصم', icon: Ticket },
   ];
 
   // ─── Render ─────────────────────────────────────────────────────────────────
@@ -829,6 +835,41 @@ export default function AdminDashboard() {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* TAB 8: Site Settings CMS */}
+        {activeTab === 'site-settings' && (
+          <div className="animate-fadeIn">
+            <SiteSettingsTab />
+          </div>
+        )}
+
+        {/* TAB 9: Comparison Table CMS */}
+        {activeTab === 'comparison' && (
+          <div className="animate-fadeIn">
+            <ComparisonTab />
+          </div>
+        )}
+
+        {/* TAB 10: Funnel Stages CMS */}
+        {activeTab === 'funnels' && (
+          <div className="animate-fadeIn">
+            <FunnelsTab />
+          </div>
+        )}
+
+        {/* TAB 11: Value Stack CMS */}
+        {activeTab === 'value-stack' && (
+          <div className="animate-fadeIn">
+            <ValueStackTab />
+          </div>
+        )}
+
+        {/* TAB 12: Coupons CMS */}
+        {activeTab === 'coupons' && (
+          <div className="animate-fadeIn">
+            <CouponsTab />
           </div>
         )}
 
