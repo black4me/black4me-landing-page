@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ComparisonItem, FunnelStage, ValueStackItem, Coupon } from '../../types';
 import { Plus, Edit2, Trash2, CheckCircle, XCircle } from 'lucide-react';
@@ -16,6 +16,20 @@ export function SiteSettingsTab() {
     enable_paypal: siteSettings.enable_paypal === 'true',
     enable_stripe: siteSettings.enable_stripe === 'true',
   });
+
+  useEffect(() => {
+    setFormData({
+      hero_title: siteSettings.hero_title || '',
+      hero_subtitle: siteSettings.hero_subtitle || '',
+      hero_video_url: siteSettings.hero_video_url || '',
+      funnel_title: siteSettings.funnel_title || '',
+      funnel_subtitle: siteSettings.funnel_subtitle || '',
+      comparison_title: siteSettings.comparison_title || '',
+      comparison_subtitle: siteSettings.comparison_subtitle || '',
+      enable_paypal: siteSettings.enable_paypal === 'true',
+      enable_stripe: siteSettings.enable_stripe === 'true',
+    });
+  }, [siteSettings]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
