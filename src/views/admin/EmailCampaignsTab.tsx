@@ -90,7 +90,7 @@ export function EmailCampaignsTab() {
             <div className="space-y-1 flex-1">
               <div className="flex items-center gap-2">
                 <h4 className="text-sm font-bold text-white">{camp.subject}</h4>
-                <span className={\`text-[9px] font-bold px-2 py-0.5 rounded-full \${camp.status === 'sent' ? 'bg-green-500/10 text-green-400' : camp.status === 'scheduled' ? 'bg-blue-500/10 text-blue-400' : 'bg-gray-500/10 text-gray-400'}\`}>
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${camp.status === 'sent' ? 'bg-green-500/10 text-green-400' : camp.status === 'scheduled' ? 'bg-blue-500/10 text-blue-400' : 'bg-gray-500/10 text-gray-400'}`}>
                   {camp.status === 'sent' ? 'تم الإرسال' : camp.status === 'scheduled' ? 'مجدول' : 'مسودة'}
                 </span>
               </div>

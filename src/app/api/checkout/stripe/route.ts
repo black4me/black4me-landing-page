@@ -34,8 +34,8 @@ export async function POST(req: Request) {
       ],
       mode: 'payment',
       // We'll use absolute URLs for redirects. In dev it's localhost, in prod it's the real domain.
-      success_url: `${req.headers.get('origin') || 'http://localhost:3000'}/thankyou?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get('origin') || 'http://localhost:3000'}/`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.black4me.com'}/thankyou?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.black4me.com'}/`,
       metadata: {
         product_id: productId, // CRITICAL: This is passed to the webhook
         customer_email: customerEmail,
