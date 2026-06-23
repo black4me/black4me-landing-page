@@ -45,8 +45,8 @@ export async function POST(req: Request) {
         },
       ],
       application_context: {
-        return_url: `${req.headers.get('origin') || 'http://localhost:3000'}/thankyou?paypal=true`,
-        cancel_url: `${req.headers.get('origin') || 'http://localhost:3000'}/`,
+        return_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.black4me.com'}/thankyou?paypal=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.black4me.com'}/`,
       },
     };
 

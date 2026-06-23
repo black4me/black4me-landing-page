@@ -8,7 +8,7 @@ import {
   TrendingUp, RefreshCw, BarChart3, Filter, CheckCircle2,
   Tag, ClipboardList, Calendar, MessageSquare, HelpCircle,
   Plus, Edit2, Trash2, Search, Download, XCircle, Star,
-  ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Settings, GitCompare, Layers, Ticket
+  ChevronDown, ChevronUp, Eye, EyeOff, Save, X, Settings, GitCompare, Layers, Ticket, Mail
 } from 'lucide-react';
 import { SiteSettingsTab, ComparisonTab, FunnelsTab, ValueStackTab, CouponsTab } from '../../views/admin/CmsTabs';
 import { EmailCampaignsTab } from '../../views/admin/EmailCampaignsTab';
