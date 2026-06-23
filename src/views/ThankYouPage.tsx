@@ -1,13 +1,15 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { Download, MessageCircle, PhoneCall, Mail, CheckCircle, Sparkles } from 'lucide-react';
+import { Download, MessageCircle, PhoneCall, Mail, CheckCircle, Sparkles, Calendar } from 'lucide-react';
 
 interface ThankYouPageProps {
+  checkoutMode?: 'book' | 'consultation';
+  checkoutData?: {name: string, email: string} | null;
   onBackToHome: () => void;
   onNavigateToPortal: () => void;
 }
 
-export default function ThankYouPage({ onBackToHome, onNavigateToPortal }: ThankYouPageProps) {
+export default function ThankYouPage({ checkoutMode = 'book', checkoutData, onBackToHome, onNavigateToPortal }: ThankYouPageProps) {
   const { products } = useApp();
   const mainProduct = products.find(p => p.id === 'prod-main-book') || products[0];
   const bonusProduct = products.find(p => p.id === 'prod-bonus-gift');
@@ -35,75 +37,105 @@ export default function ThankYouPage({ onBackToHome, onNavigateToPortal }: Thank
           <span className="text-brand-gold font-bold text-xs uppercase tracking-widest bg-brand-gold/10 border border-brand-gold/20 px-3 py-1 rounded-full">
             عملية الشراء آمنة ومكتملة بنجاح %100
           </span>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white">نشكـرك لعظيم ثقتك بنظام BLACK4ME!</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white">
+            {checkoutMode === 'consultation' ? 'شكراً لك على حجز الاستشارة!' : 'نشكـرك لعظيم ثقتك بنظام BLACK4ME!'}
+          </h1>
           <p className="text-sm sm:text-base text-gray-400 max-w-xl mx-auto font-medium">
-            مرحباً بك في نادي النخبة. تم تسجيل حساب العميل الخاص بك وتفعيل خوادم التراخيص. يمكنك تنزيل أصولك الرقمية تالياً مدى الحياة.
+            {checkoutMode === 'consultation' 
+              ? 'تم تأكيد الدفع بنجاح. يرجى اختيار موعد الجلسة المناسب لك من التقويم أدناه.'
+              : 'مرحباً بك في نادي النخبة. تم تسجيل حساب العميل الخاص بك وتفعيل خوادم التراخيص. يمكنك تنزيل أصولك الرقمية تالياً مدى الحياة.'}
           </p>
         </div>
 
-        {/* Dynamic Download Buttons Column */}
+        {/* Dynamic Download or Booking Column */}
         <div className="bg-brand-darkgray border border-brand-white/10 rounded-3xl p-6 sm:p-8 space-y-4 shadow-2xl">
-          <h3 className="text-sm font-bold text-gray-400 text-right border-b border-brand-white/5 pb-3">روابط التنزيل المباشرة المفعلة</h3>
-          
-          <div className="grid sm:grid-cols-2 gap-4 text-right">
-            
-            {/* Download Main Book */}
-            <div className="bg-brand-black p-4 rounded-xl border border-brand-gold/20 flex flex-col justify-between items-start gap-4">
-              <div>
-                <span className="text-[10px] text-brand-gold font-bold uppercase block">المنتج الأساسي</span>
-                <h4 className="text-sm font-bold text-white mt-1">{mainProduct?.title || 'كتاب بدون التسويق'}</h4>
-                <p className="text-[10px] text-gray-500 font-mono mt-0.5">SIZE: 14.5 MB | FORMAT: PDF High-Res</p>
-              </div>
-              {mainProduct?.fileUrl ? (
-                <a
-                  href={mainProduct.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 bg-brand-gold hover:bg-yellow-500 text-brand-black font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>تحميل / استلام المنتج</span>
-                </a>
-              ) : (
-                <button
-                  onClick={() => handleDownload(`${mainProduct?.title || 'المنتج'}.pdf`)}
-                  className="w-full py-2.5 bg-brand-gold hover:bg-yellow-500 text-brand-black font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>تحميل كتاب المبيعات</span>
-                </button>
-              )}
+          {checkoutMode === 'consultation' ? (
+            <div className="text-center space-y-6 py-4">
+              <h3 className="text-xl font-bold text-brand-gold flex items-center justify-center gap-2">
+                <Calendar className="w-6 h-6" />
+                <span>اختر موعد الجلسة</span>
+              </h3>
+              <p className="text-sm text-gray-300">
+                لقد تم حفظ معلوماتك. الرجاء الضغط على الزر أدناه لفتح تقويم Notion واختيار الوقت المناسب.
+              </p>
+              <a
+                href={`https://calendar.notion.so/meet/black4me/di783v4a?name=${encodeURIComponent(checkoutData?.name || '')}&email=${encodeURIComponent(checkoutData?.email || '')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex px-8 py-4 bg-brand-gold hover:bg-yellow-500 text-brand-black font-extrabold rounded-xl transition duration-300 items-center justify-center gap-2"
+              >
+                <Calendar className="w-5 h-5" />
+                <span>فتح تقويم المواعيد (Notion Calendar)</span>
+              </a>
+              <p className="text-xs text-gray-500">
+                إذا واجهت أي مشكلة، يرجى التواصل مع الدعم الفني.
+              </p>
             </div>
+          ) : (
+            <>
+              <h3 className="text-sm font-bold text-gray-400 text-right border-b border-brand-white/5 pb-3">روابط التنزيل المباشرة المفعلة</h3>
+              
+              <div className="grid sm:grid-cols-2 gap-4 text-right">
+                
+                {/* Download Main Book */}
+                <div className="bg-brand-black p-4 rounded-xl border border-brand-gold/20 flex flex-col justify-between items-start gap-4">
+                  <div>
+                    <span className="text-[10px] text-brand-gold font-bold uppercase block">المنتج الأساسي</span>
+                    <h4 className="text-sm font-bold text-white mt-1">{mainProduct?.title || 'كتاب بدون التسويق'}</h4>
+                    <p className="text-[10px] text-gray-500 font-mono mt-0.5">SIZE: 14.5 MB | FORMAT: PDF High-Res</p>
+                  </div>
+                  {mainProduct?.fileUrl ? (
+                    <a
+                      href={mainProduct.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-2.5 bg-brand-gold hover:bg-yellow-500 text-brand-black font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>تحميل / استلام المنتج</span>
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => handleDownload(`${mainProduct?.title || 'المنتج'}.pdf`)}
+                      className="w-full py-2.5 bg-brand-gold hover:bg-yellow-500 text-brand-black font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>تحميل كتاب المبيعات</span>
+                    </button>
+                  )}
+                </div>
 
-            {/* Download Gift Book */}
-            <div className="bg-brand-black p-4 rounded-xl border border-brand-purple/20 flex flex-col justify-between items-start gap-4">
-              <div>
-                <span className="text-[10px] text-brand-purple font-bold uppercase block">الهدية الكبرى المرفقة</span>
-                <h4 className="text-sm font-bold text-white mt-1">{bonusProduct?.title || 'كتاب 10 مبادئ'}</h4>
-                <p className="text-[10px] text-gray-500 font-mono mt-0.5">SIZE: 8.2 MB | FORMAT: PDF Complete</p>
+                {/* Download Gift Book */}
+                <div className="bg-brand-black p-4 rounded-xl border border-brand-purple/20 flex flex-col justify-between items-start gap-4">
+                  <div>
+                    <span className="text-[10px] text-brand-purple font-bold uppercase block">الهدية الكبرى المرفقة</span>
+                    <h4 className="text-sm font-bold text-white mt-1">{bonusProduct?.title || 'كتاب 10 مبادئ'}</h4>
+                    <p className="text-[10px] text-gray-500 font-mono mt-0.5">SIZE: 8.2 MB | FORMAT: PDF Complete</p>
+                  </div>
+                  {bonusProduct?.fileUrl ? (
+                    <a
+                      href={bonusProduct.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-2.5 bg-brand-purple hover:bg-indigo-700 text-white font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>تحميل الهدية</span>
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => handleDownload(`${bonusProduct?.title || 'الهدية'}.pdf`)}
+                      className="w-full py-2.5 bg-brand-purple hover:bg-indigo-700 text-white font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>تحميل كتاب النجاح المالي</span>
+                    </button>
+                  )}
+                </div>
+
               </div>
-              {bonusProduct?.fileUrl ? (
-                <a
-                  href={bonusProduct.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 bg-brand-purple hover:bg-indigo-700 text-white font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>تحميل الهدية</span>
-                </a>
-              ) : (
-                <button
-                  onClick={() => handleDownload(`${bonusProduct?.title || 'الهدية'}.pdf`)}
-                  className="w-full py-2.5 bg-brand-purple hover:bg-indigo-700 text-white font-extrabold text-xs rounded-lg transition duration-200 cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>تحميل كتاب النجاح المالي</span>
-                </button>
-              )}
-            </div>
-
-          </div>
+            </>
+          )}
         </div>
 
         {/* Promotion Call to Actions list */}
