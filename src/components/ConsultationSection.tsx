@@ -15,13 +15,16 @@ export default function ConsultationSection() {
     e.preventDefault();
     if (!customerName || !customerEmail) return;
 
-    await bookConsultation({
-      customerName,
-      customerEmail,
-      appointmentDate: 'TBD', // سيحدد في نوشن
-      appointmentTime: 'TBD',
-      notes
-    });
+    try {
+      // Call our backend API which sends the email and tries to save to DB
+      await fetch('/api/consultation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerName, customerEmail, notes })
+      });
+    } catch (err) {
+      console.error("Failed to post consultation:", err);
+    }
 
     setIsBooked(true);
     
