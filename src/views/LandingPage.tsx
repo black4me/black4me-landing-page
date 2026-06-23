@@ -27,6 +27,28 @@ export default function LandingPage({ onNavigateToCheckout }: LandingPageProps) 
 
   return (
     <div className="bg-brand-black min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "BLACK4ME - نظام التسويق الذكي",
+            "description": "المنصة المتكاملة للتسويق الذكي والمبيعات الرقمية المتقدمة.",
+            "brand": {
+              "@type": "Brand",
+              "name": "BLACK4ME"
+            },
+            "offers": {
+              "@type": "Offer",
+              "url": "https://www.black4me.com",
+              "priceCurrency": "USD",
+              "price": "49",
+              "availability": "https://schema.org/InStock"
+            }
+          })
+        }}
+      />
       {/* Floating Trust Banner */}
       <div className="bg-brand-purple text-white text-center py-2 text-xs font-bold leading-none sticky top-[45px] z-40 flex items-center justify-center gap-1.5 px-4" dir="rtl">
         <Sparkles className="w-3.5 h-3.5 text-brand-gold animate-bounce" />

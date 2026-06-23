@@ -1,0 +1,3 @@
+{
+  "/api/checkout/paypal/capture/route": "app/api/checkout/paypal/capture/route.js"
+}

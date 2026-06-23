@@ -10,7 +10,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_fo
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { productId, title, price, customerEmail } = body;
+    const { productId, title, price, customerEmail, customerName, customerCountry } = body;
 
     if (!productId || !title || !price || !customerEmail) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -26,7 +26,9 @@ export async function POST(req: Request) {
         {
           price_data: {
             currency: 'usd',
-            product: productId, // Using the actual Stripe Product ID
+            product_data: {
+              name: title,
+            },
             unit_amount: unitAmount,
           },
           quantity: 1,
@@ -39,6 +41,8 @@ export async function POST(req: Request) {
       metadata: {
         product_id: productId, // CRITICAL: This is passed to the webhook
         customer_email: customerEmail,
+        customer_name: customerName || '',
+        customer_country: customerCountry || '',
       },
     });
 

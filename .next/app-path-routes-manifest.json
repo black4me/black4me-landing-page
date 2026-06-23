@@ -2,11 +2,16 @@
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
   "/admin/page": "/admin",
+  "/api/checkout/paypal/capture/route": "/api/checkout/paypal/capture",
   "/api/checkout/paypal/route": "/api/checkout/paypal",
   "/api/checkout/stripe/route": "/api/checkout/stripe",
+  "/api/cron/abandoned-cart/route": "/api/cron/abandoned-cart",
+  "/api/cron/newsletters/route": "/api/cron/newsletters",
+  "/api/order/verify/route": "/api/order/verify",
   "/api/webhooks/stripe/route": "/api/webhooks/stripe",
   "/favicon.ico/route": "/favicon.ico",
   "/login/page": "/login",
   "/page": "/",
-  "/portal/page": "/portal"
+  "/portal/page": "/portal",
+  "/thankyou/page": "/thankyou"
 }

@@ -229,8 +229,9 @@ function dbToOrder(row: any): Order {
     productId: row.product_id,
     productTitle: row.product_title || '',
     amount: row.amount,
-    paymentGateway: row.payment_gateway as 'stripe' | 'paypal',
-    status: row.status as 'pending' | 'completed' | 'failed',
+    paymentGateway: row.payment_gateway as 'stripe' | 'paypal' | 'spaceremit',
+    status: row.status as 'pending' | 'completed' | 'failed' | 'pending_verification',
+    receipt_url: row.receipt_url,
     createdAt: row.created_at,
   };
 }

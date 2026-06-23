@@ -15,6 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const keywords = settings.seo_keywords || "تسويق, ذكاء اصطناعي, مبيعات, أعمال";
   const ogImage = settings.og_image || "";
 
+  const gscId = settings.gsc_id || "";
+
   return {
     title,
     description,
@@ -23,6 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       images: ogImage ? [{ url: ogImage }] : [],
+    },
+    verification: {
+      google: gscId,
     },
   };
 }
@@ -44,6 +49,7 @@ export default async function RootLayout({
         {children}
         <TrackingScripts
           gaId={settings.ga_id}
+          gtmId={settings.gtm_id}
           metaPixelId={settings.meta_pixel_id}
           tiktokPixelId={settings.tiktok_pixel_id}
         />

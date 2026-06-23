@@ -19,6 +19,9 @@ import { AppProvider, FALLBACK_PRODUCTS } from '../../context/AppContext';
 interface Order {
   id: string;
   customer_email: string;
+  customer_name?: string;
+  country?: string;
+  receipt_url?: string;
   product_id: string;
   amount: number;
   payment_gateway: string;
@@ -32,10 +35,16 @@ interface Product {
   description: string;
   price: number;
   sale_price?: number;
+  salePrice?: number;
   file_url?: string;
+  fileUrl?: string;
   payment_link?: string;
-  is_active: boolean;
-  created_at: string;
+  paymentLink?: string;
+  is_active?: boolean;
+  isActive?: boolean;
+  created_at?: string;
+  features?: string[];
+  chapters?: string[];
 }
 
 interface Consultation {
@@ -94,11 +103,24 @@ export default function AdminDashboard() {
 
   // UI states
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterGateway, setFilterGateway] = useState<'all'|'stripe'|'paypal'|'spaceremit'>('all');
 
   // Product form
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productForm, setProductForm] = useState({ title: '', description: '', price: 49, sale_price: 0, file_url: '', payment_link: '', is_active: true, features: '', chapters: '' });
+
+  const [settingsForm, setSettingsForm] = useState({
+    site_name: '',
+    site_description: '',
+    contact_email: '',
+    seo_title: '',
+    seo_description: '',
+    seo_keywords: '',
+    ga_id: '',
+    gsc_id: '',
+    gtm_id: ''
+  });
 
   // FAQ form
   const [showFAQForm, setShowFAQForm] = useState(false);
@@ -118,13 +140,14 @@ export default function AdminDashboard() {
     }
 
     // Fetch all tables in parallel
-    const [ordersRes, productsRes, consultRes, testimonRes, faqsRes, subsRes] = await Promise.all([
+    const [ordersRes, productsRes, consultRes, testimonRes, faqsRes, subsRes, settingsRes] = await Promise.all([
       supabase.from('orders').select('*').order('created_at', { ascending: false }),
       supabase.from('products').select('*').order('created_at', { ascending: false }),
       supabase.from('consultations').select('*').order('created_at', { ascending: false }),
       supabase.from('testimonials').select('*').order('created_at', { ascending: false }),
       supabase.from('faqs').select('*').order('order_index', { ascending: true }),
       supabase.from('subscribers').select('*').order('created_at', { ascending: false }),
+      supabase.from('settings').select('*')
     ]);
 
     if (ordersRes.data) setOrders(ordersRes.data);
@@ -137,6 +160,21 @@ export default function AdminDashboard() {
     if (testimonRes.data) setTestimonials(testimonRes.data);
     if (faqsRes.data) setFaqs(faqsRes.data);
     if (subsRes.data) setSubscribers(subsRes.data);
+    
+    if (settingsRes.data) {
+        const settingsMap = settingsRes.data.reduce((acc, curr) => ({ ...acc, [curr.setting_key]: curr.setting_value }), {} as any);
+        setSettingsForm({
+          site_name: settingsMap['site_name'] || '',
+          site_description: settingsMap['site_description'] || '',
+          contact_email: settingsMap['contact_email'] || '',
+          seo_title: settingsMap['seo_title'] || '',
+          seo_description: settingsMap['seo_description'] || '',
+          seo_keywords: settingsMap['seo_keywords'] || '',
+          ga_id: settingsMap['ga_id'] || '',
+          gsc_id: settingsMap['gsc_id'] || '',
+          gtm_id: settingsMap['gtm_id'] || ''
+        });
+    }
 
     setLoading(false);
     setRefreshing(false);
@@ -147,6 +185,44 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/login');
+  };
+
+  const handleApproveOrder = async (orderId: string) => {
+    try {
+      const res = await fetch('/api/order/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchAllData(); // Refresh the data to show it's completed
+      } else {
+        alert('فشل الاعتماد: ' + data.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('حدث خطأ أثناء الاتصال بالخادم');
+    }
+  };
+  
+  const handleSettingsSave = async () => {
+      const settingsToUpdate = [
+        { setting_key: 'site_name', setting_value: settingsForm.site_name },
+        { setting_key: 'site_description', setting_value: settingsForm.site_description },
+        { setting_key: 'contact_email', setting_value: settingsForm.contact_email },
+        { setting_key: 'seo_title', setting_value: settingsForm.seo_title },
+        { setting_key: 'seo_description', setting_value: settingsForm.seo_description },
+        { setting_key: 'seo_keywords', setting_value: settingsForm.seo_keywords },
+        { setting_key: 'ga_id', setting_value: settingsForm.ga_id },
+        { setting_key: 'gsc_id', setting_value: settingsForm.gsc_id },
+        { setting_key: 'gtm_id', setting_value: settingsForm.gtm_id }
+      ];
+      for (const s of settingsToUpdate) {
+          await supabase.from('settings').upsert(s, { onConflict: 'setting_key' });
+      }
+      alert('تم حفظ الإعدادات');
+      fetchAllData();
   };
 
   // ─── KPIs ───────────────────────────────────────────────────────────────────
@@ -171,7 +247,7 @@ export default function AdminDashboard() {
       sale_price: p.salePrice || 0, 
       file_url: p.fileUrl || '', 
       payment_link: p.paymentLink || '', 
-      is_active: p.isActive,
+      is_active: p.isActive ?? p.is_active ?? true,
       features: p.features ? p.features.join('\n') : '',
       chapters: p.chapters ? p.chapters.join('\n') : ''
     });
@@ -266,11 +342,15 @@ export default function AdminDashboard() {
 
   // ─── CSV Export ─────────────────────────────────────────────────────────────
 
-  const exportCSV = (type: 'orders' | 'subscribers') => {
+  const exportCSV = (type: 'orders' | 'orders-spaceremit' | 'subscribers') => {
     let csv = '';
     if (type === 'orders') {
-      csv = 'ID,Email,Amount,Gateway,Status,Date\n';
-      orders.forEach(o => { csv += `"${o.id}","${o.customer_email}","${o.amount}","${o.payment_gateway}","${o.status}","${o.created_at}"\n`; });
+      csv = 'ID,Name,Email,Country,Amount,Gateway,Status,Date\n';
+      orders.forEach(o => { csv += `"${o.id}","${o.customer_name||''}","${o.customer_email}","${o.country||''}","${o.amount}","${o.payment_gateway}","${o.status}","${o.created_at}"\n`; });
+    } else if (type === 'orders-spaceremit') {
+      csv = 'ID,Name,Email,Country,Amount,Gateway,Status,Date,Receipt URL\n';
+      const spaceOrders = orders.filter(o => o.payment_gateway === 'spaceremit');
+      spaceOrders.forEach(o => { csv += `"${o.id}","${o.customer_name||''}","${o.customer_email}","${o.country||''}","${o.amount}","${o.payment_gateway}","${o.status}","${o.created_at}","${o.receipt_url||''}"\n`; });
     } else {
       csv = 'ID,Name,Email,Country,Date\n';
       subscribers.forEach(s => { csv += `"${s.id}","${s.name}","${s.email}","${s.country}","${s.created_at}"\n`; });
@@ -598,32 +678,73 @@ export default function AdminDashboard() {
             </div>
 
             <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden">
+              <div className="p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex gap-2">
+                  <button onClick={() => setFilterGateway('all')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${filterGateway === 'all' ? 'bg-[#6C3BFF] text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>الكل</button>
+                  <button onClick={() => setFilterGateway('stripe')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${filterGateway === 'stripe' ? 'bg-[#6C3BFF] text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>Stripe</button>
+                  <button onClick={() => setFilterGateway('paypal')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${filterGateway === 'paypal' ? 'bg-[#6C3BFF] text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>PayPal</button>
+                  <button onClick={() => setFilterGateway('spaceremit')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${filterGateway === 'spaceremit' ? 'bg-[#6C3BFF] text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>SpaceRemit</button>
+                </div>
+                <button onClick={() => exportCSV('orders-spaceremit')} className="flex items-center gap-2 text-xs font-bold text-gray-800 bg-[#F5C542] hover:bg-yellow-400 px-4 py-2.5 rounded-xl transition">
+                  <Download className="w-4 h-4" /> تقرير سبيس ريميت (CSV)
+                </button>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-right text-sm">
-                  <thead className="text-xs text-gray-500 border-b border-white/10 bg-black/30">
+                  <thead className="text-xs text-gray-500 border-b border-white/10 bg-black/30 whitespace-nowrap">
                     <tr>
-                      <th className="py-4 px-4 font-medium">البريد الإلكتروني</th>
+                      <th className="py-4 px-4 font-medium">العميل</th>
+                      <th className="py-4 px-4 font-medium">الدولة</th>
                       <th className="py-4 px-4 font-medium">المنتج</th>
                       <th className="py-4 px-4 font-medium">المبلغ</th>
                       <th className="py-4 px-4 font-medium">البوابة</th>
-                      <th className="py-4 px-4 font-medium">التاريخ</th>
+                      <th className="py-4 px-4 font-medium">التاريخ والوقت</th>
                       <th className="py-4 px-4 font-medium">الحالة</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {orders.length === 0 ? (
-                      <tr><td colSpan={6} className="py-12 text-center text-gray-500 text-xs">لا توجد طلبات مسجلة</td></tr>
-                    ) : orders.map(o => (
+                    {orders.filter(o => filterGateway === 'all' || o.payment_gateway === filterGateway).length === 0 ? (
+                      <tr><td colSpan={7} className="py-12 text-center text-gray-500 text-xs">لا توجد طلبات מסجلة</td></tr>
+                    ) : orders.filter(o => filterGateway === 'all' || o.payment_gateway === filterGateway).map(o => (
                       <tr key={o.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="py-3.5 px-4 text-xs text-gray-300 font-mono">{o.customer_email}</td>
+                        <td className="py-3.5 px-4 text-xs">
+                          <div className="font-bold text-white">{o.customer_name || 'بدون اسم'}</div>
+                          <div className="text-gray-400 font-mono mt-0.5 text-[10px]">{o.customer_email}</div>
+                        </td>
+                        <td className="py-3.5 px-4 text-xs text-gray-300">{o.country || 'غير محدد'}</td>
                         <td className="py-3.5 px-4 text-xs text-gray-400 font-mono">{o.product_id?.substring(0, 20)}...</td>
                         <td className="py-3.5 px-4 font-black text-[#F5C542] font-mono">${o.amount}</td>
                         <td className="py-3.5 px-4 text-xs text-gray-400 uppercase font-bold">{o.payment_gateway}</td>
-                        <td className="py-3.5 px-4 text-xs text-gray-500 font-mono">{new Date(o.created_at).toLocaleDateString('en-GB')}</td>
+                        <td className="py-3.5 px-4 text-[11px] text-gray-500 font-mono whitespace-nowrap">
+                          {new Date(o.created_at).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' })}
+                        </td>
                         <td className="py-3.5 px-4">
-                          <span className="inline-flex items-center gap-1 bg-green-500/10 text-green-400 px-2.5 py-1 rounded-full text-[10px] font-bold border border-green-500/20">
-                            <CheckCircle2 className="w-3 h-3" /> مكتمل
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                            o.status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
+                            o.status === 'pending_verification' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 
+                            'bg-red-500/10 text-red-400 border-red-500/20'
+                          }`}>
+                            {o.status === 'completed' ? <><CheckCircle2 className="w-3 h-3" /> مكتمل</> : 
+                             o.status === 'pending_verification' ? 'قيد المراجعة' : 
+                             'ملغى / فشل'}
                           </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-xs">
+                          {o.status === 'pending_verification' && (
+                            <div className="flex flex-col gap-1 items-end">
+                              {(o as any).receipt_url && (
+                                <a href={(o as any).receipt_url} target="_blank" rel="noreferrer" className="text-brand-gold hover:underline">
+                                  عرض الإيصال
+                                </a>
+                              )}
+                              <button 
+                                onClick={() => handleApproveOrder(o.id)}
+                                className="text-green-400 font-bold bg-green-500/10 border border-green-500/20 px-2 py-1 rounded-lg hover:bg-green-500/20 transition cursor-pointer mt-1"
+                              >
+                                اعتماد وإرسال
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}

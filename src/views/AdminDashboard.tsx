@@ -129,6 +129,25 @@ export default function AdminDashboard() {
     setNewOrderIndex(faqs.length + 1);
   };
 
+  const handleApproveOrder = async (orderId: string) => {
+    try {
+      const res = await fetch('/api/order/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        updateOrder(orderId, 'completed');
+      } else {
+        alert('فشل الاعتماد: ' + data.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('حدث خطأ أثناء الاتصال بالخادم');
+    }
+  };
+
   return (
     <div className="bg-brand-black min-h-screen text-brand-white p-6 sm:p-12" dir="rtl">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -494,18 +513,36 @@ export default function AdminDashboard() {
                           <td className="p-3 uppercase font-semibold">{it.paymentGateway}</td>
                           <td className="p-3">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                              it.status === 'completed' ? 'bg-brand-green/10 text-brand-green' : 'bg-brand-red/10 text-brand-red'
+                              it.status === 'completed' ? 'bg-brand-green/10 text-brand-green' : 
+                              it.status === 'pending_verification' ? 'bg-brand-gold/10 text-brand-gold' : 
+                              'bg-brand-red/10 text-brand-red'
                             }`}>
-                              {it.status === 'completed' ? 'تلقائي كامل' : 'ملغى / فشل'}
+                              {it.status === 'completed' ? 'تلقائي كامل' : 
+                               it.status === 'pending_verification' ? 'قيد المراجعة' : 
+                               'ملغى / فشل'}
                             </span>
                           </td>
                           <td className="p-3">
-                            {it.status === 'failed' ? (
+                            {it.status === 'pending_verification' ? (
+                              <div className="flex flex-col gap-1 items-end">
+                                {it.receipt_url && (
+                                  <a href={it.receipt_url} target="_blank" rel="noreferrer" className="text-[10px] text-brand-gold hover:underline">
+                                    عرض الإيصال
+                                  </a>
+                                )}
+                                <button 
+                                  onClick={() => handleApproveOrder(it.id)}
+                                  className="text-[10px] text-brand-green font-bold bg-brand-green/10 border border-brand-green/20 px-2 py-0.5 rounded-lg hover:bg-brand-green/20 cursor-pointer"
+                                >
+                                  اعتماد وإرسال الكتاب
+                                </button>
+                              </div>
+                            ) : it.status === 'failed' ? (
                               <button 
                                 onClick={() => updateOrder(it.id, 'completed')}
                                 className="text-[10px] text-brand-green font-bold bg-brand-green/10 border border-brand-green/20 px-2 py-0.5 rounded-lg hover:bg-brand-green/20 cursor-pointer"
                               >
-                                تحويل لماكتمل
+                                تحويل لمكتمل
                               </button>
                             ) : (
                               <span className="text-gray-500 font-semibold text-[10px]">مكتمل قانوناً</span>

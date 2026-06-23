@@ -25,7 +25,9 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvv, setCardCvv] = useState('');
 
-  const [paymentGateway, setPaymentGateway] = useState<'stripe' | 'paypal'>('stripe');
+  const [paymentGateway, setPaymentGateway] = useState<'stripe' | 'paypal' | 'spaceremit'>('stripe');
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptError, setReceiptError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   const originalPrice = 49;
@@ -62,8 +64,55 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
     if (!name || !email) return;
 
     setIsProcessing(true);
+    setReceiptError('');
 
     try {
+      if (paymentGateway === 'spaceremit') {
+        if (!receiptFile) {
+          setReceiptError('يرجى رفع إيصال الدفع أولاً.');
+          setIsProcessing(false);
+          return;
+        }
+
+        const fileExt = receiptFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage.from('receipts').upload(fileName, receiptFile);
+
+        if (uploadError) {
+          console.error('Upload Error:', uploadError);
+          setReceiptError('فشل رفع الإيصال. يرجى المحاولة مرة أخرى.');
+          setIsProcessing(false);
+          return;
+        }
+
+        const { data: { publicUrl } } = supabase.storage.from('receipts').getPublicUrl(fileName);
+
+        const res = await fetch('/api/checkout/spaceremit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productId: 'prod_UYmxupwPOgV7da',
+            title: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
+            price: finalPrice,
+            customerEmail: email,
+            customerName: name,
+            customerCountry: country,
+            receiptUrl: publicUrl
+          })
+        });
+
+        const data = await res.json();
+        
+        if (data.success) {
+           window.location.href = `/thankyou?session_id=${data.orderId}&status=pending`; 
+        } else {
+           alert('حدث خطأ: ' + (data.error || 'Unknown error'));
+           setIsProcessing(false);
+        }
+        return;
+      }
+
       const endpoint = paymentGateway === 'stripe' ? '/api/checkout/stripe' : '/api/checkout/paypal';
       
       const res = await fetch(endpoint, {
@@ -74,6 +123,8 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
           title: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
           price: finalPrice,
           customerEmail: email,
+          customerName: name,
+          customerCountry: country,
         })
       });
 
@@ -165,7 +216,7 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
               <div className="space-y-3 pt-4 border-t border-brand-white/5">
                 <h3 className="text-lg font-bold text-white mb-2">2. اختر بوابة الدفع المشفرة</h3>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <button
                     type="button"
                     onClick={() => setPaymentGateway('stripe')}
@@ -176,7 +227,7 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
                     }`}
                   >
                     <CreditCard className="w-4 h-4 text-brand-gold" />
-                    <span>بطاقة الائتمان (Stripe)</span>
+                    <span>البطاقة (Stripe)</span>
                   </button>
 
                   <button
@@ -189,6 +240,19 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
                     }`}
                   >
                     <span className="font-sans italic font-black text-brand-gold text-sm">PayPal</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentGateway('spaceremit')}
+                    className={`py-3.5 px-4 rounded-xl border flex items-center justify-center gap-2 transition font-bold cursor-pointer text-sm ${
+                      paymentGateway === 'spaceremit' 
+                        ? 'bg-brand-green/20 border-brand-green text-brand-white shadow-lg' 
+                        : 'bg-brand-black border-brand-white/10 text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    <ShieldCheck className="w-4 h-4 text-brand-green" />
+                    <span>تحويل بنكي</span>
                   </button>
                 </div>
               </div>
@@ -238,12 +302,39 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
                     </div>
                   </div>
                 </div>
-              ) : (
+              ) : paymentGateway === 'paypal' ? (
                 <div className="bg-brand-gold/5 border border-brand-gold/20 p-5 rounded-2xl text-center space-y-2 animate-fadeIn">
                   <span className="text-xs text-brand-gold font-bold">بوابة سداد PayPal التفاعلية</span>
                   <p className="text-xs text-gray-400 max-w-sm mx-auto">
                     بمجرد الضغط على زر الشراء، سيقوم النظام بمحاكاة سداد المدفوعات عبر الواجهات المعتمدة بـ PayPal وإصدار سند شراء تلقائي.
                   </p>
+                </div>
+              ) : (
+                <div className="bg-brand-green/5 border border-brand-green/20 p-5 rounded-2xl space-y-4 animate-fadeIn text-right">
+                  <span className="text-sm text-brand-green font-bold block mb-2">الدفع عبر التحويل البنكي (SpaceRemit)</span>
+                  <p className="text-xs text-gray-400 mb-3 leading-relaxed">
+                    يمكنك الدفع عبر وسائل الدفع المحلية في بلدك بكل سهولة. يرجى الضغط على الرابط التالي للدفع ثم رفع صورة الإيصال ليتم مراجعة طلبك وإرسال الكتاب لبريدك الإلكتروني (تأكيد الدفع أصبح الآن تلقائياً فور وصول الحوالة).
+                  </p>
+                  
+                  <a href="https://spaceremit.com/spaceseller/marchet/black4me.com" target="_blank" rel="noopener noreferrer" className="block text-center bg-brand-black border border-brand-green/30 text-brand-green py-3 rounded-xl font-bold text-sm hover:bg-brand-green/10 transition mb-4">
+                    اضغط هنا للانتقال لصفحة الدفع
+                  </a>
+                  
+                  <div className="mt-4 border-t border-brand-green/20 pt-4">
+                    <label className="text-xs font-bold text-gray-400 block mb-2">رفع صورة الإيصال (إلزامي بعد الدفع)</label>
+                    <input 
+                      type="file" 
+                      accept="image/*,.pdf"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setReceiptFile(e.target.files[0]);
+                          setReceiptError('');
+                        }
+                      }}
+                      className="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-green/10 file:text-brand-green hover:file:bg-brand-green/20 focus:outline-none cursor-pointer"
+                    />
+                    {receiptError && <p className="text-brand-red text-[11px] mt-2 font-bold">{receiptError}</p>}
+                  </div>
                 </div>
               )}
 
