@@ -2,6 +2,7 @@ import Script from 'next/script';
 
 export default function TrackingScripts({
   gaId,
+  gtmId,
   metaPixelId,
   tiktokPixelId,
 }: {
