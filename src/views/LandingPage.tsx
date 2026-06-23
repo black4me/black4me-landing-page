@@ -14,9 +14,10 @@ import { Sparkles, Star } from 'lucide-react';
 
 interface LandingPageProps {
   onNavigateToCheckout: () => void;
+  onNavigateToConsultationCheckout: (name: string, email: string) => void;
 }
 
-export default function LandingPage({ onNavigateToCheckout }: LandingPageProps) {
+export default function LandingPage({ onNavigateToCheckout, onNavigateToConsultationCheckout }: LandingPageProps) {
   
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -76,7 +77,7 @@ export default function LandingPage({ onNavigateToCheckout }: LandingPageProps) 
       
       <FAQAccordion />
       
-      <ConsultationSection />
+      <ConsultationSection onProceedToPayment={onNavigateToConsultationCheckout} />
       
       <NewsletterSection />
 

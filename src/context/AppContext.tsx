@@ -45,6 +45,18 @@ export const FALLBACK_PRODUCTS: Product[] = [
     ],
     isActive: true,
     createdAt: new Date(2026, 5, 2).toISOString(),
+  },
+  {
+    id: 'prod-consultation',
+    title: 'استشارة استراتيجية خاصة',
+    description: 'جلسة استشارة مباشرة لتحليل مسار عملك التسويقي وتقديم التوجيهات الدقيقة.',
+    price: 150,
+    features: [
+      'تحليل وضعك التسويقي الحالي',
+      'بناء خريطة طريق مخصصة'
+    ],
+    isActive: true,
+    createdAt: new Date().toISOString(),
   }
 ];
 

@@ -12,6 +12,8 @@ import { Sparkles, Menu, ShieldCheck } from 'lucide-react';
 function AppContent() {
   const { currentUser, loginAs } = useApp();
   const [view, setView] = useState<'landing' | 'checkout' | 'thankyou' | 'admin_login' | 'admin'>('landing');
+  const [checkoutMode, setCheckoutMode] = useState<'book' | 'consultation'>('book');
+  const [checkoutData, setCheckoutData] = useState<{name: string, email: string} | null>(null);
 
   return (
     <div className="min-h-screen bg-brand-black text-brand-white select-none selection:bg-brand-gold selection:text-brand-black font-sans">
@@ -60,6 +62,7 @@ function AppContent() {
             <button
               onClick={() => {
                 if(view === 'landing') {
+                  setCheckoutMode('book');
                   setView('checkout');
                 } else {
                   setView('landing');
@@ -77,11 +80,20 @@ function AppContent() {
       {/* Main switch router rendering */}
       <div className="min-h-[calc(100vh-120px)] animate-fadeIn">
         {view === 'landing' && (
-          <LandingPage onNavigateToCheckout={() => setView('checkout')} />
+          <LandingPage 
+            onNavigateToCheckout={() => { setCheckoutMode('book'); setView('checkout'); }} 
+            onNavigateToConsultationCheckout={(name, email) => { 
+              setCheckoutMode('consultation'); 
+              setCheckoutData({name, email});
+              setView('checkout'); 
+            }}
+          />
         )}
         
         {view === 'checkout' && (
           <CheckoutPage 
+            checkoutMode={checkoutMode}
+            initialData={checkoutData}
             onSuccess={() => setView('thankyou')}
             onCancel={() => setView('landing')}
           />
@@ -89,8 +101,12 @@ function AppContent() {
         
         {view === 'thankyou' && (
           <ThankYouPage 
+            checkoutMode={checkoutMode}
+            checkoutData={checkoutData}
             onBackToHome={() => setView('landing')}
-            onNavigateToPortal={() => setView('landing')}
+            onNavigateToPortal={() => {
+              window.location.href = 'https://black4me.com/login';
+            }}
           />
         )}
         

@@ -4,17 +4,22 @@ import { useApp } from '../context/AppContext';
 import { CreditCard, ShieldCheck, Ticket, Calendar, AlertCircle, Sparkles, Receipt } from 'lucide-react';
 
 interface CheckoutPageProps {
+  checkoutMode?: 'book' | 'consultation';
+  initialData?: {name: string, email: string} | null;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps) {
+export default function CheckoutPage({ checkoutMode = 'book', initialData, onSuccess, onCancel }: CheckoutPageProps) {
   const { createOrder, coupons, products } = useApp();
-  const mainProduct = products.find(p => p.id === 'prod-main-book') || products[0];
+  
+  // Choose the right product based on checkoutMode
+  const targetProductId = checkoutMode === 'consultation' ? 'prod-consultation' : 'prod-main-book';
+  const mainProduct = products.find(p => p.id === targetProductId) || products[0];
 
   // Form input states
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState(initialData?.name || '');
+  const [email, setEmail] = useState(initialData?.email || '');
   const [country, setCountry] = useState('المملكة العربية السعودية');
   const [couponCode, setCouponCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -30,7 +35,7 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
   const [receiptError, setReceiptError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const originalPrice = 49;
+  const originalPrice = mainProduct?.price || 49;
   const discountAmount = Math.round((originalPrice * discountPercent) / 100);
   const finalPrice = originalPrice - discountAmount;
 
@@ -92,13 +97,14 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            productId: 'prod_UYmxupwPOgV7da',
-            title: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
+            productId: mainProduct.id,
+            title: mainProduct.title,
             price: finalPrice,
             customerEmail: email,
             customerName: name,
             customerCountry: country,
-            receiptUrl: publicUrl
+            receiptUrl: publicUrl,
+            checkoutMode: checkoutMode
           })
         });
 
@@ -119,12 +125,13 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productId: 'prod_UYmxupwPOgV7da',
-          title: 'كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"',
+          productId: mainProduct.id,
+          title: mainProduct.title,
           price: finalPrice,
           customerEmail: email,
           customerName: name,
           customerCountry: country,
+          checkoutMode: checkoutMode
         })
       });
 
@@ -403,42 +410,54 @@ export default function CheckoutPage({ onSuccess, onCancel }: CheckoutPageProps)
             {/* Order Summary Checkout Container */}
             <div className="bg-brand-darkgray border border-brand-white/5 rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 left-0 bg-brand-gold/10 text-brand-gold text-[10px] font-extrabold px-3 py-1 rounded-bl-xl border-b border-l border-brand-gold/15">
-                فاتورة حزمة العميل
+                {checkoutMode === 'consultation' ? 'فاتورة حجز الاستشارة' : 'فاتورة حزمة العميل'}
               </div>
 
               <h4 className="text-sm font-bold text-white border-b border-brand-white/5 pb-4 mb-4 flex items-center gap-2">
                 <Receipt className="w-4.5 h-4.5 text-brand-purple" />
-                <span>ملخص الأصول المطلوبة للحزمة</span>
+                <span>{checkoutMode === 'consultation' ? 'ملخص الاستشارة المطلوبة' : 'ملخص الأصول المطلوبة للحزمة'}</span>
               </h4>
 
               <div className="space-y-4 text-xs">
                 
-                <div className="flex justify-between items-center bg-brand-black/30 p-3 rounded-lg border border-brand-white/5">
-                  <div className="text-right">
-                    <span className="text-white font-bold block">كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"</span>
-                    <span className="text-gray-500 font-medium block mt-0.5">النسخة التعليمية + كافة التمارين المرفقة</span>
-                  </div>
-                  <span className="text-brand-gold font-bold font-mono">$49 USD</span>
-                </div>
-
-                <div className="flex justify-between items-center bg-brand-purple/5 p-3 rounded-lg border border-brand-purple/10">
-                  <div className="text-right flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-brand-gold animate-spin" />
-                    <div>
-                      <span className="text-brand-gold font-bold block">كتاب "10 مبادئ للنجاح المالي والشخصي"</span>
-                      <span className="text-gray-400 block mt-0.5">الهدية التمكينية الكبرى المرفقة مجانًا بصيغة PDF</span>
+                {checkoutMode === 'consultation' ? (
+                  <div className="flex justify-between items-center bg-brand-black/30 p-3 rounded-lg border border-brand-white/5">
+                    <div className="text-right">
+                      <span className="text-white font-bold block">جلسة عمل فردية 1:1 غاية في القيمة</span>
+                      <span className="text-gray-500 font-medium block mt-0.5">فك شفرات عملك مع جاسم محمد شخصياً</span>
                     </div>
+                    <span className="text-brand-gold font-bold font-mono">${originalPrice} USD</span>
                   </div>
-                  <div className="text-left">
-                    <span className="text-gray-500 line-through font-mono block">$29</span>
-                    <span className="text-brand-green font-bold block">هدية مضمنة</span>
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center bg-brand-black/30 p-3 rounded-lg border border-brand-white/5">
+                      <div className="text-right">
+                        <span className="text-white font-bold block">كتاب "بدون التسويق... كارثة تهدد ثروتك المستقبلية"</span>
+                        <span className="text-gray-500 font-medium block mt-0.5">النسخة التعليمية + كافة التمارين المرفقة</span>
+                      </div>
+                      <span className="text-brand-gold font-bold font-mono">${originalPrice} USD</span>
+                    </div>
+
+                    <div className="flex justify-between items-center bg-brand-purple/5 p-3 rounded-lg border border-brand-purple/10">
+                      <div className="text-right flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-brand-gold animate-spin" />
+                        <div>
+                          <span className="text-brand-gold font-bold block">كتاب "10 مبادئ للنجاح المالي والشخصي"</span>
+                          <span className="text-gray-400 block mt-0.5">الهدية التمكينية الكبرى المرفقة مجانًا بصيغة PDF</span>
+                        </div>
+                      </div>
+                      <div className="text-left">
+                        <span className="text-gray-500 line-through font-mono block">$29</span>
+                        <span className="text-brand-green font-bold block">هدية مضمنة</span>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <div className="border-t border-brand-white/5 pt-4 space-y-2">
                   <div className="flex justify-between text-gray-400">
-                    <span>السعر الأساسي للحزمة:</span>
-                    <span className="font-mono">$49.00</span>
+                    <span>السعر الأساسي:</span>
+                    <span className="font-mono">${originalPrice}.00</span>
                   </div>
                   {discountPercent > 0 && (
                     <div className="flex justify-between text-brand-green font-semibold">
