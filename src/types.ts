@@ -25,15 +25,22 @@ export interface Product {
 
 export interface Order {
   id: string;
-  customerId: string;
-  customerName: string;
-  customerEmail: string;
-  productId: string;
-  productTitle: string;
+  customerId?: string;
+  customerName?: string;
+  customer_name?: string;
+  customerEmail?: string;
+  customer_email?: string;
+  country?: string;
+  productId?: string;
+  product_id?: string;
+  productTitle?: string;
   amount: number;
-  paymentGateway: 'stripe' | 'paypal';
-  status: 'pending' | 'completed' | 'failed';
-  createdAt: string;
+  paymentGateway?: 'stripe' | 'paypal' | 'spaceremit';
+  payment_gateway?: 'stripe' | 'paypal' | 'spaceremit';
+  status: 'pending' | 'completed' | 'failed' | 'pending_verification';
+  receipt_url?: string;
+  createdAt?: string;
+  created_at?: string;
 }
 
 export interface Consultation {

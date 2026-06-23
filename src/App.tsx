@@ -11,7 +11,7 @@ import { Sparkles, Menu, ShieldCheck } from 'lucide-react';
 
 function AppContent() {
   const { currentUser, loginAs } = useApp();
-  const [view, setView] = useState<'landing' | 'checkout' | 'thankyou' | 'admin_login'>('landing');
+  const [view, setView] = useState<'landing' | 'checkout' | 'thankyou' | 'admin_login' | 'admin'>('landing');
 
   return (
     <div className="min-h-screen bg-brand-black text-brand-white select-none selection:bg-brand-gold selection:text-brand-black font-sans">

@@ -24,7 +24,7 @@ const generateAccessToken = async () => {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { productId, title, price, customerEmail } = body;
+    const { productId, title, price, customerEmail, customerName, customerCountry } = body;
 
     if (!productId || !title || !price || !customerEmail) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
             value: price.toString(),
           },
           description: title,
-          custom_id: JSON.stringify({ product_id: productId, customer_email: customerEmail }),
+          custom_id: JSON.stringify({ product_id: productId, customer_email: customerEmail, customer_name: customerName, customer_country: customerCountry }),
         },
       ],
       application_context: {

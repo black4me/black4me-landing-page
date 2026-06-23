@@ -2,38 +2,47 @@ import * as React from 'react';
 import { Html, Head, Body, Container, Heading, Text, Link, Preview, Section, Img } from '@react-email/components';
 
 interface WelcomeEmailProps {
-  email: string;
+  email?: string;
   tempPassword?: string;
+  userFirstname?: string;
+  downloadLink?: string | null;
 }
 
-export const WelcomeEmail: React.FC<WelcomeEmailProps> = ({ email, tempPassword }) => {
+export const WelcomeEmail: React.FC<WelcomeEmailProps> = ({ email, tempPassword, userFirstname, downloadLink }) => {
   return (
     <Html lang="ar" dir="rtl">
       <Head />
-      <Preview>أهلاً بك في منصة BLACK4ME - تفاصيل تسجيل الدخول</Preview>
+      <Preview>أهلاً بك في منصة BLACK4ME - تفاصيل طلبك وتسجيل الدخول</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Heading style={h1}>مرحباً بك في BLACK4ME</Heading>
+          <Heading style={h1}>مرحباً {userFirstname ? userFirstname : 'بك'} في BLACK4ME</Heading>
           
           <Text style={text}>
             لقد تم إتمام عملية الشراء بنجاح! يسعدنا انضمامك إلى مجتمع BLACK4ME.
-            تم إنشاء حساب خاص بك في المنصة لتتمكن من الوصول إلى منتجاتك الرقمية في أي وقت ومن أي جهاز.
+            {tempPassword && ' تم إنشاء حساب خاص بك في المنصة لتتمكن من الوصول إلى منتجاتك الرقمية في أي وقت ومن أي جهاز.'}
           </Text>
 
-          <Section style={credentialsBox}>
-            <Text style={credentialText}><strong>رابط المنصة:</strong> https://black4me-landing-page.vercel.app</Text>
-            <Text style={credentialText}><strong>البريد الإلكتروني:</strong> {email}</Text>
-            {tempPassword && (
+          {downloadLink && (
+            <Section style={downloadBox}>
+               <Text style={text}>يمكنك تحميل المنتج الذي قمت بشرائه من الرابط التالي:</Text>
+               <Link style={downloadButton} href={downloadLink}>تحميل المنتج الآن</Link>
+            </Section>
+          )}
+
+          {email && tempPassword && (
+            <Section style={credentialsBox}>
+              <Text style={credentialText}><strong>رابط المنصة:</strong> https://www.black4me.com</Text>
+              <Text style={credentialText}><strong>البريد الإلكتروني:</strong> {email}</Text>
               <Text style={credentialText}><strong>كلمة المرور المؤقتة:</strong> {tempPassword}</Text>
-            )}
-          </Section>
+            </Section>
+          )}
 
           <Text style={text}>
             يمكنك تسجيل الدخول عبر بوابة العملاء في الموقع باستخدام البيانات أعلاه. نوصي بتغيير كلمة المرور فور دخولك.
           </Text>
 
           <Section style={btnContainer}>
-            <Link style={button} href="https://black4me-landing-page.vercel.app">
+            <Link style={button} href="https://www.black4me.com">
               الذهاب إلى بوابة العملاء
             </Link>
           </Section>
@@ -113,6 +122,28 @@ const button = {
   textAlign: 'center' as const,
   display: 'inline-block',
   padding: '12px 24px',
+};
+
+const downloadBox = {
+  backgroundColor: '#1a103c',
+  border: '1px solid #6C3BFF',
+  borderRadius: '6px',
+  padding: '20px',
+  marginBottom: '20px',
+  textAlign: 'center' as const,
+};
+
+const downloadButton = {
+  backgroundColor: '#6C3BFF',
+  borderRadius: '4px',
+  color: '#ffffff',
+  fontSize: '16px',
+  fontWeight: 'bold',
+  textDecoration: 'none',
+  textAlign: 'center' as const,
+  display: 'inline-block',
+  padding: '12px 24px',
+  marginTop: '10px',
 };
 
 const footer = {

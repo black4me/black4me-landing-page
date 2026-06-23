@@ -19,11 +19,14 @@ CREATE TABLE IF NOT EXISTS products (
 -- 2. Orders Table
 CREATE TABLE IF NOT EXISTS orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  customer_name TEXT,
   customer_email TEXT NOT NULL,
+  country TEXT,
   product_id TEXT,
   amount NUMERIC(10,2) NOT NULL,
   payment_gateway TEXT DEFAULT 'stripe',
   status TEXT DEFAULT 'completed',
+  receipt_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

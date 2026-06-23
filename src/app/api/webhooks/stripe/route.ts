@@ -12,17 +12,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_fo
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
 
-// We need the SERVICE ROLE KEY to bypass RLS and create users safely from the backend.
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy_key',
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
+import { supabaseAdmin } from '../../../../lib/supabase-admin';
 
 // Helper to generate a random secure password
 const generateSecurePassword = () => {
@@ -57,6 +47,8 @@ export async function POST(req: Request) {
 
     // Retrieve metadata we passed during checkout
     const customerEmail = session.metadata?.customer_email || session.customer_details?.email;
+    const customerName = session.metadata?.customer_name || session.customer_details?.name || null;
+    const customerCountry = session.metadata?.customer_country || session.customer_details?.address?.country || null;
     const productId = session.metadata?.product_id;
     const amountTotal = session.amount_total ? session.amount_total / 100 : 0;
 
@@ -99,7 +91,9 @@ export async function POST(req: Request) {
 
       // 3. Create order record linking user and product
       const { error: orderError } = await supabaseAdmin.from('orders').insert({
+        customer_name: customerName,
         customer_email: customerEmail, // Or customer_id if your schema uses UUID
+        country: customerCountry,
         product_id: productId,
         amount: amountTotal,
         payment_gateway: 'stripe',
@@ -108,20 +102,29 @@ export async function POST(req: Request) {
 
       if (orderError) throw orderError;
 
-      // 4. Send Welcome Email via Resend if it's a new user
-      if (isNewUser && process.env.RESEND_API_KEY) {
+      // 4. Fetch product file_url for the email
+      let fileUrl = null;
+      if (productId) {
+         const { data: prod } = await supabaseAdmin.from('products').select('*').eq('id', productId).single();
+         if (prod) {
+           fileUrl = prod.file_url;
+         }
+      }
+
+      // 5. Send Welcome Email via Resend
+      if (process.env.RESEND_API_KEY && customerEmail) {
         try {
           const htmlContent = await render(
             React.createElement(WelcomeEmail, {
-              email: customerEmail,
-              tempPassword: tempPassword,
-            })
+              userFirstname: customerEmail.split('@')[0],
+              downloadLink: fileUrl
+            } as any)
           );
           
           await resend.emails.send({
-            from: 'BLACK4ME <noreply@black4me.com>', // Update this to your verified Resend domain
+            from: 'BLACK4ME <noreply@black4me.com>',
             to: customerEmail,
-            subject: 'أهلاً بك في منصة BLACK4ME - تفاصيل الدخول',
+            subject: 'شكرًا لطلبك من Black4me!',
             html: htmlContent,
           });
         } catch (emailError) {

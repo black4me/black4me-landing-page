@@ -54,10 +54,34 @@
       "namedRegex": "^/api/checkout/paypal(?:/)?$"
     },
     {
+      "page": "/api/checkout/paypal/capture",
+      "regex": "^/api/checkout/paypal/capture(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/checkout/paypal/capture(?:/)?$"
+    },
+    {
       "page": "/api/checkout/stripe",
       "regex": "^/api/checkout/stripe(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/checkout/stripe(?:/)?$"
+    },
+    {
+      "page": "/api/cron/abandoned-cart",
+      "regex": "^/api/cron/abandoned\\-cart(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cron/abandoned\\-cart(?:/)?$"
+    },
+    {
+      "page": "/api/cron/newsletters",
+      "regex": "^/api/cron/newsletters(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cron/newsletters(?:/)?$"
+    },
+    {
+      "page": "/api/order/verify",
+      "regex": "^/api/order/verify(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/order/verify(?:/)?$"
     },
     {
       "page": "/api/webhooks/stripe",
@@ -82,6 +106,12 @@
       "regex": "^/portal(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/portal(?:/)?$"
+    },
+    {
+      "page": "/thankyou",
+      "regex": "^/thankyou(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/thankyou(?:/)?$"
     }
   ],
   "dataRoutes": [],
