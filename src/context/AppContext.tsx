@@ -140,11 +140,11 @@ interface AppContextType {
   addProduct: (product: Omit<Product, 'id' | 'createdAt'>) => void;
   updateProduct: (id: string, product: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
-  createOrder: (order: Omit<Order, 'id' | 'createdAt'>) => Order;
+  createOrder: (orderData: Omit<Order, 'id' | 'createdAt'>) => Promise<Order>;
   updateOrder: (id: string, status: Order['status']) => void;
   bookConsultation: (consultation: Omit<Consultation, 'id' | 'createdAt' | 'status'>) => void;
   updateConsultationStatus: (id: string, status: Consultation['status']) => void;
-  subscribeNewsletter: (name: string, email: string, country: string) => { success: boolean; message: string };
+  subscribeNewsletter: (name: string, email: string, country: string) => Promise<{ success: boolean; message: string }>;
   submitTestimonial: (name: string, country: string, rating: number, comment: string) => void;
   approveTestimonial: (id: string) => void;
   rejectTestimonial: (id: string) => void;
@@ -243,7 +243,7 @@ function dbToOrder(row: any): Order {
     amount: row.amount,
     paymentGateway: row.payment_gateway as 'stripe' | 'paypal' | 'spaceremit',
     status: row.status as 'pending' | 'completed' | 'failed' | 'pending_verification',
-    receipt_url: row.receipt_url,
+    receiptUrl: row.receipt_url,
     createdAt: row.created_at,
   };
 }
@@ -333,38 +333,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [valueStackItems, setValueStackItems] = useState<ValueStackItem[]>(FALLBACK_VALUE_STACK);
   const [coupons, setCoupons] = useState<Coupon[]>(FALLBACK_COUPONS);
 
-  // ─── Load data from Supabase on mount ───────────────────────────────────
+  // ─── Load data via Server Actions on mount ────────────────────────────────
   useEffect(() => {
     const loadAll = async () => {
-      const [dbProducts, dbFaqs, dbTestimonials, dbOrders, dbConsultations, dbSubscribers, dbSettings, dbComparisons, dbFunnels, dbValueStack, dbCoupons] = await Promise.all([
-        safeFetch('products', dbToProduct, FALLBACK_PRODUCTS, { filter: { column: 'is_active', value: true }, order: { column: 'created_at', ascending: false } }),
-        safeFetch('faqs', dbToFAQ, FALLBACK_FAQS, { order: { column: 'order_index', ascending: true } }),
-        safeFetch('testimonials', dbToTestimonial, FALLBACK_TESTIMONIALS, { filter: { column: 'is_approved', value: true }, order: { column: 'created_at', ascending: false } }),
-        safeFetch('orders', dbToOrder, [], { order: { column: 'created_at', ascending: false } }),
-        safeFetch('consultations', dbToConsultation, [], { order: { column: 'created_at', ascending: false } }),
-        safeFetch('subscribers', dbToSubscriber, [], { order: { column: 'created_at', ascending: false } }),
-        supabase.from('site_settings').select('*').then(({data, error}) => ({data, error})),
-        safeFetch('comparison_items', dbToComparisonItem, FALLBACK_COMPARISON_ITEMS, { order: { column: 'order_index', ascending: true } }),
-        safeFetch('funnel_stages', dbToFunnelStage, FALLBACK_FUNNEL_STAGES, { order: { column: 'num', ascending: true } }),
-        safeFetch('value_stack_items', dbToValueStackItem, FALLBACK_VALUE_STACK, { order: { column: 'order_index', ascending: true } }),
-        safeFetch('coupons', dbToCoupon, FALLBACK_COUPONS, { order: { column: 'created_at', ascending: false } }),
+      // Dynamically import server actions to avoid SSR issues if this is purely client
+      const { getProducts } = await import('../server/actions/products');
+      const { getFAQs, getTestimonials, getSiteSettings, getComparisonItems, getFunnelStages, getValueStackItems } = await import('../server/actions/cms');
+
+      const [dbProducts, dbFaqs, dbTestimonials, dbSettings, dbComparisons, dbFunnels, dbValueStack] = await Promise.all([
+        getProducts(),
+        getFAQs(),
+        getTestimonials(),
+        getSiteSettings(),
+        getComparisonItems(),
+        getFunnelStages(),
+        getValueStackItems(),
       ]);
 
-      setProducts(dbProducts);
-      setFaqs(dbFaqs);
-      setTestimonials(dbTestimonials);
-      setOrders(dbOrders);
-      setConsultations(dbConsultations);
-      setSubscribers(dbSubscribers);
-      setComparisonItems(dbComparisons);
-      setFunnelStages(dbFunnels);
-      setValueStackItems(dbValueStack);
-      setCoupons(dbCoupons);
+      setProducts(dbProducts.length > 0 ? dbProducts : FALLBACK_PRODUCTS);
+      setFaqs(dbFaqs.length > 0 ? dbFaqs : FALLBACK_FAQS);
+      setTestimonials(dbTestimonials.length > 0 ? dbTestimonials : FALLBACK_TESTIMONIALS);
+      setComparisonItems(dbComparisons.length > 0 ? dbComparisons : FALLBACK_COMPARISON_ITEMS);
+      setFunnelStages(dbFunnels.length > 0 ? dbFunnels : FALLBACK_FUNNEL_STAGES);
+      setValueStackItems(dbValueStack.length > 0 ? dbValueStack : FALLBACK_VALUE_STACK);
 
-      if (dbSettings.data && !dbSettings.error) {
-        const s: SiteSettings = { ...FALLBACK_SITE_SETTINGS };
-        dbSettings.data.forEach(item => { s[item.key] = item.value; });
-        setSiteSettings(s);
+      if (Object.keys(dbSettings).length > 0) {
+        setSiteSettings({ ...FALLBACK_SITE_SETTINGS, ...dbSettings } as SiteSettings);
       }
     };
 
@@ -449,21 +443,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // ─── Orders CRUD → Supabase ─────────────────────────────────────────────
 
-  const createOrder = (orderData: Omit<Order, 'id' | 'createdAt'>): Order => {
+  const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt'>): Promise<Order> => {
     const newOrder: Order = {
       ...orderData,
       id: `B4M-${Math.floor(100000 + Math.random() * 900000)}`,
       createdAt: new Date().toISOString()
     };
 
-    // Insert to Supabase async
-    supabase.from('orders').insert([{
-      customer_email: newOrder.customerEmail,
-      product_id: newOrder.productId,
+    const { createOrder: serverCreateOrder } = await import('../server/actions/orders');
+    await serverCreateOrder({
+      productId: newOrder.productId || '',
+      productTitle: newOrder.productTitle || '',
+      customerEmail: newOrder.customerEmail || '',
+      customerName: newOrder.customerName || '',
       amount: newOrder.amount,
-      payment_gateway: newOrder.paymentGateway,
-      status: newOrder.status,
-    }]).then(() => {});
+      paymentGateway: (newOrder.paymentGateway as 'stripe' | 'paypal') || 'stripe'
+    });
 
     setOrders(prev => [newOrder, ...prev]);
 
@@ -509,20 +504,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // ─── Newsletter → Supabase ──────────────────────────────────────────────
 
-  const subscribeNewsletter = (name: string, email: string, country: string) => {
-    if (subscribers.some(sub => sub.email.toLowerCase() === email.toLowerCase())) {
-      return { success: false, message: 'مرحبًا بك، هذا البريد الإلكتروني مسجل مسبقًا معنا!' };
+  const subscribeNewsletter = async (name: string, email: string, country: string) => {
+    const { subscribeToNewsletter } = await import('../server/actions/newsletter');
+    const result = await subscribeToNewsletter({ name, email, country });
+    
+    if (result.success) {
+      const newSub: NewsletterSubscriber = {
+        id: `sub-${Date.now()}`, name, email, country, createdAt: new Date().toISOString()
+      };
+      setSubscribers(prev => [newSub, ...prev]);
     }
-
-    // Insert to Supabase async
-    supabase.from('subscribers').upsert([{ name, email, country }], { onConflict: 'email', ignoreDuplicates: true }).then(() => {});
-
-    const newSub: NewsletterSubscriber = {
-      id: `sub-${Date.now()}`, name, email, country, createdAt: new Date().toISOString()
-    };
-    setSubscribers(prev => [newSub, ...prev]);
-
-    return { success: true, message: 'تهانينا! تم تسجيل اشتراكك بنجاح في رسائلنا التسويقية الحصرية.' };
+    return result;
   };
 
   // ─── Testimonials → Supabase ────────────────────────────────────────────

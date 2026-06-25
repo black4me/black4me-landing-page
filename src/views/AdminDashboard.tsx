@@ -525,8 +525,8 @@ export default function AdminDashboard() {
                           <td className="p-3">
                             {it.status === 'pending_verification' ? (
                               <div className="flex flex-col gap-1 items-end">
-                                {it.receipt_url && (
-                                  <a href={it.receipt_url} target="_blank" rel="noreferrer" className="text-[10px] text-brand-gold hover:underline">
+                                {it.receiptUrl && (
+                                  <a href={it.receiptUrl} target="_blank" rel="noreferrer" className="text-[10px] text-brand-gold hover:underline">
                                     عرض الإيصال
                                   </a>
                                 )}

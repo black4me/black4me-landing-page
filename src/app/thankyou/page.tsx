@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { CheckCircle2, AlertCircle, Loader2, ArrowLeft, Download } from 'lucide-react';
 
 function ThankYouContent() {
   const searchParams = useSearchParams();
@@ -55,24 +56,22 @@ function ThankYouContent() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <div className="w-16 h-16 border-4 border-[#6C3BFF]/30 border-t-[#6C3BFF] rounded-full animate-spin mb-6"></div>
-        <h2 className="text-2xl font-bold text-white mb-2">جاري تأكيد الدفع...</h2>
-        <p className="text-gray-400">يرجى الانتظار، لا تقم بإغلاق هذه الصفحة.</p>
+        <Loader2 className="w-16 h-16 text-brand-purple animate-spin mb-6" />
+        <h2 className="text-2xl font-black text-white mb-2">جاري تأكيد الدفع...</h2>
+        <p className="text-gray-400 text-sm">يرجى الانتظار، لا تقم بإغلاق هذه الصفحة.</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-        <div className="w-20 h-20 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mb-6">
-          <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-lg mx-auto">
+        <div className="w-20 h-20 bg-brand-red/10 text-brand-red rounded-2xl flex items-center justify-center mb-6">
+          <AlertCircle className="w-10 h-10" />
         </div>
-        <h2 className="text-3xl font-bold text-white mb-4">عذراً، حدث خطأ!</h2>
+        <h2 className="text-2xl md:text-3xl font-black text-white mb-4">عذراً، حدث خطأ!</h2>
         <p className="text-gray-400 mb-8">{error}</p>
-        <Link href="/" className="px-8 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white transition-all">
+        <Link href="/" className="bg-brand-white/5 hover:bg-brand-white/10 border border-brand-white/10 text-white font-bold py-3 px-8 rounded-xl transition-all">
           العودة للرئيسية
         </Link>
       </div>
@@ -80,42 +79,47 @@ function ThankYouContent() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-      <div className="w-24 h-24 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mb-8 mx-auto">
-        <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-2xl mx-auto" dir="rtl">
+      <div className="w-24 h-24 bg-brand-green/10 text-brand-green rounded-3xl flex items-center justify-center mb-8 mx-auto shadow-lg shadow-brand-green/10">
+        <CheckCircle2 className="w-12 h-12" />
       </div>
       
-      <h1 className="text-4xl md:text-5xl font-black text-white mb-6">شكرًا لك! تم الدفع بنجاح 🎉</h1>
-      <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-12">
-        لقد تم استلام طلبك لـ <span className="text-[#6C3BFF] font-bold">{product?.title}</span> بنجاح. 
-        تم إرسال رسالة تأكيد إلى بريدك الإلكتروني تحتوي على جميع التفاصيل.
+      <h1 className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight">
+        شكرًا لك!<br />
+        <span className="text-transparent bg-clip-text bg-gradient-to-l from-brand-gold to-brand-gold-dark">تم الدفع بنجاح 🎉</span>
+      </h1>
+      
+      <p className="text-base text-gray-400 mb-12 leading-relaxed">
+        لقد تم استلام طلبك لـ <span className="text-brand-purple-light font-bold">"{product?.title}"</span> بنجاح. 
+        تم إرسال رسالة تأكيد إلى بريدك الإلكتروني تحتوي على جميع التفاصيل اللازمة لدخول النظام.
       </p>
 
       {product?.file_url ? (
-        <div className="bg-[#6C3BFF]/10 border border-[#6C3BFF]/20 rounded-2xl p-8 max-w-xl mx-auto w-full mb-12">
-          <h3 className="text-2xl font-bold text-white mb-4">حمل منتجك الآن ⬇️</h3>
-          <p className="text-gray-400 mb-6">يمكنك تحميل الملف أو الكورس الخاص بك مباشرة من الرابط أدناه.</p>
+        <div className="glass-gold rounded-3xl p-8 w-full mb-12">
+          <h3 className="text-xl font-bold text-white mb-3">وصول فوري للمنتج</h3>
+          <p className="text-sm text-gray-400 mb-8">يمكنك تنزيل الكتاب والقوالب مباشرة من الرابط أدناه.</p>
           <a 
             href={product.file_url} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="inline-block w-full sm:w-auto px-8 py-4 bg-[#6C3BFF] hover:bg-[#5b2ee0] text-white font-bold rounded-xl shadow-[0_0_20px_rgba(108,59,255,0.3)] transition-all transform hover:scale-105"
+            className="cta-glow flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-brand-gold hover:bg-yellow-400 text-brand-black font-black rounded-2xl transition-all"
           >
-            اضغط هنا لتحميل المنتج
+            <Download className="w-5 h-5" />
+            <span>تنزيل الملفات الآن</span>
           </a>
         </div>
       ) : (
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 max-w-xl mx-auto w-full mb-12">
-          <p className="text-gray-300">
-            سيتم التواصل معك قريباً أو تفعيل الخدمة في حسابك.
+        <div className="glass rounded-3xl p-8 w-full mb-12">
+          <h3 className="text-lg font-bold text-white mb-2">الخطوة القادمة</h3>
+          <p className="text-sm text-gray-400">
+            سيتم إرسال تفاصيل الدخول إلى المنصة التعليمية وحجز موعد الاستشارة على بريدك الإلكتروني قريباً.
           </p>
         </div>
       )}
 
-      <Link href="/" className="text-gray-400 hover:text-white underline underline-offset-4 transition-colors">
-        العودة إلى الصفحة الرئيسية
+      <Link href="/" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors">
+        <span>العودة إلى المنصة</span>
+        <ArrowLeft className="w-4 h-4" />
       </Link>
     </div>
   );
@@ -123,10 +127,14 @@ function ThankYouContent() {
 
 export default function ThankYouPage() {
   return (
-    <main className="min-h-screen bg-[#050505] pt-32 pb-20 px-4">
-      <Suspense fallback={<div className="text-white text-center">جاري التحميل...</div>}>
+    <div className="min-h-screen bg-brand-black py-16 px-4">
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-12 h-12 text-brand-purple animate-spin" />
+        </div>
+      }>
         <ThankYouContent />
       </Suspense>
-    </main>
+    </div>
   );
 }

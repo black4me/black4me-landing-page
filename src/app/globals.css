@@ -1,47 +1,94 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
-
 @import "tailwindcss";
+
 @theme {
-  --font-sans: "Cairo", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: var(--font-cairo), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-ibm), var(--font-cairo), system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
   
+  /* Brand Colors */
   --color-brand-black: #000000;
   --color-brand-gold: #F5C542;
+  --color-brand-gold-dark: #D4A832;
   --color-brand-purple: #6C3BFF;
+  --color-brand-purple-light: #8B5CF6;
   --color-brand-white: #FFFFFF;
   --color-brand-green: #22C55E;
   --color-brand-red: #EF4444;
   --color-brand-darkgray: #0A0A0A;
+  --color-brand-blue: #1E3A5F;
+  --color-brand-blue-light: #2563EB;
+  
+  /* Surface colors */
+  --color-surface-1: #0A0A0A;
+  --color-surface-2: #111111;
+  --color-surface-3: #1A1A1A;
+  --color-surface-4: #222222;
 }
+
+/* ─── Base Styles ──────────────────────────────────────────── */
 
 body {
   font-family: var(--font-sans);
   background-color: var(--color-brand-black);
   color: var(--color-brand-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom premium scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #000000;
-}
-::-webkit-scrollbar-thumb {
-  background: #1a1a1a;
-  border: 1px solid rgba(245, 197, 66, 0.1);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #6C3BFF;
-}
+/* ─── Custom Scrollbar ─────────────────────────────────────── */
 
-/* Shimmer animation */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { 
+  background: #1a1a1a; 
+  border-radius: 3px;
+  border: 1px solid rgba(245, 197, 66, 0.08);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-purple); }
+
+/* ─── Animations ───────────────────────────────────────────── */
+
 @keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+  100% { transform: translateX(100%); }
 }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 197, 66, 0.25); }
+  50% { box-shadow: 0 0 0 12px rgba(245, 197, 66, 0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ─── Utility Classes ──────────────────────────────────────── */
+
+.animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
+.animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
+.animate-slideInRight { animation: slideInRight 0.5s ease-out forwards; }
 
 .shimmer {
   position: relative;
@@ -50,19 +97,104 @@ body {
 
 .shimmer::after {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  top: 0; right: 0; bottom: 0; left: 0;
   transform: translateX(-100%);
   background-image: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.05) 20%,
-    rgba(255, 255, 255, 0.1) 60%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.04) 20%,
+    rgba(255,255,255,0.08) 60%,
+    rgba(255,255,255,0) 100%
   );
-  animation: shimmer 2s infinite;
+  animation: shimmer 2.5s infinite;
   content: '';
 }
 
+/* ─── Glass Effect ─────────────────────────────────────────── */
+
+.glass {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-gold {
+  background: rgba(245, 197, 66, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 197, 66, 0.12);
+}
+
+/* ─── Gradient Borders ─────────────────────────────────────── */
+
+.gradient-border {
+  position: relative;
+  border-radius: 1rem;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(108,59,255,0.3), rgba(245,197,66,0.3));
+  z-index: -1;
+}
+
+/* ─── CTA Button Glow ─────────────────────────────────────── */
+
+.cta-glow {
+  box-shadow: 0 4px 20px rgba(245, 197, 66, 0.25),
+              0 0 40px rgba(245, 197, 66, 0.08);
+  transition: all 0.3s ease;
+}
+
+.cta-glow:hover {
+  box-shadow: 0 6px 30px rgba(245, 197, 66, 0.35),
+              0 0 60px rgba(245, 197, 66, 0.12);
+  transform: translateY(-2px);
+}
+
+/* ─── Section Spacing ──────────────────────────────────────── */
+
+.section-padding {
+  padding: 5rem 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding: 7rem 3rem;
+  }
+}
+
+/* ─── Sticky Mobile CTA ───────────────────────────────────── */
+
+.sticky-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(245, 197, 66, 0.15);
+  padding: 0.75rem 1rem;
+}
+
+@media (min-width: 1024px) {
+  .sticky-cta { display: none; }
+}
+
+/* ─── Focus Styles (Accessibility) ─────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-gold);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-brand-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

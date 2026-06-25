@@ -12,8 +12,8 @@ export default function CustomerDashboard() {
   const [profileUpdated, setProfileUpdated] = useState(false);
 
   // Filter items owned/ordered by the current user
-  const userOrders = orders.filter(o => o.customerEmail.toLowerCase() === email.toLowerCase());
-  const userConsultations = consultations.filter(c => c.customerEmail.toLowerCase() === email.toLowerCase());
+  const userOrders = orders.filter(o => o.customerEmail?.toLowerCase() === email.toLowerCase());
+  const userConsultations = consultations.filter(c => c.customerEmail?.toLowerCase() === email.toLowerCase());
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
