@@ -88,6 +88,19 @@ function generateBrandedHTML(subject: string, bodyText: string) {
 
 export async function POST(req: Request) {
   try {
+    // Webhook Security Check
+    const authHeader = req.headers.get('authorization') || req.headers.get('x-webhook-secret');
+    const secret = process.env.WEBHOOK_SECRET;
+    
+    // Only enforce security if WEBHOOK_SECRET is defined in the environment.
+    // This prevents breaking existing testing flows if the secret hasn't been set yet.
+    if (secret) {
+      const token = authHeader?.replace('Bearer ', '');
+      if (token !== secret) {
+        return NextResponse.json({ error: 'Unauthorized Access. Invalid Webhook Secret.' }, { status: 401 });
+      }
+    }
+
     const { campaigns } = await req.json();
 
     if (!campaigns || !Array.isArray(campaigns)) {
