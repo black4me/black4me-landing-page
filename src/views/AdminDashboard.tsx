@@ -1,21 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { User, Product, Order, Consultation, Testimonial, FAQ } from '../types';
+import { User, Product, Order, Consultation, Testimonial, FAQ, NewsletterSubscriber, Coupon } from '../types';
 import { 
   BarChart3, Plus, Edit2, Trash2, CheckCircle, XCircle, Search, 
   Download, Filter, ArrowUp, Calendar, ClipboardList, HelpCircle, 
   MessageSquare, Sparkles, Tag, Settings, GitCompare, Layers, DollarSign, Ticket
 } from 'lucide-react';
 import { SiteSettingsTab, ComparisonTab, FunnelsTab, ValueStackTab, CouponsTab } from './admin/CmsTabs';
+import { getAdminOrders, getAdminSubscribers, getAdminConsultations, getAdminCoupons, getAllTestimonials } from '../server/actions/admin';
 
 export default function AdminDashboard() {
   const {
-    products, orders, consultations, subscribers, testimonials, faqs,
+    products, faqs,
     addProduct, updateProduct, deleteProduct,
     updateOrder, updateConsultationStatus,
-    approveTestimonial, rejectTestimonial,
+    approveTestimonial: globalApproveTestimonial, rejectTestimonial: globalRejectTestimonial,
     addFAQ, updateFAQ, deleteFAQ
   } = useApp();
+
+  // Admin-only local states (Securely fetched on mount)
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  useEffect(() => {
+    const loadAdminData = async () => {
+      const [fetchedOrders, fetchedSubscribers, fetchedConsultations, fetchedCoupons, fetchedTestimonials] = await Promise.all([
+        getAdminOrders(),
+        getAdminSubscribers(),
+        getAdminConsultations(),
+        getAdminCoupons(),
+        getAllTestimonials()
+      ]);
+      setOrders(fetchedOrders);
+      setSubscribers(fetchedSubscribers);
+      setConsultations(fetchedConsultations);
+      setCoupons(fetchedCoupons);
+      setTestimonials(fetchedTestimonials);
+      setIsLoadingData(false);
+    };
+    loadAdminData();
+  }, []);
+
+  // Action wrappers to update local state immediately
+  const approveTestimonial = async (id: string) => {
+    globalApproveTestimonial(id);
+    setTestimonials(prev => prev.map(t => t.id === id ? { ...t, isApproved: true } : t));
+  };
+
+  const rejectTestimonial = async (id: string) => {
+    globalRejectTestimonial(id);
+    setTestimonials(prev => prev.filter(t => t.id !== id));
+  };
+
+  const handleUpdateConsultationStatus = async (id: string, status: Consultation['status']) => {
+    updateConsultationStatus(id, status);
+    setConsultations(prev => prev.map(c => c.id === id ? { ...c, status } : c));
+  };
 
   // Active admin tab switcher
   const [activeTab, setActiveTab] = useState<'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 'faqs' | 'site-settings' | 'comparison' | 'funnels' | 'value-stack' | 'coupons'>('stats');
@@ -139,6 +183,7 @@ export default function AdminDashboard() {
       const data = await res.json();
       if (data.success) {
         updateOrder(orderId, 'completed');
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'completed' } : o));
       } else {
         alert('فشل الاعتماد: ' + data.error);
       }
@@ -148,6 +193,10 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUpdateOrder = (id: string, status: Order['status']) => {
+    updateOrder(id, status);
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+  };
   return (
     <div className="bg-brand-black min-h-screen text-brand-white p-6 sm:p-12" dir="rtl">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -539,7 +588,7 @@ export default function AdminDashboard() {
                               </div>
                             ) : it.status === 'failed' ? (
                               <button 
-                                onClick={() => updateOrder(it.id, 'completed')}
+                                onClick={() => handleUpdateOrder(it.id, 'completed')}
                                 className="text-[10px] text-brand-green font-bold bg-brand-green/10 border border-brand-green/20 px-2 py-0.5 rounded-lg hover:bg-brand-green/20 cursor-pointer"
                               >
                                 تحويل لمكتمل
@@ -593,14 +642,14 @@ export default function AdminDashboard() {
                     <div className="pt-4 border-t border-brand-white/5 flex gap-2">
                       {item.status === 'scheduled' && (
                         <button
-                          onClick={() => updateConsultationStatus(item.id, 'completed')}
+                          onClick={() => handleUpdateConsultationStatus(item.id, 'completed')}
                           className="bg-brand-green hover:bg-green-600 text-brand-black text-[10px] font-extrabold px-3 py-1.5 rounded transition cursor-pointer"
                         >
                           تحديد كجلسة مكتملة ومثبتة
                         </button>
                       )}
                       <button
-                        onClick={() => updateConsultationStatus(item.id, 'cancelled')}
+                        onClick={() => handleUpdateConsultationStatus(item.id, 'cancelled')}
                         className="bg-transparent border border-brand-white/10 text-brand-red text-[10px] font-bold hover:bg-brand-red/10 transition px-3 py-1.5 rounded cursor-pointer"
                       >
                         إلغاء الموعد المقترح
