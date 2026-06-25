@@ -10,23 +10,27 @@ export default function NewsletterSection() {
   const [country, setCountry] = useState('المملكة العربية السعودية');
   const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email) return;
 
-    const res = subscribeNewsletter(name, email, country);
-    if (res.success) {
-      setStatus({ type: 'success', message: res.message });
-      setName('');
-      setEmail('');
-    } else {
-      setStatus({ type: 'error', message: res.message });
+    try {
+      const res = await subscribeNewsletter(name, email, country);
+      if (res.success) {
+        setStatus({ type: 'success', message: res.message });
+        setName('');
+        setEmail('');
+      } else {
+        setStatus({ type: 'error', message: res.message });
+      }
+    } catch (error: any) {
+      setStatus({ type: 'error', message: 'حدث خطأ غير متوقع' });
+    } finally {
+      // Auto clear newsletter status after 7 seconds
+      setTimeout(() => {
+        setStatus({ type: null, message: '' });
+      }, 7000);
     }
-
-    // Auto clear newsletter status after 7 seconds
-    setTimeout(() => {
-      setStatus({ type: null, message: '' });
-    }, 7000);
   };
 
   return (

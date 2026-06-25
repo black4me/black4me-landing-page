@@ -1,11 +1,7 @@
 "use client";
 
-import dynamic from 'next/dynamic';
+import LandingPage from '../views/LandingPage';
 
-const App = dynamic(() => import('../App'), {
-  ssr: false, // Ensure this runs completely on the client side just like Vite!
-});
-
-export default function Home() {
-  return <App />;
+export default function HomePage() {
+  return <LandingPage />;
 }

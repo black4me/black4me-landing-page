@@ -1,57 +1,107 @@
 import type { Metadata } from "next";
+import { Cairo, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
-import { supabase } from '../lib/supabase';
 import TrackingScripts from '../components/TrackingScripts';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import { Providers } from './providers';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { data } = await supabase.from('site_settings').select('setting_key, setting_value');
-  const settings: Record<string, string> = {};
-  if (data) {
-    data.forEach(d => { settings[d.setting_key] = d.setting_value; });
-  }
+const cairo = Cairo({
+  subsets: ['arabic', 'latin'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-cairo',
+  display: 'swap',
+});
 
-  const title = settings.seo_title || "BLACK4ME - نظام التسويق الذكي";
-  const description = settings.seo_description || "المنصة المتكاملة للتسويق الذكي والمبيعات الرقمية المتقدمة";
-  const keywords = settings.seo_keywords || "تسويق, ذكاء اصطناعي, مبيعات, أعمال";
-  const ogImage = settings.og_image || "";
+const ibmPlex = IBM_Plex_Sans_Arabic({
+  subsets: ['arabic', 'latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-ibm',
+  display: 'swap',
+});
 
-  const gscId = settings.gsc_id || "";
-
-  return {
-    title,
-    description,
-    keywords,
-    openGraph: {
-      title,
-      description,
-      images: ogImage ? [{ url: ogImage }] : [],
+export const metadata: Metadata = {
+  metadataBase: new URL('https://www.black4me.com'),
+  title: {
+    default: 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً | جاسم محمد',
+    template: '%s | BLACK4ME',
+  },
+  description: 'احصل على الحزمة الشاملة لبناء نظام تسويق رقمي متكامل: كتاب عملي + نظام تعليمي + قوالب جاهزة + استشارة خاصة. ابدأ بـ $49 فقط مع ضمان استرداد كامل.',
+  keywords: [
+    'كتاب تسويق رقمي',
+    'نظام جذب العملاء',
+    'قوالب تسويق جاهزة',
+    'تسويق إلكتروني عربي',
+    'بناء نظام مبيعات',
+    'جاسم محمد',
+    'BLACK4ME',
+    'كتاب بدون التسويق',
+    'نظام تسويقي متكامل',
+    'تسويق رقمي للمبتدئين',
+  ],
+  authors: [{ name: 'جاسم محمد', url: 'https://www.black4me.com' }],
+  creator: 'جاسم محمد',
+  publisher: 'BLACK4ME',
+  openGraph: {
+    type: 'website',
+    locale: 'ar_SA',
+    url: 'https://www.black4me.com',
+    siteName: 'BLACK4ME',
+    title: 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
+    description: 'الحزمة الشاملة لبناء نظام تسويق رقمي: كتاب + نظام تعليمي + قوالب + استشارة. ابدأ بـ $49 مع ضمان استرداد.',
+    images: [
+      {
+        url: '/images/book-cover.png',
+        width: 1200,
+        height: 628,
+        alt: 'كتاب بدون التسويق كارثة تهدد ثروتك المستقبلية — جاسم محمد',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
+    description: 'الحزمة الشاملة لبناء نظام تسويق رقمي متكامل. ابدأ بـ $49 مع ضمان استرداد كامل.',
+    images: ['/images/book-cover.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
     },
-    verification: {
-      google: gscId,
-    },
-  };
-}
+  },
+  alternates: {
+    canonical: 'https://www.black4me.com',
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GSC_ID || '',
+  },
+};
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { data } = await supabase.from('site_settings').select('setting_key, setting_value');
-  const settings: Record<string, string> = {};
-  if (data) {
-    data.forEach(d => { settings[d.setting_key] = d.setting_value; });
-  }
-
   return (
-    <html lang="ar" dir="rtl">
-      <body className="min-h-full font-sans bg-brand-black text-brand-white">
-        {children}
+    <html lang="ar" dir="rtl" className={`${cairo.variable} ${ibmPlex.variable}`}>
+      <body className="min-h-full font-sans bg-brand-black text-brand-white antialiased">
+        <Providers>
+          <Navbar />
+          <main className="min-h-[calc(100vh-80px)]">
+            {children}
+          </main>
+          <Footer />
+        </Providers>
         <TrackingScripts
-          gaId={settings.ga_id}
-          gtmId={settings.gtm_id}
-          metaPixelId={settings.meta_pixel_id}
-          tiktokPixelId={settings.tiktok_pixel_id}
+          gaId={process.env.NEXT_PUBLIC_GA_ID}
+          metaPixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID}
+          tiktokPixelId={process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID}
         />
       </body>
     </html>
