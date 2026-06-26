@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cairo, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import TrackingScripts from '../components/TrackingScripts';
@@ -21,6 +21,13 @@ const ibmPlex = IBM_Plex_Sans_Arabic({
   display: 'swap',
   preload: true,
 });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#000000',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.black4me.com'),
@@ -105,7 +112,7 @@ export default function RootLayout({
             انتقل للمحتوى الرئيسي
           </a>
           <Navbar />
-          <main id="main-content" role="main" className="min-h-[calc(100vh-80px)]">
+          <main id="main-content" className="min-h-[calc(100vh-80px)]">
             {children}
           </main>
           <Footer />

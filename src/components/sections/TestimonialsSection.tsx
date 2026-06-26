@@ -40,7 +40,7 @@ export default function TestimonialsSection() {
                 </div>
                 <div>
                   <span className="text-sm font-bold text-white block">{t.customerName}</span>
-                  <span className="text-xs text-gray-400">{t.country}</span>
+                  <span className="text-xs text-gray-300">{t.country}</span>
                 </div>
               </div>
             </div>

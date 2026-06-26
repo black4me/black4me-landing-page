@@ -102,7 +102,7 @@ export default function PricingSection() {
               <div className="mb-6">
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-black text-white">${plan.price}</span>
-                  <span className="text-sm text-gray-400 line-through" aria-label="السعر الأصلي">${plan.originalPrice}</span>
+                  <span className="text-sm text-gray-300 line-through" aria-label="السعر الأصلي">${plan.originalPrice}</span>
                 </div>
                 <span className="text-xs text-brand-green font-bold">وفّر {Math.round((1 - plan.price / plan.originalPrice) * 100)}%</span>
               </div>
@@ -115,8 +115,8 @@ export default function PricingSection() {
                   </li>
                 ))}
                 {plan.notIncluded.map((f, j) => (
-                  <li key={`not-${j}`} className="flex items-start gap-2 text-sm text-gray-400">
-                    <X className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                  <li key={`not-${j}`} className="flex items-start gap-2 text-sm text-gray-300">
+                    <X className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" aria-hidden="true" />
                     <span>{f}</span>
                   </li>
                 ))}
