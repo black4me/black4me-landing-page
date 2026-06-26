@@ -18,12 +18,12 @@ export default function NewsletterSection() {
   };
 
   return (
-    <section className="section-padding bg-surface-1 border-t border-brand-white/5" dir="rtl">
+    <section className="section-padding bg-surface-1 border-t border-brand-white/5" dir="rtl" aria-labelledby="newsletter-heading">
       <div className="max-w-2xl mx-auto text-center">
-        <h2 className="text-xl md:text-2xl font-black text-white mb-3">
+        <h2 id="newsletter-heading" className="text-xl md:text-2xl font-black text-white mb-3">
           انضم لنشرتنا التسويقية المجانية
         </h2>
-        <p className="text-sm text-gray-400 mb-8">
+        <p className="text-sm text-gray-300 mb-8">
           نصائح تسويقية أسبوعية، قوالب مجانية، وعروض حصرية مباشرة في بريدك.
         </p>
 
@@ -37,7 +37,7 @@ export default function NewsletterSection() {
               onChange={(e) => setName(e.target.value)}
               placeholder="اسمك"
               required
-              className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:border-brand-purple text-sm"
+              className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3 px-4 text-white placeholder-gray-300 focus:outline-none focus:border-brand-purple text-sm"
             />
           </div>
           <div className="flex-1">
@@ -50,7 +50,7 @@ export default function NewsletterSection() {
               placeholder="بريدك الإلكتروني"
               required
               dir="ltr"
-              className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:border-brand-purple text-sm text-left"
+              className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3 px-4 text-white placeholder-gray-300 focus:outline-none focus:border-brand-purple text-sm text-left"
             />
           </div>
           <button

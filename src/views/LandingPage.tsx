@@ -6,18 +6,18 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { Sparkles, ArrowLeft, ArrowDown, Star, Lock, CreditCard, RefreshCw, Target, ShieldCheck, Headphones, Clock } from 'lucide-react';
 
-// Dynamic imports for split sections - reduces initial bundle
-const ProblemSection = dynamic(() => import('../components/sections/ProblemSection'), { ssr: false });
-const HowItWorksSection = dynamic(() => import('../components/sections/HowItWorksSection'), { ssr: false });
-const BookPreviewSection = dynamic(() => import('../components/sections/BookPreviewSection'), { ssr: false });
-const PricingSection = dynamic(() => import('../components/sections/PricingSection'), { ssr: false });
-const TestimonialsSection = dynamic(() => import('../components/sections/TestimonialsSection'), { ssr: false });
-const GuaranteeSection = dynamic(() => import('../components/sections/GuaranteeSection'), { ssr: false });
-const FAQSection = dynamic(() => import('../components/sections/FAQSection'), { ssr: false });
-const ConsultationSection = dynamic(() => import('../components/sections/ConsultationSection'), { ssr: false });
-const NewsletterSection = dynamic(() => import('../components/sections/NewsletterSection'), { ssr: false });
-const StickyMobileCTA = dynamic(() => import('../components/sections/StickyMobileCTA'), { ssr: false });
-const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'), { ssr: false });
+// Dynamic imports for code splitting - SSR enabled for fast FCP/LCP
+const ProblemSection = dynamic(() => import('../components/sections/ProblemSection'));
+const HowItWorksSection = dynamic(() => import('../components/sections/HowItWorksSection'));
+const BookPreviewSection = dynamic(() => import('../components/sections/BookPreviewSection'));
+const PricingSection = dynamic(() => import('../components/sections/PricingSection'));
+const TestimonialsSection = dynamic(() => import('../components/sections/TestimonialsSection'));
+const GuaranteeSection = dynamic(() => import('../components/sections/GuaranteeSection'));
+const FAQSection = dynamic(() => import('../components/sections/FAQSection'));
+const ConsultationSection = dynamic(() => import('../components/sections/ConsultationSection'));
+const NewsletterSection = dynamic(() => import('../components/sections/NewsletterSection'));
+const StickyMobileCTA = dynamic(() => import('../components/sections/StickyMobileCTA'));
+const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'));
 
 /* ═══════════════════════════════════════════════════════════════
    HERO SECTION — Above the fold, result-oriented
@@ -34,7 +34,7 @@ function HeroSection() {
       <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-brand-gold/8 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[80vh]">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Text Column */}
           <div className="lg:col-span-7 py-8 lg:py-16">
@@ -95,19 +95,19 @@ function HeroSection() {
             </div>
 
             {/* Micro Trust */}
-            <div className="flex items-center gap-4 text-xs text-gray-400">
+            <div className="flex items-center gap-4 text-xs text-gray-300">
               <div className="flex items-center gap-1">
-                <Lock className="w-3 h-3" />
+                <Lock className="w-3 h-3" aria-hidden="true" />
                 <span>دفع آمن</span>
               </div>
-              <span>•</span>
+              <span aria-hidden="true">•</span>
               <div className="flex items-center gap-1">
-                <CreditCard className="w-3 h-3" />
+                <CreditCard className="w-3 h-3" aria-hidden="true" />
                 <span>Stripe & PayPal</span>
               </div>
-              <span>•</span>
+              <span aria-hidden="true">•</span>
               <div className="flex items-center gap-1">
-                <RefreshCw className="w-3 h-3" />
+                <RefreshCw className="w-3 h-3" aria-hidden="true" />
                 <span>استرداد 7 أيام</span>
               </div>
             </div>
@@ -119,14 +119,15 @@ function HeroSection() {
               {/* Glow behind book */}
               <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/20 to-brand-gold/10 blur-[60px] rounded-full scale-110" />
               
-              {/* Book Image */}
-              <div className="relative animate-float w-full max-w-[450px] aspect-[4/5] mx-auto">
+              {/* Book Image - no animation to prevent CLS */}
+              <div className="relative w-full max-w-[450px] mx-auto" style={{ aspectRatio: '4/5' }}>
                 <Image
                   src="/images/book-cover.png"
                   alt="كتاب بدون التسويق كارثة تهدد ثروتك المستقبلية — تأليف جاسم محمد"
                   fill
                   className="drop-shadow-2xl object-cover rounded-2xl"
                   priority
+                  sizes="(max-width: 1024px) 300px, 450px"
                 />
               </div>
 
@@ -157,11 +158,11 @@ function HeroSection() {
       <div className="flex justify-center pb-8 pt-4">
         <button 
           onClick={() => document.getElementById('problem-section')?.scrollIntoView({ behavior: 'smooth' })}
-          className="flex flex-col items-center gap-1 text-gray-400 hover:text-brand-gold transition animate-bounce"
+          className="flex flex-col items-center gap-1 text-gray-300 hover:text-brand-gold transition animate-bounce"
           aria-label="اكتشف المزيد"
         >
-          <span className="text-[10px]">اكتشف المزيد</span>
-          <ArrowDown className="w-4 h-4" />
+          <span className="text-xs">اكتشف المزيد</span>
+          <ArrowDown className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
     </section>

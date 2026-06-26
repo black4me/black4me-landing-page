@@ -59,7 +59,7 @@ export default function FAQSection() {
                 {openIndex === i ? (
                   <ChevronUp className="w-5 h-5 text-brand-gold flex-shrink-0 mr-4" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 mr-4" aria-hidden="true" />
+                  <ChevronDown className="w-5 h-5 text-gray-300 flex-shrink-0 mr-4" aria-hidden="true" />
                 )}
               </button>
               {openIndex === i && (
@@ -69,7 +69,7 @@ export default function FAQSection() {
                   role="region"
                   aria-labelledby={`faq-question-${faq.id}`}
                 >
-                  <p className="text-sm text-gray-400 leading-relaxed pt-4">{faq.answer}</p>
+                  <p className="text-sm text-gray-300 leading-relaxed pt-4">{faq.answer}</p>
                 </div>
               )}
             </div>
