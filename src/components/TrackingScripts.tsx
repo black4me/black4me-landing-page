@@ -1,4 +1,7 @@
+"use client";
+
 import Script from 'next/script';
+import { useEffect, useState } from 'react';
 
 interface TrackingScriptsProps {
   gaId?: string;
@@ -7,16 +10,25 @@ interface TrackingScriptsProps {
 }
 
 export default function TrackingScripts({ gaId, metaPixelId, tiktokPixelId }: TrackingScriptsProps) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoaded(true), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isLoaded) return null;
+
   return (
     <>
-      {/* Google Analytics 4 */}
+      {/* Google Analytics 4 - deferred until after page load */}
       {gaId && (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-            strategy="afterInteractive"
+            strategy="lazyOnload"
           />
-          <Script id="ga4" strategy="afterInteractive">
+          <Script id="ga4" strategy="lazyOnload">
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
@@ -30,9 +42,9 @@ export default function TrackingScripts({ gaId, metaPixelId, tiktokPixelId }: Tr
         </>
       )}
 
-      {/* Meta (Facebook) Pixel */}
+      {/* Meta (Facebook) Pixel - deferred until after page load */}
       {metaPixelId && (
-        <Script id="meta-pixel" strategy="afterInteractive">
+        <Script id="meta-pixel" strategy="lazyOnload">
           {`
             !function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -48,9 +60,9 @@ export default function TrackingScripts({ gaId, metaPixelId, tiktokPixelId }: Tr
         </Script>
       )}
 
-      {/* TikTok Pixel */}
+      {/* TikTok Pixel - deferred until after page load */}
       {tiktokPixelId && (
-        <Script id="tiktok-pixel" strategy="afterInteractive">
+        <Script id="tiktok-pixel" strategy="lazyOnload">
           {`
             !function (w, d, t) {
               w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];

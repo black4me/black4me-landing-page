@@ -87,7 +87,7 @@ export default function ValuePricing({ onBuyClick }: ValuePricingProps) {
           </p>
 
           <div className="space-y-1 mb-8">
-            <p className="text-gray-500 text-sm line-through">القيمة الحقيقية: ${totalValue} دولار أمريكي</p>
+            <p className="text-gray-400 text-sm line-through">القيمة الحقيقية: ${totalValue} دولار أمريكي</p>
             <div className="flex justify-center items-baseline gap-2">
               <span className="text-5xl font-black text-brand-gold drop-shadow-[0_0_10px_rgba(245,197,66,0.3)]">
                 ${mainProduct?.salePrice || mainProduct?.price || 49}
@@ -105,7 +105,7 @@ export default function ValuePricing({ onBuyClick }: ValuePricingProps) {
             <span>شراء وتنزيل الكتب فوراً</span>
           </button>
 
-          <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-500">
+          <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400">
             <AlertCircle className="w-4 h-4 text-brand-gold shrink-0" />
             <span>ضمان استرجاع القيمة في حال وجود أي مشاكل تنزيل فنية.</span>
           </div>

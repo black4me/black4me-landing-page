@@ -13,7 +13,6 @@ export async function createOrder(payload: {
   try {
     const { data, error } = await supabaseAdmin.from('orders').insert([{
       product_id: payload.productId,
-      product_title: payload.productTitle,
       customer_email: payload.customerEmail,
       customer_name: payload.customerName || '',
       amount: payload.amount,
@@ -33,14 +32,29 @@ export async function createOrder(payload: {
   }
 }
 
-export async function grantAccess(customerEmail: string, productId: string) {
+export async function grantAccess(customerEmail: string, productId: string, orderId: string) {
   try {
-    // Basic implementation: Add the user/product pair to a `user_products` or just log it
-    // If you have a specific table for access, you'd insert here.
-    // e.g. await supabaseAdmin.from('user_access').upsert({ email: customerEmail, product_id: productId })
+    // Fetch product details
+    const { data: product } = await supabaseAdmin
+      .from('products')
+      .select('id, title, file_url')
+      .eq('id', productId)
+      .single();
 
-    // If customer doesn't exist in system, you might create an auth account here
-    // using supabaseAdmin.auth.admin.createUser({...})
+    // Insert into user_access — this is what the portal reads
+    const { error } = await supabaseAdmin.from('user_access').insert({
+      customer_email: customerEmail,
+      product_id: product?.id || productId,
+      product_title: product?.title || 'المنتج',
+      file_url: product?.file_url || null,
+      order_id: orderId,
+      payment_gateway: 'manual',
+    });
+
+    if (error) {
+      console.error('Error granting access:', error);
+      return { success: false, error: error.message };
+    }
 
     return { success: true };
   } catch (err: any) {
@@ -48,3 +62,4 @@ export async function grantAccess(customerEmail: string, productId: string) {
     return { success: false, error: err.message };
   }
 }
+

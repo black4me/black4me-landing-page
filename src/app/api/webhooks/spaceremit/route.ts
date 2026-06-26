@@ -70,14 +70,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
     }
 
-    // Fetch product file_url for the email
+    // Fetch product details
     let fileUrl = null;
+    let productTitle = 'المنتج';
+    let productDbId = order.product_id;
+
     if (order.product_id) {
-       const { data: prod } = await supabaseAdmin.from('products').select('*').eq('id', order.product_id).single();
-       if (prod) {
-         fileUrl = prod.file_url;
-       }
+      const { data: prod } = await supabaseAdmin
+        .from('products')
+        .select('id, title, file_url')
+        .eq('id', order.product_id)
+        .single();
+      if (prod) {
+        fileUrl = prod.file_url;
+        productTitle = prod.title;
+        productDbId = prod.id;
+      }
     }
+
+    // Grant full access to the purchased product
+    await supabaseAdmin.from('user_access').insert({
+      customer_email: customerEmail,
+      product_id: productDbId,
+      product_title: productTitle,
+      file_url: fileUrl,
+      order_id: order.id,
+      payment_gateway: 'spaceremit',
+    });
 
     // Send Welcome Email via Resend
     if (process.env.RESEND_API_KEY && order.customer_email) {
@@ -88,7 +107,7 @@ export async function POST(req: Request) {
             downloadLink: fileUrl
           } as any)
         );
-        
+
         await resend.emails.send({
           from: 'BLACK4ME <noreply@black4me.com>',
           to: order.customer_email,

@@ -23,6 +23,12 @@
   --color-surface-2: #111111;
   --color-surface-3: #1A1A1A;
   --color-surface-4: #222222;
+  
+  /* Accessible text colors (WCAG AA compliant on black background) */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #B0B0B0; /* 7.5:1 contrast on #000 */
+  --color-text-tertiary: #8A8A8A; /* 4.6:1 contrast on #000 - passes AA for normal text */
+  --color-text-muted: #6E6E6E; /* 3.5:1 - only for large text or decorative */
 }
 
 /* ─── Base Styles ──────────────────────────────────────────── */

@@ -163,7 +163,7 @@ export default function GrowthChart() {
                       transform: 'translateX(-50%)'
                     }}
                     className={`absolute font-bold text-center px-2 py-0.5 rounded transition ${
-                      activeNode === node.id ? 'text-brand-gold bg-brand-black/95 shadow border border-brand-gold/30' : 'text-gray-500'
+                      activeNode === node.id ? 'text-brand-gold bg-brand-black/95 shadow border border-brand-gold/30' : 'text-gray-400'
                     }`}
                   >
                     {node.label}
@@ -219,7 +219,7 @@ export default function GrowthChart() {
                     </div>
 
                     <div className="pt-4 border-t border-brand-white/5 flex justify-between items-center text-xs">
-                      <span className="text-gray-500 font-mono">BLACK4ME Engine</span>
+                      <span className="text-gray-400 font-mono">BLACK4ME Engine</span>
                       <button 
                         onClick={() => setActiveNode(activeNode === 4 ? 0 : activeNode + 1)}
                         className="text-brand-purple hover:text-white transition font-bold cursor-pointer"

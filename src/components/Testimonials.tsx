@@ -59,7 +59,7 @@ export default function Testimonials() {
                   {[...Array(5)].map((_, idx) => (
                     <Star 
                       key={idx} 
-                      className={`w-4.5 h-4.5 ${idx < test.rating ? 'fill-current' : 'text-gray-600'}`} 
+                      className={`w-4.5 h-4.5 ${idx < test.rating ? 'fill-current' : 'text-gray-400'}`} 
                     />
                   ))}
                 </div>
@@ -76,7 +76,7 @@ export default function Testimonials() {
                 </span>
                 <div className="text-right">
                   <h4 className="text-sm font-bold text-white leading-none">{test.customerName}</h4>
-                  <span className="text-[10px] text-gray-500 font-medium block mt-1">{test.country}</span>
+                  <span className="text-[10px] text-gray-400 font-medium block mt-1">{test.country}</span>
                 </div>
               </div>
             </div>
@@ -102,11 +102,12 @@ export default function Testimonials() {
               <p className="text-xs text-gray-300">نشكرك بعمق على وقتك. تم فتح بطاقة مراجعة وستقوم الإدارة بالتحقق منها والموافقة عليها قريباً.</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" aria-label="إرسال تقييم">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-400 block mb-1">الاسم الكامل</label>
+                  <label htmlFor="testimonial-name" className="text-xs font-bold text-gray-400 block mb-1">الاسم الكامل</label>
                   <input 
+                    id="testimonial-name"
                     type="text" 
                     required
                     value={name}
@@ -116,10 +117,12 @@ export default function Testimonials() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-gray-400 block mb-1">الدولة أو الإقامة</label>
+                  <label htmlFor="country-select" className="text-xs font-bold text-gray-400 block mb-1">الدولة أو الإقامة</label>
                   <select 
+                    id="country-select"
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
+                    aria-label="الدولة أو الإقامة"
                     className="w-full bg-brand-black border border-brand-white/10 p-3 rounded-xl text-white text-sm focus:outline-none focus:border-brand-purple transition"
                   >
                     <option value="المملكة العربية السعودية">المملكة العربية السعودية</option>
@@ -133,12 +136,15 @@ export default function Testimonials() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-400 block mb-1">تقييمك للحزمة (1-5 نجوم)</label>
-                <div className="flex gap-2">
+                <span id="rating-label" className="text-xs font-bold text-gray-400 block mb-1">تقييمك للحزمة (1-5 نجوم)</span>
+                <div className="flex gap-2" role="radiogroup" aria-labelledby="rating-label">
                   {[1, 2, 3, 4, 5].map((num) => (
                     <button
                       key={num}
                       type="button"
+                      role="radio"
+                      aria-checked={rating === num}
+                      aria-label={`${num} نجوم`}
                       onClick={() => setRating(num)}
                       className={`w-10 h-10 rounded-lg font-bold border flex items-center justify-center transition cursor-pointer text-sm ${
                         rating === num 
@@ -153,8 +159,9 @@ export default function Testimonials() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-gray-400 block mb-1">تعليقك أو مراجعتك التفصيلية</label>
+                <label htmlFor="testimonial-comment" className="text-xs font-bold text-gray-400 block mb-1">تعليقك أو مراجعتك التفصيلية</label>
                 <textarea 
+                  id="testimonial-comment"
                   required
                   rows={4}
                   value={comment}

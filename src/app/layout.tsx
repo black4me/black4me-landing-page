@@ -8,14 +8,14 @@ import { Providers } from './providers';
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  weight: ['400', '600', '700'],
   variable: '--font-cairo',
   display: 'swap',
 });
 
 const ibmPlex = IBM_Plex_Sans_Arabic({
   subsets: ['arabic', 'latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '700'],
   variable: '--font-ibm',
   display: 'swap',
 });
@@ -92,8 +92,11 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${ibmPlex.variable}`}>
       <body className="min-h-full font-sans bg-brand-black text-brand-white antialiased">
         <Providers>
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-brand-gold focus:text-brand-black focus:p-2 focus:rounded">
+            انتقل للمحتوى الرئيسي
+          </a>
           <Navbar />
-          <main className="min-h-[calc(100vh-80px)]">
+          <main id="main-content" role="main" className="min-h-[calc(100vh-80px)]">
             {children}
           </main>
           <Footer />

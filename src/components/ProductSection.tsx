@@ -95,7 +95,7 @@ export default function ProductSection() {
               )}
             </div>
 
-            <div className="pt-8 mt-8 border-t border-brand-white/5 text-[11px] text-gray-500 font-mono">
+            <div className="pt-8 mt-8 border-t border-brand-white/5 text-[11px] text-gray-400 font-mono">
               BLACK4ME © Educational Masterclass Series
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function ProductSection() {
               </div>
             </div>
 
-            <div className="pt-8 mt-8 border-t border-brand-white/5 text-[11px] text-gray-500 font-mono">
+            <div className="pt-8 mt-8 border-t border-brand-white/5 text-[11px] text-gray-400 font-mono">
               BLACK4ME © Core Financial Guide Book
             </div>
           </div>
