@@ -3,6 +3,9 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'سياسة الخصوصية',
   description: 'سياسة خصوصية BLACK4ME — كيف نجمع ونستخدم ونحمي بياناتك الشخصية.',
+  alternates: {
+    canonical: 'https://www.black4me.com/privacy',
+  },
 };
 
 export default function PrivacyPage() {

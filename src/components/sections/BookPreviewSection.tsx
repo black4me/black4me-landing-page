@@ -26,6 +26,7 @@ export default function BookPreviewSection() {
                   alt="من داخل كتاب بدون التسويق — محتوى عملي مع قوالب وخرائط تنفيذ"
                   fill
                   className="object-cover"
+                  loading="lazy"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               </div>
@@ -108,6 +109,7 @@ export default function BookPreviewSection() {
               alt="لقطة من النظام التعليمي — أكاديمية التسويق المتكاملة"
               fill
               className="w-full rounded-t-xl object-cover"
+              loading="lazy"
               sizes="(max-width: 1024px) 100vw, 80vw"
             />
           </div>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { Sparkles, ArrowLeft, ArrowDown, Star, Lock, CreditCard, RefreshCw, Target, ShieldCheck, Headphones, Clock } from 'lucide-react';
+import { trackAllPixels } from '../lib/tracking';
 
 // Dynamic imports for code splitting - SSR enabled for fast FCP/LCP
 const ProblemSection = dynamic(() => import('../components/sections/ProblemSection'));
@@ -24,6 +25,23 @@ const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'));
    ═══════════════════════════════════════════════════════════════ */
 
 function HeroSection() {
+  const handleHeroCheckoutClick = () => {
+    trackAllPixels('click_cta', {
+      location: 'hero_primary',
+      destination: '/checkout',
+      value: 49,
+      currency: 'USD',
+    });
+  };
+
+  const handleHeroExploreClick = () => {
+    trackAllPixels('view_hero', {
+      location: 'hero_secondary',
+      target: 'products-section',
+    });
+    document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section id="hero" className="relative bg-brand-black text-brand-white pt-8 pb-0 overflow-hidden" dir="rtl">
       {/* Background Effects */}
@@ -81,13 +99,14 @@ function HeroSection() {
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <Link
                 href="/checkout"
+                onClick={handleHeroCheckoutClick}
                 className="cta-glow bg-brand-gold hover:bg-yellow-400 text-brand-black text-base font-black py-4 px-8 rounded-2xl transition-all duration-300 text-center flex items-center justify-center gap-2"
               >
                 <span>احصل على الحزمة الشاملة $49 — ابدأ الآن</span>
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <button
-                onClick={() => document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={handleHeroExploreClick}
                 className="bg-transparent border border-brand-white/15 hover:border-brand-purple/40 text-white text-sm font-bold py-4 px-6 rounded-2xl transition-all text-center hover:bg-brand-white/5"
               >
                 اطّلع على القوالب مجاناً
@@ -174,30 +193,69 @@ function HeroSection() {
    ═══════════════════════════════════════════════════════════════ */
 
 export default function LandingPage() {
-  // Product Schema (JSON-LD)
-  const productSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": "بدون التسويق كارثة",
-    "image": [
-      "https://www.black4me.com/images/book-cover.png"
-    ],
-    "description": "دليل عملي لبناء نظام تسويق رقمي متكامل وتحويل المهارات إلى أرباح.",
-    "brand": {
-      "@type": "Brand",
-      "name": "BLACK4ME"
+  React.useEffect(() => {
+    trackAllPixels('view_hero', {
+      location: 'landing_page',
+      page: '/',
+    });
+  }, []);
+
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'BLACK4ME',
+    url: 'https://www.black4me.com',
+    logo: 'https://www.black4me.com/images/book-cover.png',
+    founder: {
+      '@type': 'Person',
+      name: 'جاسم محمد',
     },
-    "offers": {
-      "@type": "Offer",
-      "url": "https://www.black4me.com",
-      "priceCurrency": "USD",
-      "price": "49.00",
-      "availability": "https://schema.org/InStock"
-    }
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'support@black4me.com',
+      availableLanguage: ['ar', 'en'],
+    },
+  };
+
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'BLACK4ME',
+    url: 'https://www.black4me.com',
+    inLanguage: 'ar',
+    publisher: {
+      '@type': 'Organization',
+      name: 'BLACK4ME',
+    },
+  };
+
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: 'الحزمة الشاملة — كتاب + نظام + قوالب',
+    image: ['https://www.black4me.com/images/book-cover.png'],
+    description: 'حزمة تسويق رقمي متكاملة تشمل كتاباً عملياً ونظاماً تعليمياً وقوالب جاهزة لمساعدتك على جذب العملاء وتحويل مهاراتك إلى دخل مستقر.',
+    brand: {
+      '@type': 'Brand',
+      name: 'BLACK4ME',
+    },
+    sku: 'black4me-main-package',
+    category: 'Digital Marketing Package',
+    offers: {
+      '@type': 'Offer',
+      url: 'https://www.black4me.com/checkout',
+      priceCurrency: 'USD',
+      price: '49.00',
+      availability: 'https://schema.org/InStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
   };
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       
       {/* Trust Banner */}

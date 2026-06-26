@@ -1,7 +1,9 @@
 "use client";
 
 import Script from 'next/script';
+import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 interface TrackingScriptsProps {
   gaId?: string;
@@ -10,12 +12,46 @@ interface TrackingScriptsProps {
 }
 
 export default function TrackingScripts({ gaId, metaPixelId, tiktokPixelId }: TrackingScriptsProps) {
+  return (
+    <Suspense fallback={null}>
+      <TrackingScriptsInner gaId={gaId} metaPixelId={metaPixelId} tiktokPixelId={tiktokPixelId} />
+    </Suspense>
+  );
+}
+
+function TrackingScriptsInner({ gaId, metaPixelId, tiktokPixelId }: TrackingScriptsProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!isLoaded) {
+      return;
+    }
+
+    const query = searchParams.toString();
+    const pagePath = query ? `${pathname}?${query}` : pathname;
+
+    if (typeof window.gtag === 'function' && gaId) {
+      window.gtag('config', gaId, {
+        page_path: pagePath,
+        page_title: document.title,
+      });
+    }
+
+    if (typeof window.fbq === 'function' && metaPixelId) {
+      window.fbq('track', 'PageView');
+    }
+
+    if (typeof window.ttq?.page === 'function' && tiktokPixelId) {
+      window.ttq.page();
+    }
+  }, [gaId, isLoaded, metaPixelId, pathname, searchParams, tiktokPixelId]);
 
   if (!isLoaded) return null;
 
@@ -31,7 +67,7 @@ export default function TrackingScripts({ gaId, metaPixelId, tiktokPixelId }: Tr
           <Script id="ga4" strategy="lazyOnload">
             {`
               window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
+              window.gtag = function gtag(){window.dataLayer.push(arguments);};
               gtag('js', new Date());
               gtag('config', '${gaId}', {
                 page_title: document.title,

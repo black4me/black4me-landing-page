@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/api/'],
+      disallow: ['/admin', '/portal', '/thankyou', '/api/'],
     },
     sitemap: 'https://www.black4me.com/sitemap.xml',
   };

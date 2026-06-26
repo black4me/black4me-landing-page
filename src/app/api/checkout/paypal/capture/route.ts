@@ -10,6 +10,10 @@ const PAYPAL_API_BASE = process.env.NODE_ENV === 'production'
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
 const generateAccessToken = async () => {
+  if (!process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || !process.env.PAYPAL_SECRET) {
+    throw new Error('PayPal credentials are not configured');
+  }
+
   const auth = Buffer.from(
     `${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_SECRET}`
   ).toString('base64');
@@ -21,6 +25,11 @@ const generateAccessToken = async () => {
   });
 
   const data = await response.json();
+
+  if (!response.ok || !data.access_token) {
+    throw new Error(data.error_description || 'Failed to authenticate with PayPal');
+  }
+
   return data.access_token;
 };
 
@@ -46,18 +55,24 @@ export async function POST(req: Request) {
 
     const captureData = await captureResponse.json();
 
+    if (!captureResponse.ok) {
+      return NextResponse.json({ error: captureData.message || 'PayPal capture failed' }, { status: 502 });
+    }
+
     if (captureData.status === 'COMPLETED') {
       // Extract custom metadata we passed earlier
       const purchaseUnit = captureData.purchase_units[0];
       const customId = purchaseUnit.custom_id;
       let productId = '';
       let customerEmail = '';
+      let customerName = '';
 
       if (customId) {
         try {
           const parsed = JSON.parse(customId);
           productId = parsed.product_id;
           customerEmail = parsed.customer_email;
+          customerName = parsed.customer_name || '';
         } catch (e) {
           console.error("Failed to parse custom_id", customId);
         }
@@ -66,6 +81,14 @@ export async function POST(req: Request) {
       // Fallback email from PayPal payer
       if (!customerEmail && captureData.payer?.email_address) {
          customerEmail = captureData.payer.email_address;
+      }
+
+      if (!customerName) {
+        customerName = captureData.payer?.name?.given_name || '';
+      }
+
+      if (!customerEmail || !productId) {
+        return NextResponse.json({ error: 'Missing PayPal order metadata' }, { status: 400 });
       }
 
       const amount = Number(purchaseUnit.payments.captures[0].amount.value);
@@ -79,20 +102,29 @@ export async function POST(req: Request) {
 
       if (!existingOrder) {
         // Save to Supabase
-        await supabaseAdmin.from('orders').insert({
+        const { error: orderInsertError } = await supabaseAdmin.from('orders').insert({
           id: orderID,
           customer_email: customerEmail,
+          customer_name: customerName,
           product_id: productId || 'unknown',
           amount: amount,
           payment_gateway: 'paypal',
           status: 'completed',
         });
 
+        if (orderInsertError) {
+          throw orderInsertError;
+        }
+
         // Add to subscribers
-        await supabaseAdmin.from('subscribers').upsert(
+        const { error: subscriberError } = await supabaseAdmin.from('subscribers').upsert(
           { email: customerEmail, name: captureData.payer?.name?.given_name || 'Customer' },
           { onConflict: 'email' }
         );
+
+        if (subscriberError) {
+          console.error('Failed to upsert subscriber:', subscriberError);
+        }
 
         // Fetch product to get file_url and title
         let fileUrl = null;
@@ -113,7 +145,7 @@ export async function POST(req: Request) {
         }
 
         // Grant full access to the purchased product
-        await supabaseAdmin.from('user_access').insert({
+        const { error: accessError } = await supabaseAdmin.from('user_access').insert({
           customer_email: customerEmail,
           product_id: productDbId,
           product_title: productTitle,
@@ -121,6 +153,10 @@ export async function POST(req: Request) {
           order_id: orderID,
           payment_gateway: 'paypal',
         });
+
+        if (accessError) {
+          throw accessError;
+        }
 
         // Send welcome email
         if (process.env.RESEND_API_KEY && customerEmail) {
