@@ -1,17 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import { useApp } from '../context/AppContext';
-import {
-  Target, ShieldCheck, Download, Zap, Sparkles, ArrowLeft,
-  CheckCircle2, Star, BookOpen, Users, TrendingUp, Clock,
-  ChevronDown, ChevronUp, Play, Award, Rocket, MessageSquare,
-  Lock, CreditCard, RefreshCw, Headphones, PenTool, Lightbulb,
-  CheckSquare, ArrowDown, Gift, X
-} from 'lucide-react';
+import { Sparkles, ArrowLeft, ArrowDown, Star, Lock, CreditCard, RefreshCw, Target, ShieldCheck, Headphones, Clock } from 'lucide-react';
 
 // Dynamic imports for split sections - reduces initial bundle
 const ProblemSection = dynamic(() => import('../components/sections/ProblemSection'), { ssr: false });
@@ -31,9 +24,6 @@ const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'), { ssr:
    ═══════════════════════════════════════════════════════════════ */
 
 function HeroSection() {
-  const [isVisible, setIsVisible] = useState(false);
-  useEffect(() => { setIsVisible(true); }, []);
-
   return (
     <section id="hero" className="relative bg-brand-black text-brand-white pt-8 pb-0 overflow-hidden" dir="rtl">
       {/* Background Effects */}
@@ -47,7 +37,7 @@ function HeroSection() {
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[80vh]">
           
           {/* Text Column */}
-          <div className={`lg:col-span-7 py-8 lg:py-16 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="lg:col-span-7 py-8 lg:py-16">
             {/* Trust Badge */}
             <div className="inline-flex items-center gap-2 bg-brand-purple/10 border border-brand-purple/20 rounded-full px-4 py-1.5 mb-6">
               <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
@@ -124,7 +114,7 @@ function HeroSection() {
           </div>
 
           {/* Book Cover Column */}
-          <div className={`lg:col-span-5 flex justify-center lg:justify-end transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className="lg:col-span-5 flex justify-center lg:justify-end">
             <div className="relative">
               {/* Glow behind book */}
               <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/20 to-brand-gold/10 blur-[60px] rounded-full scale-110" />

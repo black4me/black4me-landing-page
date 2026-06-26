@@ -64,11 +64,11 @@ export default function PricingSection() {
   ];
 
   return (
-    <section id="pricing-section" className="section-padding bg-brand-black" dir="rtl">
+    <section id="pricing-section" className="section-padding bg-brand-black" dir="rtl" aria-labelledby="pricing-heading">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-14">
           <span className="text-brand-gold text-xs font-bold uppercase tracking-widest mb-3 block">العرض والأسعار</span>
-          <h2 className="text-2xl md:text-4xl font-black text-white mb-4">
+          <h2 id="pricing-heading" className="text-2xl md:text-4xl font-black text-white mb-4">
             اختر الخطة المناسبة لبدايتك
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto">
@@ -76,7 +76,7 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch" role="list">
           {plans.map((plan, i) => (
             <div
               key={i}
@@ -85,9 +85,11 @@ export default function PricingSection() {
                   ? 'glass-gold border-brand-gold/30 border-2 shadow-[0_0_40px_rgba(245,197,66,0.08)]'
                   : 'glass'
               }`}
+              role="listitem"
+              aria-label={`${plan.name} - ${plan.price} دولار`}
             >
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-gold text-brand-black text-[11px] font-black px-4 py-1 rounded-full">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-gold text-brand-black text-[11px] font-black px-4 py-1 rounded-full" aria-label="الخطة الأكثر مبيعاً">
                   الأكثر مبيعاً ⭐
                 </div>
               )}
@@ -100,21 +102,21 @@ export default function PricingSection() {
               <div className="mb-6">
                 <div className="flex items-baseline gap-2">
                   <span className="text-4xl font-black text-white">${plan.price}</span>
-                  <span className="text-sm text-gray-400 line-through">${plan.originalPrice}</span>
+                  <span className="text-sm text-gray-400 line-through" aria-label="السعر الأصلي">${plan.originalPrice}</span>
                 </div>
                 <span className="text-xs text-brand-green font-bold">وفّر {Math.round((1 - plan.price / plan.originalPrice) * 100)}%</span>
               </div>
 
-              <ul className="space-y-2.5 mb-6 flex-1">
+              <ul className="space-y-2.5 mb-6 flex-1" aria-label="مميزات الخطة">
                 {plan.features.map((f, j) => (
                   <li key={j} className="flex items-start gap-2 text-sm text-gray-300">
-                    <CheckCircle2 className="w-4 h-4 text-brand-green flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-brand-green flex-shrink-0 mt-0.5" aria-hidden="true" />
                     <span>{f}</span>
                   </li>
                 ))}
                 {plan.notIncluded.map((f, j) => (
                   <li key={`not-${j}`} className="flex items-start gap-2 text-sm text-gray-400">
-                    <X className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                    <X className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
                     <span>{f}</span>
                   </li>
                 ))}
@@ -127,6 +129,7 @@ export default function PricingSection() {
                     ? 'cta-glow bg-brand-gold text-brand-black hover:bg-yellow-400'
                     : 'bg-brand-white/5 text-white hover:bg-brand-white/10 border border-brand-white/10'
                 }`}
+                aria-label={plan.cta}
               >
                 {plan.cta}
               </Link>

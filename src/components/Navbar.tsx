@@ -39,8 +39,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="w-10 h-10 rounded-xl bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono hover:scale-105 transition shadow-lg shadow-brand-gold/10 text-sm">
+        <Link href="/" className="flex items-center gap-2 group" aria-label="BLACK4ME - الصفحة الرئيسية">
+          <span className="w-10 h-10 rounded-xl bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono hover:scale-105 transition shadow-lg shadow-brand-gold/10 text-sm" aria-hidden="true">
             B4M
           </span>
           <div className="text-right">
@@ -50,12 +50,14 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <div className="hidden lg:flex items-center gap-8 text-xs font-bold text-gray-400">
+        <div className="hidden lg:flex items-center gap-8 text-xs font-bold text-gray-400" role="menubar">
           {navLinks.map(link => (
             <button
               key={link.id}
               onClick={() => scrollToSection(link.id)}
               className="hover:text-brand-gold transition cursor-pointer"
+              role="menuitem"
+              aria-label={link.label}
             >
               {link.label}
             </button>
@@ -67,14 +69,16 @@ export default function Navbar() {
           <Link
             href="/login"
             className="hidden md:flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-white border border-brand-white/10 bg-brand-darkgray/90 hover:bg-brand-white/5 py-1.5 px-3 rounded-lg cursor-pointer transition"
+            aria-label="دخول العملاء والإدارة"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-gray-400" />
+            <ShieldCheck className="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
             <span>دخول العملاء والإدارة</span>
           </Link>
           
           <Link
             href={isCheckout ? '/' : '/checkout'}
             className="bg-brand-gold hover:bg-yellow-500 text-brand-black text-[11px] font-black py-2 px-4 rounded-xl shadow shadow-brand-gold/10 transition duration-300 transform hover:scale-[1.02] cursor-pointer"
+            aria-label={isCheckout ? 'الرجوع ومراجعة المنصة' : 'امتلك العرض المحدود ($49)'}
           >
             {isCheckout ? 'الرجوع ومراجعة المنصة' : 'امتلك العرض المحدود ($49)'}
           </Link>
@@ -84,6 +88,8 @@ export default function Navbar() {
             className="lg:hidden p-2 text-gray-400 hover:text-white transition"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="القائمة"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -92,12 +98,13 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden mt-4 pb-4 border-t border-brand-white/5 pt-4 space-y-3">
+        <div id="mobile-menu" className="lg:hidden mt-4 pb-4 border-t border-brand-white/5 pt-4 space-y-3" role="menu">
           {navLinks.map(link => (
             <button
               key={link.id}
               onClick={() => scrollToSection(link.id)}
               className="block w-full text-right text-sm font-bold text-gray-400 hover:text-brand-gold transition py-2 px-4"
+              role="menuitem"
             >
               {link.label}
             </button>
@@ -106,8 +113,9 @@ export default function Navbar() {
             href="/login"
             className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white py-2 px-4"
             onClick={() => setMobileMenuOpen(false)}
+            role="menuitem"
           >
-            <ShieldCheck className="w-4 h-4" />
+            <ShieldCheck className="w-4 h-4" aria-hidden="true" />
             <span>دخول العملاء والإدارة</span>
           </Link>
         </div>

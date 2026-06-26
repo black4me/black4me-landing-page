@@ -18,7 +18,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-9 h-9 rounded-lg bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono text-sm">B4</span>
+              <span className="w-9 h-9 rounded-lg bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono text-sm" aria-hidden="true">B4</span>
               <span className="font-mono text-base font-black tracking-widest text-white">BLACK4ME</span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
@@ -30,7 +30,7 @@ export default function Footer() {
           {/* Links */}
           <div>
             <h4 className="text-sm font-bold text-white mb-4">روابط سريعة</h4>
-            <ul className="space-y-2.5 text-sm text-gray-400">
+            <ul className="space-y-2.5 text-sm text-gray-400" role="list" aria-label="روابط سريعة">
               <li><Link href="/#pricing-section" className="hover:text-brand-gold transition">العرض والأسعار</Link></li>
               <li><Link href="/#faq-section" className="hover:text-brand-gold transition">الأسئلة الشائعة</Link></li>
               <li><Link href="/#consultations-section" className="hover:text-brand-gold transition">حجز استشارة</Link></li>
@@ -41,12 +41,12 @@ export default function Footer() {
           {/* Legal + Contact */}
           <div>
             <h4 className="text-sm font-bold text-white mb-4">الدعم والقانون</h4>
-            <ul className="space-y-2.5 text-sm text-gray-400">
+            <ul className="space-y-2.5 text-sm text-gray-400" role="list" aria-label="الدعم والقانون">
               <li><Link href="/terms" className="hover:text-brand-gold transition">الأحكام والشروط</Link></li>
               <li><Link href="/privacy" className="hover:text-brand-gold transition">سياسة الخصوصية</Link></li>
               <li>
-                <a href="mailto:info@black4me.com" className="hover:text-brand-gold transition flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5" />
+                <a href="mailto:info@black4me.com" className="hover:text-brand-gold transition flex items-center gap-1.5" aria-label="إرسال بريد إلكتروني إلى info@black4me.com">
+                  <Mail className="w-3.5 h-3.5" aria-hidden="true" />
                   info@black4me.com
                 </a>
               </li>
@@ -55,17 +55,17 @@ export default function Footer() {
         </div>
 
         {/* Trust Badges */}
-        <div className="flex flex-wrap justify-center gap-6 py-6 border-t border-brand-white/5 mb-6">
-          <div className="flex items-center gap-1.5 text-xs text-gray-400">
-            <Shield className="w-4 h-4 text-brand-green" />
+        <div className="flex flex-wrap justify-center gap-6 py-6 border-t border-brand-white/5 mb-6" role="list" aria-label="معلومات الثقة والأمان">
+          <div className="flex items-center gap-1.5 text-xs text-gray-400" role="listitem">
+            <Shield className="w-4 h-4 text-brand-green" aria-hidden="true" />
             <span>دفع آمن 256-bit SSL</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+          <div className="flex items-center gap-1.5 text-xs text-gray-400" role="listitem">
             <span className="font-mono font-bold text-gray-300">Stripe</span>
             <span>•</span>
             <span className="font-mono font-bold text-gray-300">PayPal</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+          <div className="flex items-center gap-1.5 text-xs text-gray-400" role="listitem">
             <span>ضمان استرداد 7 أيام</span>
           </div>
         </div>
