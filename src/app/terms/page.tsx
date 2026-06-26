@@ -1,5 +1,14 @@
+import type { Metadata } from 'next';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+
+export const metadata: Metadata = {
+  title: 'شروط الخدمة',
+  description: 'شروط خدمة BLACK4ME الخاصة بشراء واستخدام الحزمة التسويقية الرقمية والاستشارات.',
+  alternates: {
+    canonical: 'https://www.black4me.com/terms',
+  },
+};
 
 export default function TermsPage() {
   return (

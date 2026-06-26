@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { Suspense, useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import {
@@ -87,7 +87,7 @@ type Tab = 'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('stats');
   const [loading, setLoading] = useState(true);
@@ -1044,5 +1044,13 @@ export default function AdminDashboard() {
       </main>
       </div>
     </AppProvider>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <AdminDashboardContent />
+    </Suspense>
   );
 }

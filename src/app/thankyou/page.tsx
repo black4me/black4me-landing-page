@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, AlertCircle, Loader2, ArrowLeft, Download } from 'lucide-react';
+import { trackPurchase } from '../../lib/tracking';
 
 function ThankYouContent() {
   const searchParams = useSearchParams();
@@ -14,6 +15,7 @@ function ThankYouContent() {
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<{title: string, file_url: string | null} | null>(null);
   const [error, setError] = useState('');
+  const [purchaseTracked, setPurchaseTracked] = useState(false);
 
   useEffect(() => {
     async function processPayment() {
@@ -52,6 +54,21 @@ function ThankYouContent() {
 
     processPayment();
   }, [sessionId, isPaypal, token]);
+
+  useEffect(() => {
+    if (loading || error || !product || purchaseTracked) {
+      return;
+    }
+
+    trackPurchase({
+      currency: 'USD',
+      value: product.file_url ? 49 : 149,
+      transaction_id: sessionId || token || product.title,
+      content_name: product.title,
+      content_type: 'product',
+    });
+    setPurchaseTracked(true);
+  }, [error, loading, product, purchaseTracked, sessionId, token]);
 
   if (loading) {
     return (

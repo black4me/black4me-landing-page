@@ -69,6 +69,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@black4me',
+    creator: '@black4me',
     title: 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
     description: 'الحزمة الشاملة لبناء نظام تسويق رقمي متكامل. ابدأ بـ $49 مع ضمان استرداد كامل.',
     images: ['/images/book-cover.png'],
@@ -100,7 +102,6 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${ibmPlex.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
