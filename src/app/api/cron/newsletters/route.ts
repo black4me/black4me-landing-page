@@ -25,8 +25,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ message: 'No scheduled campaigns.' });
     }
 
-    // Fetch all subscribers
-    const { data: subscribers } = await supabase.from('subscribers').select('email');
+    // Fetch all newsletter subscribers
+    const { data: subscribers } = await supabase.from('newsletter').select('email');
     if (!subscribers || subscribers.length === 0) {
       return NextResponse.json({ message: 'No subscribers found.' });
     }
@@ -43,7 +43,7 @@ export async function GET(req: Request) {
             to: [],
             bcc: batch,
             subject: campaign.subject,
-            html: `<div dir="rtl" style="font-family: Arial, sans-serif;">${campaign.content.replace(/\\n/g, '<br/>')}</div>`,
+            html: campaign.body,
           });
         }
       }

@@ -7,6 +7,7 @@ import {
   MessageSquare, Sparkles, Tag, Settings, GitCompare, Layers, DollarSign, Ticket
 } from 'lucide-react';
 import { SiteSettingsTab, ComparisonTab, FunnelsTab, ValueStackTab, CouponsTab } from './admin/CmsTabs';
+import { NewsletterTab } from './admin/NewsletterTab';
 import { getAdminOrders, getAdminSubscribers, getAdminConsultations, getAdminCoupons, getAllTestimonials } from '../server/actions/admin';
 
 export default function AdminDashboard() {
@@ -62,7 +63,7 @@ export default function AdminDashboard() {
   };
 
   // Active admin tab switcher
-  const [activeTab, setActiveTab] = useState<'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 'faqs' | 'site-settings' | 'comparison' | 'funnels' | 'value-stack' | 'coupons'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'products' | 'orders' | 'consultations' | 'testimonials' | 'faqs' | 'site-settings' | 'comparison' | 'funnels' | 'value-stack' | 'coupons' | 'newsletter'>('stats');
 
   // Customer List states (Orders matched with Subscribers)
   const [customerSearch, setCustomerSearch] = useState('');
@@ -225,7 +226,8 @@ export default function AdminDashboard() {
             { id: 'comparison', label: "جدول المقارنة (التحول)", icon: GitCompare },
             { id: 'funnels', label: "مراحل الفنل التسويقي", icon: Layers },
             { id: 'value-stack', label: "الحزمة والقيمة المضافة", icon: DollarSign },
-            { id: 'coupons', label: "كوبونات الخصم", icon: Ticket }
+            { id: 'coupons', label: "كوبونات الخصم", icon: Ticket },
+            { id: 'newsletter', label: "جدولة النشرات (إكسل)", icon: Plus }
           ].map(tab => {
             const Icon = tab.icon;
             return (
@@ -884,6 +886,11 @@ export default function AdminDashboard() {
             <div className="animate-fadeIn">
               <CouponsTab />
             </div>
+          )}
+
+          {/* TAB 12: Newsletter Excel Scheduler */}
+          {activeTab === 'newsletter' && (
+            <NewsletterTab />
           )}
 
         </div>

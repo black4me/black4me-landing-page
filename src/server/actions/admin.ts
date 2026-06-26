@@ -27,7 +27,7 @@ export async function getAdminOrders(): Promise<Order[]> {
 
 export async function getAdminSubscribers(): Promise<NewsletterSubscriber[]> {
   try {
-    const { data } = await supabaseAdmin.from('newsletter_subscribers').select('*').order('created_at', { ascending: false });
+    const { data } = await supabaseAdmin.from('subscribers').select('*').order('created_at', { ascending: false });
     return (data || []).map(row => ({
       id: row.id,
       name: row.name,

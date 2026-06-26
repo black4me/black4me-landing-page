@@ -94,17 +94,33 @@ export async function POST(req: Request) {
           { onConflict: 'email' }
         );
 
-        // Fetch product to get file_url
+        // Fetch product to get file_url and title
         let fileUrl = null;
-        let productTitle = 'Your Product';
-        
+        let productTitle = 'المنتج';
+        let productDbId = productId;
+
         if (productId) {
-           const { data: prod } = await supabaseAdmin.from('products').select('*').eq('id', productId).single();
-           if (prod) {
-             fileUrl = prod.file_url;
-             productTitle = prod.title;
-           }
+          const { data: prod } = await supabaseAdmin
+            .from('products')
+            .select('id, title, file_url')
+            .eq('id', productId)
+            .single();
+          if (prod) {
+            fileUrl = prod.file_url;
+            productTitle = prod.title;
+            productDbId = prod.id;
+          }
         }
+
+        // Grant full access to the purchased product
+        await supabaseAdmin.from('user_access').insert({
+          customer_email: customerEmail,
+          product_id: productDbId,
+          product_title: productTitle,
+          file_url: fileUrl,
+          order_id: orderID,
+          payment_gateway: 'paypal',
+        });
 
         // Send welcome email
         if (process.env.RESEND_API_KEY && customerEmail) {
@@ -119,12 +135,12 @@ export async function POST(req: Request) {
             console.error("Resend error:", e);
           }
         }
-        
+
         return NextResponse.json({
           success: true,
           product: {
             title: productTitle,
-            file_url: fileUrl
+            file_url: fileUrl,
           }
         });
       }

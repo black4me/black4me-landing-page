@@ -40,16 +40,31 @@ export async function POST(req: Request) {
       throw updateError;
     }
 
-    // 3. Fetch product file_url for the email
+    // 3. Fetch product details
     let fileUrl = null;
+    let productTitle = 'المنتج';
     if (order.product_id) {
-       const { data: prod } = await supabaseAdmin.from('products').select('*').eq('id', order.product_id).single();
-       if (prod) {
-         fileUrl = prod.file_url;
-       }
+      const { data: prod } = await supabaseAdmin
+        .from('products')
+        .select('id, title, file_url')
+        .eq('id', order.product_id)
+        .single();
+      if (prod) {
+        fileUrl = prod.file_url;
+        productTitle = prod.title;
+      }
     }
 
-    // 4. Send Welcome Email via Resend
+    // 4. Grant full access to the product
+    await supabaseAdmin.from('user_access').insert({
+      customer_email: order.customer_email,
+      product_id: order.product_id,
+      product_title: productTitle,
+      file_url: fileUrl,
+      order_id: orderId,
+      payment_gateway: order.payment_gateway || 'manual',
+    });
+    // 5. Send Welcome Email via Resend
     if (process.env.RESEND_API_KEY && order.customer_email) {
       try {
         const htmlContent = await render(
@@ -58,7 +73,7 @@ export async function POST(req: Request) {
             downloadLink: fileUrl
           } as any)
         );
-        
+
         await resend.emails.send({
           from: 'BLACK4ME <noreply@black4me.com>',
           to: order.customer_email,
@@ -71,6 +86,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true });
+
   } catch (error: any) {
     console.error('Order approval error:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });

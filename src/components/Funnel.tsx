@@ -64,7 +64,7 @@ export default function Funnel() {
                           <span className={`text-sm sm:text-base font-bold block transition ${isSelected ? 'text-brand-gold' : 'text-gray-200'}`}>
                             {stage.title}
                           </span>
-                          <span className="text-[10px] text-gray-500 font-mono block">STAGE 0{stage.num}</span>
+                          <span className="text-[10px] text-gray-400 font-mono block">STAGE 0{stage.num}</span>
                         </div>
                       </div>
 
@@ -127,7 +127,7 @@ export default function Funnel() {
                     </div>
 
                     <div className="pt-6 border-t border-brand-white/5 flex items-center justify-between text-xs">
-                      <span className="text-gray-500 font-mono">BLACK4ME © Core Path</span>
+                      <span className="text-gray-400 font-mono">BLACK4ME © Core Path</span>
                       <button 
                         onClick={() => setActiveStage(activeStage === funnelStages.length ? 1 : activeStage + 1)}
                         className="text-brand-purple font-bold hover:text-brand-gold transition duration-200 cursor-pointer"

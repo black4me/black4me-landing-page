@@ -40,10 +40,24 @@ export async function POST(req: Request) {
           status: 'completed',
         }]).select('id').single();
 
-        // 2. Grant access
-        // Example: await supabaseAdmin.from('user_products').insert({...})
-        
-        // 3. Send welcome email (stub)
+        // 2. Fetch product details
+        const { data: product } = await supabaseAdmin
+          .from('products')
+          .select('id, title, file_url')
+          .eq('id', productId)
+          .single();
+
+        // 3. Grant full access to the purchased product
+        await supabaseAdmin.from('user_access').insert({
+          customer_email: customerEmail,
+          product_id: product?.id || productId,
+          product_title: product?.title || 'المنتج',
+          file_url: product?.file_url || null,
+          order_id: session.id,
+          payment_gateway: 'stripe',
+        });
+
+        // 4. Send welcome email
         if (orderData) {
           await sendWelcomeEmail(customerEmail, customerName || '', orderData.id);
         }

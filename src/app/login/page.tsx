@@ -64,17 +64,18 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-xs font-bold text-gray-400 mb-2">البريد الإلكتروني</label>
+            <label htmlFor="login-email" className="block text-xs font-bold text-gray-400 mb-2">البريد الإلكتروني</label>
             <div className="relative">
               <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-500" />
+                <Mail className="h-5 w-5 text-gray-400" />
               </div>
               <input
+                id="login-email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3.5 pr-12 pl-4 text-white placeholder-gray-600 focus:outline-none focus:border-brand-purple transition-colors font-mono text-left"
+                className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3.5 pr-12 pl-4 text-white placeholder-gray-500 focus:outline-none focus:border-brand-purple transition-colors font-mono text-left"
                 placeholder="user@example.com"
                 dir="ltr"
               />
@@ -82,17 +83,18 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-400 mb-2">كلمة المرور</label>
+            <label htmlFor="login-password" className="block text-xs font-bold text-gray-400 mb-2">كلمة المرور</label>
             <div className="relative">
               <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-500" />
+                <Lock className="h-5 w-5 text-gray-400" />
               </div>
               <input
+                id="login-password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3.5 pr-12 pl-4 text-white placeholder-gray-600 focus:outline-none focus:border-brand-purple transition-colors font-mono text-left"
+                className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3.5 pr-12 pl-4 text-white placeholder-gray-500 focus:outline-none focus:border-brand-purple transition-colors font-mono text-left"
                 placeholder="••••••••••••"
                 dir="ltr"
               />
@@ -118,7 +120,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-8 text-center border-t border-brand-white/5 pt-6">
-          <p className="text-xs text-gray-500 flex items-center justify-center gap-1.5">
+          <p className="text-xs text-gray-400 flex items-center justify-center gap-1.5">
             <Lock className="w-3.5 h-3.5" />
             اتصال مشفر ومحمي بتقنية 256-bit SSL
           </p>
