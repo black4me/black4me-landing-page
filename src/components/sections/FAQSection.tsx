@@ -41,26 +41,34 @@ export default function FAQSection() {
           </h2>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3" role="list">
           {faqs.map((faq, i) => (
             <div
               key={faq.id}
               className="glass rounded-xl overflow-hidden transition-all"
+              role="listitem"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
                 className="w-full flex items-center justify-between p-5 text-right cursor-pointer"
                 aria-expanded={openIndex === i}
+                aria-controls={`faq-answer-${faq.id}`}
+                id={`faq-question-${faq.id}`}
               >
                 <span className="text-sm font-bold text-white flex-1">{faq.question}</span>
                 {openIndex === i ? (
-                  <ChevronUp className="w-5 h-5 text-brand-gold flex-shrink-0 mr-4" />
+                  <ChevronUp className="w-5 h-5 text-brand-gold flex-shrink-0 mr-4" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 mr-4" />
+                  <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 mr-4" aria-hidden="true" />
                 )}
               </button>
               {openIndex === i && (
-                <div className="px-5 pb-5 border-t border-brand-white/5">
+                <div
+                  id={`faq-answer-${faq.id}`}
+                  className="px-5 pb-5 border-t border-brand-white/5"
+                  role="region"
+                  aria-labelledby={`faq-question-${faq.id}`}
+                >
                   <p className="text-sm text-gray-400 leading-relaxed pt-4">{faq.answer}</p>
                 </div>
               )}

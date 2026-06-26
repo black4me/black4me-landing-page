@@ -11,6 +11,7 @@ const cairo = Cairo({
   weight: ['400', '600', '700'],
   variable: '--font-cairo',
   display: 'swap',
+  preload: true,
 });
 
 const ibmPlex = IBM_Plex_Sans_Arabic({
@@ -18,6 +19,7 @@ const ibmPlex = IBM_Plex_Sans_Arabic({
   weight: ['400', '700'],
   variable: '--font-ibm',
   display: 'swap',
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -90,6 +92,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${ibmPlex.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://connect.facebook.net" />
+        <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
+      </head>
       <body className="min-h-full font-sans bg-brand-black text-brand-white antialiased">
         <Providers>
           <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-brand-gold focus:text-brand-black focus:p-2 focus:rounded">
