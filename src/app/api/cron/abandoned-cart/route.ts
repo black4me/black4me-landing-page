@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
 import { Resend } from 'resend';
+import { sendToActivepieces } from '../../../../lib/activepieces';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
@@ -45,6 +46,13 @@ export async function GET(req: Request) {
           `,
         });
       }
+
+      // Send to Activepieces instead of/in addition to Resend if configured
+      await sendToActivepieces(process.env.ACTIVEPIECES_WEBHOOK_URL_ABANDONED_CART, {
+        event: 'abandoned_cart',
+        email: session.email,
+        checkoutId: session.id
+      });
 
       // Mark as recovered so we don't email them again
       await supabase.from('checkout_sessions').update({ status: 'recovered' }).eq('id', session.id);
