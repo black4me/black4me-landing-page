@@ -4,6 +4,31 @@ import { supabaseAdmin } from '../../lib/supabase-admin';
 import { Order, NewsletterSubscriber, Consultation, Coupon, Testimonial } from '../../types';
 import { sendWelcomeEmail } from './email';
 
+export async function uploadImageAdmin(formData: FormData): Promise<{ url?: string; error?: string }> {
+  try {
+    const file = formData.get('file') as File;
+    const fileName = formData.get('fileName') as string;
+
+    if (!file || !fileName) {
+      return { error: 'No file or fileName provided' };
+    }
+
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from('products')
+      .upload(fileName, file, { upsert: true });
+
+    if (uploadError) {
+      return { error: uploadError.message };
+    }
+
+    const { data: urlData } = supabaseAdmin.storage.from('products').getPublicUrl(fileName);
+    return { url: urlData.publicUrl };
+  } catch (err: any) {
+    console.error('uploadImageAdmin error:', err);
+    return { error: err.message };
+  }
+}
+
 export async function getAdminOrders(): Promise<Order[]> {
   try {
     const { data } = await supabaseAdmin.from('orders').select('*').order('created_at', { ascending: false });
