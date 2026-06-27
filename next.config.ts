@@ -15,6 +15,9 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
     optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
   },
