@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { supabase } from '../../lib/supabase';
+import { uploadImageAdmin } from '../../server/actions/admin';
 import { ComparisonItem, FunnelStage, ValueStackItem, Coupon } from '../../types';
 import { Plus, Edit2, Trash2, CheckCircle, XCircle, Upload, Loader2 } from 'lucide-react';
 
@@ -62,20 +62,19 @@ export function SiteSettingsTab() {
       const file = e.target.files[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${fieldName}_${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
 
-      const { error: uploadError, data } = await supabase.storage
-        .from('products')
-        .upload(filePath, file);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileName', fileName);
 
-      if (uploadError) {
-        throw uploadError;
+      const { url, error } = await uploadImageAdmin(formData);
+
+      if (error || !url) {
+        throw new Error(error || 'Failed to upload image');
       }
 
-      const { data: urlData } = supabase.storage.from('products').getPublicUrl(filePath);
-      
-      setFormData(prev => ({ ...prev, [fieldName]: urlData.publicUrl }));
-      updateSiteSetting(fieldName, urlData.publicUrl);
+      setFormData(prev => ({ ...prev, [fieldName]: url }));
+      updateSiteSetting(fieldName, url);
       alert('تم رفع وتحديث الصورة بنجاح!');
     } catch (error: any) {
       alert('خطأ أثناء رفع الصورة: ' + error.message);
