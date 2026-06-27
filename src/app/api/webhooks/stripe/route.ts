@@ -84,7 +84,7 @@ export async function POST(req: Request) {
           const { error: accessInsertError } = await supabaseAdmin.from('user_access').insert({
             customer_email: customerEmail,
             product_id: product?.id || productId,
-            product_title: product?.title || 'ط§ظ„ظ…ظ†طھط¬',
+            product_title: product?.title || 'المنتج',
             file_url: product?.file_url || null,
             order_id: orderId,
             payment_gateway: 'stripe',

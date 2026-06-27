@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from '../../lib/supabase-admin';
 import { Order, NewsletterSubscriber, Consultation, Coupon, Testimonial } from '../../types';
+import { sendWelcomeEmail } from './email';
 
 export async function getAdminOrders(): Promise<Order[]> {
   try {
@@ -91,5 +92,72 @@ export async function getAllTestimonials(): Promise<Testimonial[]> {
   } catch (error) {
     console.error('getAllTestimonials error', error);
     return [];
+  }
+}
+
+export async function approveOrder(orderId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    // 1. Fetch order details
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single();
+
+    if (orderError || !order) {
+      throw orderError || new Error('Order not found');
+    }
+
+    if (order.status === 'completed') {
+      return { success: true }; // Already approved
+    }
+
+    // 2. Fetch product details
+    let productTitle = 'المنتج';
+    let fileUrl = null;
+    if (order.product_id) {
+      const { data: product } = await supabaseAdmin
+        .from('products')
+        .select('title, file_url')
+        .eq('id', order.product_id)
+        .single();
+      
+      if (product) {
+        productTitle = product.title;
+        fileUrl = product.file_url;
+      }
+    }
+
+    // 3. Grant access
+    const { error: accessError } = await supabaseAdmin.from('user_access').insert({
+      customer_email: order.customer_email,
+      product_id: order.product_id,
+      product_title: productTitle,
+      file_url: fileUrl,
+      order_id: order.id,
+      payment_gateway: order.payment_gateway,
+    });
+
+    if (accessError) {
+      throw accessError;
+    }
+
+    // 4. Update order status
+    const { error: updateError } = await supabaseAdmin
+      .from('orders')
+      .update({ status: 'completed' })
+      .eq('id', orderId);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    // 5. Send welcome email (which contains the password if it's their first time, or just login link)
+    await sendWelcomeEmail(order.customer_email, order.customer_name || '', orderId);
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('approveOrder error:', err);
+    return { success: false, error: err.message };
   }
 }

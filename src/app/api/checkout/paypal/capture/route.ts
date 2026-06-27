@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../../../lib/supabase-admin';
-import { Resend } from 'resend';
-import WelcomeEmail from '../../../../../emails/WelcomeEmail';
+import { sendWelcomeEmail } from '../../../../../server/actions/email';
 
 const PAYPAL_API_BASE = process.env.NODE_ENV === 'production'
   ? 'https://api-m.paypal.com'
   : 'https://api-m.sandbox.paypal.com';
-
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
 const generateAccessToken = async () => {
   if (!process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || !process.env.PAYPAL_SECRET) {
@@ -158,18 +155,9 @@ export async function POST(req: Request) {
           throw accessError;
         }
 
-        // Send welcome email
-        if (process.env.RESEND_API_KEY && customerEmail) {
-          try {
-            await resend.emails.send({
-              from: 'Black4me <noreply@black4me.com>',
-              to: [customerEmail],
-              subject: 'شكرًا لطلبك من Black4me!',
-              react: WelcomeEmail({ userFirstname: customerEmail.split('@')[0], downloadLink: fileUrl }) as React.ReactElement,
-            });
-          } catch (e) {
-            console.error("Resend error:", e);
-          }
+        // Send welcome email using unified function
+        if (customerEmail) {
+          await sendWelcomeEmail(customerEmail, customerName || '', orderID);
         }
 
         return NextResponse.json({
