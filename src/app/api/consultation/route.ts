@@ -3,6 +3,8 @@ import { Resend } from 'resend';
 import { supabase } from '../../../lib/supabase';
 import { sendToActivepieces } from '../../../lib/activepieces';
 
+import { trackEvent, upsertUser } from '../../../server/actions/tracking';
+
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
 export async function POST(req: Request) {
@@ -12,6 +14,20 @@ export async function POST(req: Request) {
     if (!customerName || !customerEmail) {
       return NextResponse.json({ error: 'Missing name or email' }, { status: 400 });
     }
+
+    // Track lead capture event
+    await trackEvent({
+      eventType: 'lead_capture',
+      userEmail: customerEmail,
+      parameters: { type: 'consultation', notes }
+    });
+
+    // Upsert User
+    await upsertUser({
+      email: customerEmail,
+      name: customerName,
+      status: 'lead'
+    });
 
     // Try saving to Supabase but ignore errors if table doesn't exist yet
     const { data: dbData, error: dbError } = await supabase.from('consultations').insert([{
