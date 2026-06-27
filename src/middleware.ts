@@ -1,40 +1,83 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    if (pathname.startsWith('/admin') || pathname.startsWith('/portal')) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // Helper to extract access token from cookies
+  const getAccessToken = () => {
+    let tokenValue = request.cookies.get('sb-access-token')?.value;
+    if (!tokenValue) {
+      const projectId = new URL(supabaseUrl).hostname.split('.')[0];
+      const cookieVal = request.cookies.get(`sb-${projectId}-auth-token`)?.value;
+      if (cookieVal) {
+        try {
+          const parsed = JSON.parse(cookieVal);
+          tokenValue = parsed[0]; // access_token is typically the first element
+        } catch (e) {
+          tokenValue = cookieVal;
+        }
+      }
+    }
+    return tokenValue;
+  };
 
   // Protect admin routes
   if (pathname.startsWith('/admin')) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseKey) {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // Check for auth cookie
-    const accessToken = request.cookies.get('sb-access-token')?.value
-      || request.cookies.get(`sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`)?.value;
+    try {
+      const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          apikey: supabaseKey,
+        },
+      });
 
-    if (!accessToken) {
+      if (!userRes.ok) {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+
+      const user = await userRes.json();
+      if (user.email !== 'info@black4me.com') {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+    } catch (e) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
   // Protect portal routes
   if (pathname.startsWith('/portal')) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    
-    if (!supabaseUrl) {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    const accessToken = request.cookies.get('sb-access-token')?.value
-      || request.cookies.get(`sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`)?.value;
+    try {
+      const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          apikey: supabaseKey,
+        },
+      });
 
-    if (!accessToken) {
+      if (!userRes.ok) {
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+    } catch (e) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }

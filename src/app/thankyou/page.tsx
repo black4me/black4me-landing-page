@@ -11,9 +11,11 @@ function ThankYouContent() {
   const sessionId = searchParams.get('session_id');
   const isPaypal = searchParams.get('paypal');
   const token = searchParams.get('token');
+  const spaceremitOrder = searchParams.get('spaceremit_order');
 
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<{title: string, file_url: string | null} | null>(null);
+  const [isPendingSpaceremit, setIsPendingSpaceremit] = useState(false);
   const [error, setError] = useState('');
   const [purchaseTracked, setPurchaseTracked] = useState(false);
 
@@ -42,6 +44,10 @@ function ThankYouContent() {
           } else {
              setError(data.error || 'فشل تأكيد الدفع عبر بايبال');
           }
+        } else if (spaceremitOrder) {
+          setIsPendingSpaceremit(true);
+          // Set a dummy product title so the rest of the page doesn't crash
+          setProduct({ title: 'طلب الشراء عبر الحوالة (قيد المراجعة)', file_url: null });
         } else {
           setError('رابط غير صالح');
         }
@@ -106,10 +112,17 @@ function ThankYouContent() {
         <span className="text-transparent bg-clip-text bg-gradient-to-l from-brand-gold to-brand-gold-dark">تم الدفع بنجاح 🎉</span>
       </h1>
       
-      <p className="text-base text-gray-400 mb-12 leading-relaxed">
-        لقد تم استلام طلبك لـ <span className="text-brand-purple-light font-bold">"{product?.title}"</span> بنجاح. 
-        تم إرسال رسالة تأكيد إلى بريدك الإلكتروني تحتوي على جميع التفاصيل اللازمة لدخول النظام.
-      </p>
+      {isPendingSpaceremit ? (
+        <p className="text-base text-gray-400 mb-12 leading-relaxed">
+          لقد تم استلام طلبك وإيصال الدفع بنجاح. وهو الآن <span className="text-brand-blue font-bold">قيد المراجعة</span>.
+          سيتم تفعيل حسابك وإرسال بيانات الدخول إلى بريدك الإلكتروني بمجرد التأكد من الحوالة خلال 24 ساعة كحد أقصى.
+        </p>
+      ) : (
+        <p className="text-base text-gray-400 mb-12 leading-relaxed">
+          لقد تم استلام طلبك لـ <span className="text-brand-purple-light font-bold">"{product?.title}"</span> بنجاح. 
+          تم إرسال رسالة تأكيد إلى بريدك الإلكتروني تحتوي على جميع التفاصيل اللازمة لدخول النظام.
+        </p>
+      )}
 
       {product?.file_url ? (
         <div className="glass-gold rounded-3xl p-8 w-full mb-12">
@@ -129,7 +142,9 @@ function ThankYouContent() {
         <div className="glass rounded-3xl p-8 w-full mb-12">
           <h3 className="text-lg font-bold text-white mb-2">الخطوة القادمة</h3>
           <p className="text-sm text-gray-400">
-            سيتم إرسال تفاصيل الدخول إلى المنصة التعليمية وحجز موعد الاستشارة على بريدك الإلكتروني قريباً.
+            {isPendingSpaceremit 
+              ? "سنقوم بمراجعة إيصال التحويل قريباً. سيصلك إشعار بالبريد الإلكتروني فور تفعيل الحساب."
+              : "سيتم إرسال تفاصيل الدخول إلى المنصة التعليمية وحجز موعد الاستشارة على بريدك الإلكتروني قريباً."}
           </p>
         </div>
       )}

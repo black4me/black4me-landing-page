@@ -109,6 +109,38 @@ function AdminDashboardContent() {
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productForm, setProductForm] = useState({ title: '', description: '', price: 49, sale_price: 0, file_url: '', payment_link: '', is_active: true, features: '', chapters: '' });
+  const [uploadingFile, setUploadingFile] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    
+    try {
+      setUploadingFile(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('products')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('products')
+        .getPublicUrl(fileName);
+
+      setProductForm({...productForm, file_url: publicUrl});
+      alert('تم رفع الملف بنجاح!');
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      alert('حدث خطأ أثناء رفع الملف: ' + error.message);
+    } finally {
+      setUploadingFile(false);
+    }
+  };
 
   const [settingsForm, setSettingsForm] = useState({
     site_name: '',
@@ -595,7 +627,15 @@ function AdminDashboardContent() {
                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#6C3BFF]" placeholder="https://buy.stripe.com/..." dir="ltr" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-400 mb-1.5">رابط التحميل (PDF / Google Drive)</label>
+                      <label className="block text-xs font-bold text-gray-400 mb-1.5">رفع ملف المنتج (كتاب، ملف مضغوط، الخ)</label>
+                      <div className="flex gap-2 items-center">
+                        <input type="file" onChange={handleFileUpload} disabled={uploadingFile}
+                          className="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#6C3BFF] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#6C3BFF] file:text-white hover:file:bg-[#5b32d9] cursor-pointer" />
+                        {uploadingFile && <span className="text-xs text-[#F5C542] whitespace-nowrap">جاري الرفع...</span>}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-400 mb-1.5">أو رابط التحميل المباشر (PDF / Google Drive)</label>
                       <input type="url" value={productForm.file_url} onChange={e => setProductForm({...productForm, file_url: e.target.value})}
                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#6C3BFF]" placeholder="https://drive.google.com/..." dir="ltr" />
                     </div>

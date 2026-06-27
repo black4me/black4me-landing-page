@@ -75,3 +75,25 @@ CREATE POLICY "Public read settings" ON public.site_settings FOR SELECT USING (t
 
 -- Allow public insert into newsletter
 CREATE POLICY "Public insert newsletter" ON public.newsletter FOR INSERT WITH CHECK (true);
+
+-- 🛡️ EXPLICIT SECURITY LOCKDOWNS (100% Security Shield)
+-- By default, if RLS is enabled and no policy allows an action, it is denied.
+-- However, explicitly stating these policies ensures no future accidental exposure.
+
+-- Ensure only service_role (Admin API) can insert/update/delete on critical tables
+CREATE POLICY "Deny all public inserts on orders" ON public.orders FOR INSERT WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Deny all public updates on orders" ON public.orders FOR UPDATE USING (auth.role() = 'service_role');
+CREATE POLICY "Deny all public deletes on orders" ON public.orders FOR DELETE USING (auth.role() = 'service_role');
+
+CREATE POLICY "Deny all public inserts on products" ON public.products FOR INSERT WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Deny all public updates on products" ON public.products FOR UPDATE USING (auth.role() = 'service_role');
+CREATE POLICY "Deny all public deletes on products" ON public.products FOR DELETE USING (auth.role() = 'service_role');
+
+CREATE POLICY "Deny all public inserts on coupons" ON public.coupons FOR INSERT WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "Deny all public updates on coupons" ON public.coupons FOR UPDATE USING (auth.role() = 'service_role');
+CREATE POLICY "Deny all public deletes on coupons" ON public.coupons FOR DELETE USING (auth.role() = 'service_role');
+
+-- If you have a user_access table (which might be created in another script), 
+-- you should apply the same locks:
+-- ALTER TABLE public.user_access ENABLE ROW LEVEL SECURITY;
+-- CREATE POLICY "Deny all public inserts on user_access" ON public.user_access FOR INSERT WITH CHECK (auth.role() = 'service_role');

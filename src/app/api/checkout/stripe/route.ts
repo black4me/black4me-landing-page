@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '../../../../lib/supabase-admin';
+import { checkRateLimit, getClientIp } from '../../../../lib/rate-limiter';
 
 // Initialize stripe carefully to prevent build-time crashes if env var is missing
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build', {
@@ -23,6 +24,11 @@ type CouponRecord = {
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json({ error: 'Too many requests, please try again later.' }, { status: 429 });
+    }
+
     const body = await req.json();
     const { productId, customerEmail, customerName, customerCountry, couponCode } = body;
 

@@ -146,3 +146,100 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
     return { success: false, error: err.message };
   }
 }
+
+export async function sendPendingEmail(email: string, name: string, orderId: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('RESEND_API_KEY missing, skipping pending email to', email);
+      return { success: true };
+    }
+
+    const { data: order } = await supabaseAdmin.from('orders').select('*, product:products(*)').eq('id', orderId).single();
+    
+    const productName = order?.product?.title || 'الحزمة الشاملة';
+    const productPrice = order?.amount || '49.00';
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>طلبك قيد المراجعة - BLACK4ME</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000000; color: #ffffff;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0A0A0A; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #111111; border-radius: 16px; overflow: hidden; border: 1px solid rgba(108, 59, 255, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <!-- Header -->
+                <tr>
+                  <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, rgba(108,59,255,0.1), rgba(0,195,255,0.1)); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <h1 style="margin: 0; color: #6C3BFF; font-size: 28px; letter-spacing: 2px;">BLACK4ME</h1>
+                    <p style="margin: 10px 0 0 0; color: #888; font-size: 16px;">تم استلام طلبك</p>
+                  </td>
+                </tr>
+
+                <!-- Body -->
+                <tr>
+                  <td style="padding: 40px 30px;">
+                    <h2 style="color: #00C3FF; margin-top: 0; font-size: 24px;">مرحباً ${name || 'صديقي'}! ⏳</h2>
+                    <p style="color: #dddddd; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                      لقد استلمنا طلبك وإيصال الحوالة البنكية بنجاح. فريقنا الآن يقوم بمراجعة الإيصال وتأكيد الحوالة.
+                      هذه العملية تستغرق عادة بضع ساعات (بحد أقصى 24 ساعة).
+                    </p>
+
+                    <!-- Order Details Box -->
+                    <div style="background-color: #1A1A1A; border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.05);">
+                      <h3 style="margin: 0 0 15px 0; color: #6C3BFF; font-size: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">تفاصيل الطلب (قيد المراجعة)</h3>
+                      
+                      <table width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="padding-bottom: 15px;">
+                            <p style="margin: 0; color: #888; font-size: 14px;">رقم الطلب</p>
+                            <p style="margin: 5px 0 0 0; color: #fff; font-size: 16px; font-weight: bold;">#${orderId.slice(-8).toUpperCase()}</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
+                            <p style="margin: 0; color: #888; font-size: 14px;">المنتج</p>
+                            <p style="margin: 5px 0 0 0; color: #fff; font-size: 16px; font-weight: bold;">${productName}</p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
+                            <p style="margin: 0; color: #888; font-size: 14px;">المبلغ</p>
+                            <p style="margin: 5px 0 0 0; color: #fff; font-size: 18px; font-weight: bold;">$${productPrice}</p>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+
+                    <p style="color: #dddddd; font-size: 16px; line-height: 1.6; margin-bottom: 30px; text-align: center;">
+                      <strong>بمجرد تأكيد الحوالة، ستصلك رسالة أخرى تحتوي على تفاصيل تسجيل الدخول لدخول المنصة!</strong>
+                    </p>
+
+                    <!-- Footer / Contact Links -->
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    await resend.emails.send({
+      from: 'BLACK4ME <noreply@black4me.com>',
+      to: email,
+      subject: '⏳ طلبك قيد المراجعة - BLACK4ME',
+      html: htmlContent
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Error sending pending email:', err.message);
+    return { success: false, error: err.message };
+  }
+}
