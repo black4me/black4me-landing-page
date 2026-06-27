@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from '../../lib/supabase-admin';
 import { sendToActivepieces } from '../../lib/activepieces';
+import { trackEvent, upsertUser } from './tracking';
 
 export async function subscribeToNewsletter(payload: { name: string; email: string; country: string }) {
   try {
@@ -12,6 +13,21 @@ export async function subscribeToNewsletter(payload: { name: string; email: stri
     if (existing) {
       return { success: false, message: 'مرحبًا بك، هذا البريد الإلكتروني مسجل مسبقًا معنا!' };
     }
+
+    // Track lead capture event
+    await trackEvent({
+      eventType: 'lead_capture',
+      userEmail: email,
+      parameters: { type: 'newsletter_signup', country }
+    });
+
+    // Upsert User
+    await upsertUser({
+      email,
+      name,
+      country,
+      status: 'lead'
+    });
 
     const { error } = await supabaseAdmin.from('newsletter').insert([{ name, email, country }]);
     if (error) {

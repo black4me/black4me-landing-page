@@ -5,6 +5,8 @@ import TrackingScripts from '../components/TrackingScripts';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Providers } from './providers';
+import React from 'react';
+import Tracker from '../components/Tracker';
 
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
@@ -123,6 +125,9 @@ export default function RootLayout({
           metaPixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID}
           tiktokPixelId={process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID}
         />
+        <React.Suspense fallback={null}>
+          <Tracker />
+        </React.Suspense>
       </body>
     </html>
   );
