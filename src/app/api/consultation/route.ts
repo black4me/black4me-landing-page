@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { supabase } from '../../../lib/supabase';
+import { sendToActivepieces } from '../../../lib/activepieces';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
@@ -46,6 +47,14 @@ export async function POST(req: Request) {
         `,
       });
     }
+
+    // Send notification to Activepieces
+    await sendToActivepieces(process.env.ACTIVEPIECES_WEBHOOK_URL_CONSULTATION, {
+      event: 'new_consultation',
+      customerName,
+      customerEmail,
+      notes,
+    });
 
     return NextResponse.json({ success: true, dbSaved: !dbError });
   } catch (error: any) {

@@ -45,9 +45,21 @@ export default function Footer() {
               <li><Link href="/terms" className="hover:text-brand-gold transition">الأحكام والشروط</Link></li>
               <li><Link href="/privacy" className="hover:text-brand-gold transition">سياسة الخصوصية</Link></li>
               <li>
-                <a href="mailto:info@black4me.com" className="hover:text-brand-gold transition flex items-center gap-1.5" aria-label="إرسال بريد إلكتروني إلى info@black4me.com">
+                <a href="https://www.instagram.com/black4mee/?hl=en" target="_blank" rel="noopener noreferrer" className="hover:text-brand-gold transition flex items-center gap-1.5" aria-label="انستقرام">
+                  <span className="w-3.5 h-3.5">IG</span>
+                  انستقرام
+                </a>
+              </li>
+              <li>
+                <a href="https://wa.me/96879191793" target="_blank" rel="noopener noreferrer" className="hover:text-brand-gold transition flex items-center gap-1.5" aria-label="تواصل واتساب">
+                  <Phone className="w-3.5 h-3.5" aria-hidden="true" />
+                  +968 7919 1793
+                </a>
+              </li>
+              <li>
+                <a href="mailto:black4mestore@gmail.com" className="hover:text-brand-gold transition flex items-center gap-1.5" aria-label="إرسال بريد إلكتروني">
                   <Mail className="w-3.5 h-3.5" aria-hidden="true" />
-                  info@black4me.com
+                  black4mestore@gmail.com
                 </a>
               </li>
             </ul>

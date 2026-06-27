@@ -1,6 +1,7 @@
 "use server";
 
 import { supabaseAdmin } from '../../lib/supabase-admin';
+import { sendToActivepieces } from '../../lib/activepieces';
 
 export async function createOrder(payload: {
   productId: string;
@@ -55,6 +56,15 @@ export async function grantAccess(customerEmail: string, productId: string, orde
       console.error('Error granting access:', error);
       return { success: false, error: error.message };
     }
+
+    // Notify Activepieces of a successful purchase
+    await sendToActivepieces(process.env.ACTIVEPIECES_WEBHOOK_URL_PURCHASE, {
+      event: 'purchase_completed',
+      customerEmail,
+      productId: product?.id || productId,
+      productTitle: product?.title || 'المنتج',
+      orderId,
+    });
 
     return { success: true };
   } catch (err: any) {
