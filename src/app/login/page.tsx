@@ -28,6 +28,12 @@ export default function LoginPage() {
       }
 
       const adminEmails = ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com'];
+      
+      // Set the token in a cookie so middleware can see it
+      if (data.session?.access_token) {
+        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=86400; SameSite=Lax`;
+      }
+
       if (data.user?.email && adminEmails.includes(data.user.email.toLowerCase())) {
         router.push('/admin');
       } else {

@@ -88,6 +88,8 @@ const FALLBACK_SITE_SETTINGS: SiteSettings = {
   ga_id: '',
   meta_pixel_id: '',
   tiktok_pixel_id: '',
+  checkout_cover_image: '',
+  book_preview_image: '',
 };
 
 const FALLBACK_COMPARISON_ITEMS: ComparisonItem[] = [

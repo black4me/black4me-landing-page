@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { supabase } from '../../lib/supabase';
 import { ComparisonItem, FunnelStage, ValueStackItem, Coupon } from '../../types';
-import { Plus, Edit2, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, CheckCircle, XCircle, Upload, Loader2 } from 'lucide-react';
 
 export function SiteSettingsTab() {
   const { siteSettings, updateSiteSetting } = useApp();
@@ -11,11 +12,14 @@ export function SiteSettingsTab() {
     hero_video_url: siteSettings.hero_video_url || '',
     funnel_title: siteSettings.funnel_title || '',
     funnel_subtitle: siteSettings.funnel_subtitle || '',
-    comparison_title: siteSettings.comparison_title || '',
     comparison_subtitle: siteSettings.comparison_subtitle || '',
     enable_paypal: siteSettings.enable_paypal === 'true',
     enable_stripe: siteSettings.enable_stripe === 'true',
+    checkout_cover_image: siteSettings.checkout_cover_image || '',
+    book_preview_image: siteSettings.book_preview_image || '',
   });
+
+  const [uploadingImage, setUploadingImage] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     setFormData({
@@ -28,6 +32,8 @@ export function SiteSettingsTab() {
       comparison_subtitle: siteSettings.comparison_subtitle || '',
       enable_paypal: siteSettings.enable_paypal === 'true',
       enable_stripe: siteSettings.enable_stripe === 'true',
+      checkout_cover_image: siteSettings.checkout_cover_image || '',
+      book_preview_image: siteSettings.book_preview_image || '',
     });
   }, [siteSettings]);
 
@@ -49,6 +55,35 @@ export function SiteSettingsTab() {
     alert('تم حفظ الإعداد بنجاح');
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
+    try {
+      if (!e.target.files || e.target.files.length === 0) return;
+      setUploadingImage(prev => ({ ...prev, [fieldName]: true }));
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${fieldName}_${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('products')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: urlData } = supabase.storage.from('products').getPublicUrl(filePath);
+      
+      setFormData(prev => ({ ...prev, [fieldName]: urlData.publicUrl }));
+      updateSiteSetting(fieldName, urlData.publicUrl);
+      alert('تم رفع وتحديث الصورة بنجاح!');
+    } catch (error: any) {
+      alert('خطأ أثناء رفع الصورة: ' + error.message);
+    } finally {
+      setUploadingImage(prev => ({ ...prev, [fieldName]: false }));
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -61,8 +96,24 @@ export function SiteSettingsTab() {
           const val = formData[key as keyof typeof formData];
           return (
             <div key={key} className="bg-brand-darkgray p-6 rounded-2xl border border-brand-white/5 space-y-3">
-              <label className="text-sm text-brand-gold font-bold block capitalize">{key.replace('_', ' ')}</label>
-              {typeof val === 'boolean' ? (
+              <label className="text-sm text-brand-gold font-bold block capitalize">{key.replace(/_/g, ' ')}</label>
+              
+              {key === 'checkout_cover_image' || key === 'book_preview_image' ? (
+                <div className="space-y-4">
+                  {val ? (
+                    <img src={val as string} alt="Image Preview" className="w-full h-40 object-contain bg-brand-black/50 rounded-lg border border-brand-white/10" />
+                  ) : (
+                    <div className="w-full h-40 bg-brand-black/50 border border-brand-white/10 rounded-lg flex items-center justify-center text-gray-500 text-xs">لا توجد صورة حالياً</div>
+                  )}
+                  <div className="relative">
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, key)} disabled={uploadingImage[key]} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    <div className="bg-brand-black border border-brand-white/10 text-white text-xs px-4 py-3 rounded-lg flex items-center justify-center gap-2">
+                      {uploadingImage[key] ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      {uploadingImage[key] ? 'جاري الرفع...' : 'تغيير الصورة'}
+                    </div>
+                  </div>
+                </div>
+              ) : typeof val === 'boolean' ? (
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
@@ -82,12 +133,15 @@ export function SiteSettingsTab() {
                   className="w-full bg-brand-black border border-brand-white/10 p-3 rounded-lg text-white resize-none text-xs"
                 />
               )}
-              <button
-                onClick={() => handleSave(key)}
-                className="bg-brand-purple/20 text-brand-purple hover:bg-brand-purple hover:text-white font-bold px-4 py-2 text-xs rounded-lg transition"
-              >
-                حفظ التعديل
-              </button>
+              
+              {key !== 'checkout_cover_image' && key !== 'book_preview_image' && (
+                <button
+                  onClick={() => handleSave(key)}
+                  className="bg-brand-purple/20 text-brand-purple hover:bg-brand-purple hover:text-white font-bold px-4 py-2 text-xs rounded-lg transition"
+                >
+                  حفظ التعديل
+                </button>
+              )}
             </div>
           );
         })}

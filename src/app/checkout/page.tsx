@@ -13,7 +13,7 @@ import {
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const mode = searchParams.get('mode') || 'book';
-  const { coupons, products } = useApp();
+  const { coupons, products, siteSettings } = useApp();
 
   // Form state
   const [name, setName] = useState('');
@@ -330,7 +330,7 @@ function CheckoutContent() {
               <div className="flex gap-3 mb-6 pb-6 border-b border-brand-white/5">
                 <div className="relative w-16 h-20 bg-brand-blue/30 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                   <Image
-                    src="/images/book-cover.png"
+                    src={siteSettings?.checkout_cover_image || "/images/book-cover.png"}
                     alt="غلاف الكتاب"
                     fill
                     className="object-cover"

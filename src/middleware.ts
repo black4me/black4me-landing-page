@@ -51,7 +51,8 @@ export async function middleware(request: NextRequest) {
       }
 
       const user = await userRes.json();
-      if (user.email !== 'info@black4me.com') {
+      const adminEmails = ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com'];
+      if (!adminEmails.includes(user.email?.toLowerCase())) {
         return NextResponse.redirect(new URL('/login', request.url));
       }
     } catch (e) {
