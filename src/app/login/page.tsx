@@ -27,7 +27,8 @@ export default function LoginPage() {
         throw authError;
       }
 
-      if (data.user?.email === 'info@black4me.com') {
+      const adminEmails = ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com'];
+      if (data.user?.email && adminEmails.includes(data.user.email.toLowerCase())) {
         router.push('/admin');
       } else {
         router.push('/portal');

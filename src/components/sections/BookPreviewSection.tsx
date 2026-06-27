@@ -1,8 +1,6 @@
-"use client";
-
 import React from 'react';
 import Image from 'next/image';
-import { BookOpen, Gift, Lightbulb, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { BookOpen, Gift, Lightbulb, MessageSquare, CheckCircle2, PlayCircle, Lock, LayoutDashboard, FileText, Settings, Video } from 'lucide-react';
 
 export default function BookPreviewSection() {
   return (
@@ -98,20 +96,67 @@ export default function BookPreviewSection() {
         </div>
 
         {/* Platform Preview */}
-        <div className="mt-12 glass rounded-3xl overflow-hidden">
-          <div className="p-6 pb-0 text-center">
-            <h3 className="text-lg font-bold text-white mb-2">النظام التعليمي المرفق</h3>
-            <p className="text-sm text-gray-300 mb-6">نظام رقمي متكامل بواجهة عربية يحتوي على 9 وحدات تعليمية وأدوات تطبيقية</p>
-          </div>
-          <div className="relative w-full aspect-video">
-            <Image
-              src="/images/platform-screenshot.png"
-              alt="لقطة من النظام التعليمي — أكاديمية التسويق المتكاملة"
-              fill
-              className="w-full rounded-t-xl object-cover"
-              loading="lazy"
-              sizes="(max-width: 1024px) 100vw, 80vw"
-            />
+        <div className="mt-16 relative group perspective-1000">
+          <div className="absolute -inset-1 bg-gradient-to-r from-brand-purple/20 via-brand-gold/20 to-brand-purple/20 rounded-[2rem] blur opacity-50 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+          <div className="relative glass rounded-[2rem] overflow-hidden border border-brand-white/10 p-1">
+            <div className="bg-[#0A0A0A] rounded-[1.8rem] overflow-hidden">
+              <div className="px-6 pt-8 pb-4 text-center border-b border-white/5">
+                <span className="inline-block py-1 px-3 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple-light text-xs font-bold mb-3">بيئة تعلم حصرية</span>
+                <h3 className="text-xl md:text-2xl font-black text-white mb-2">النظام التعليمي المرفق</h3>
+                <p className="text-sm text-gray-400">نظام رقمي متكامل بواجهة عربية يحتوي على 9 وحدات تعليمية وأدوات تطبيقية</p>
+              </div>
+              
+              {/* Dashboard Mock UI */}
+              <div className="bg-[#111] p-4 md:p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+                 {/* Sidebar Mock */}
+                 <div className="hidden md:flex flex-col gap-2 border-l border-white/5 pl-6">
+                    <div className="flex items-center gap-3 text-white bg-white/5 p-3 rounded-xl border border-white/10">
+                      <LayoutDashboard className="w-5 h-5 text-brand-purple-light" />
+                      <span className="text-sm font-bold">لوحة التحكم</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-500 hover:text-white p-3 rounded-xl transition-colors">
+                      <Video className="w-5 h-5" />
+                      <span className="text-sm font-bold">المحاضرات</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-500 hover:text-white p-3 rounded-xl transition-colors">
+                      <FileText className="w-5 h-5" />
+                      <span className="text-sm font-bold">الملفات والقوالب</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-500 hover:text-white p-3 rounded-xl transition-colors mt-auto">
+                      <Settings className="w-5 h-5" />
+                      <span className="text-sm font-bold">الإعدادات</span>
+                    </div>
+                 </div>
+
+                 {/* Main Content Mock */}
+                 <div className="col-span-1 md:col-span-3 flex flex-col gap-6">
+                    <div className="aspect-video w-full bg-black rounded-2xl relative border border-white/10 overflow-hidden flex items-center justify-center group/video cursor-pointer">
+                      <div className="absolute inset-0 bg-gradient-to-t from-brand-purple/20 to-transparent mix-blend-screen pointer-events-none" />
+                      <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 group-hover/video:scale-110 group-hover/video:bg-brand-purple/40 transition-all shadow-[0_0_30px_rgba(108,59,255,0.3)]">
+                        <PlayCircle className="w-8 h-8 text-white ml-1" />
+                      </div>
+                      <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur text-white text-xs px-2 py-1 rounded-md font-mono">14:22</div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[1, 2, 3, 4].map((module) => (
+                        <div key={module} className="bg-white/5 border border-white/5 rounded-xl p-4 flex items-center justify-between group/module hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${module === 1 ? 'bg-brand-purple/20 text-brand-purple-light' : 'bg-black text-gray-500 border border-white/5'}`}>
+                              {module === 1 ? <PlayCircle className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-white mb-1">الوحدة {module}</p>
+                              <p className="text-xs text-gray-500">عنوان الوحدة التعليمية</p>
+                            </div>
+                          </div>
+                          {module === 1 && <span className="text-[10px] bg-brand-green/20 text-brand-green px-2 py-1 rounded font-bold border border-brand-green/20">حالي</span>}
+                        </div>
+                      ))}
+                    </div>
+                 </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
