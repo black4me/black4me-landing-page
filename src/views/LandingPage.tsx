@@ -6,6 +6,7 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { Sparkles, ArrowLeft, ArrowDown, Star, Lock, CreditCard, RefreshCw, Target, ShieldCheck, Headphones, Clock } from 'lucide-react';
 import { trackAllPixels } from '../lib/tracking';
+import { useApp } from '../context/AppContext';
 
 // Dynamic imports for code splitting - SSR enabled for fast FCP/LCP
 const ProblemSection = dynamic(() => import('../components/sections/ProblemSection'));
@@ -25,6 +26,8 @@ const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'));
    ═══════════════════════════════════════════════════════════════ */
 
 function HeroSection() {
+  const { siteSettings } = useApp();
+
   const handleHeroCheckoutClick = () => {
     trackAllPixels('click_cta', {
       location: 'hero_primary',
@@ -141,7 +144,7 @@ function HeroSection() {
               {/* Book Image - no animation to prevent CLS */}
               <div className="relative w-full max-w-[450px] mx-auto" style={{ aspectRatio: '4/5' }}>
                 <Image
-                  src="/images/book-cover.png"
+                  src={siteSettings?.checkout_cover_image || "/images/book-cover.png"}
                   alt="كتاب بدون التسويق كارثة تهدد ثروتك المستقبلية — تأليف جاسم محمد"
                   fill
                   className="drop-shadow-2xl object-cover rounded-2xl"
