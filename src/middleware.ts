@@ -21,7 +21,7 @@ const ratelimit = redis
     })
   : null;
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -114,7 +114,7 @@ export async function proxy(request: NextRequest) {
     
     const adminEmails = process.env.ADMIN_EMAILS
       ? process.env.ADMIN_EMAILS.split(',').map(e => e.trim().toLowerCase())
-      : [];
+      : ['info@black4me.com', 'admin@black4me.com', 'black4mestore@gmail.com'];
       
     if (!user.email || !adminEmails.includes(user.email.toLowerCase())) {
        return NextResponse.redirect(new URL('/login', request.url));
