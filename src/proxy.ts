@@ -3,6 +3,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 
+// Fallback degraded limiter (in-memory, ephemeral per-instance)
+// "Fail-safe" mode to ensure checkout/login doesn't crash if Upstash is down.
+const degradedModeLimiter = new Map<string, { count: number, resetAt: number }>();
+
 const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
   ? new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL,
@@ -25,10 +29,43 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (ratelimit && (pathname.startsWith('/api/checkout') || pathname.startsWith('/login') || pathname.startsWith('/api/webhooks'))) {
-    const ip = request.ip ?? request.headers.get('x-forwarded-for') ?? '127.0.0.1';
-    const { success } = await ratelimit.limit(ip);
-    if (!success) {
-      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+    const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
+    
+    try {
+      const { success } = await ratelimit.limit(ip);
+      if (!success) {
+        return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+      }
+    } catch (ratelimitError) {
+      console.warn(`[Circuit Breaker] Upstash Redis failed, entering degraded mode for IP ${ip}`, ratelimitError);
+      
+      // Degraded Mode (Fail-safe memory limiter)
+      const now = Date.now();
+      
+      // OOM Protection: Clear map if it gets too large
+      if (degradedModeLimiter.size > 1000) {
+        // Find and delete expired entries to free up memory
+        for (const [key, state] of degradedModeLimiter.entries()) {
+          if (now > state.resetAt) {
+            degradedModeLimiter.delete(key);
+          }
+        }
+        // If still too large, forcefully clear the oldest half or just clear all
+        if (degradedModeLimiter.size > 1000) {
+           degradedModeLimiter.clear();
+        }
+      }
+      
+      const userState = degradedModeLimiter.get(ip);
+      
+      if (!userState || now > userState.resetAt) {
+        degradedModeLimiter.set(ip, { count: 1, resetAt: now + 10000 }); // 10s window
+      } else {
+        userState.count += 1;
+        if (userState.count > 10) {
+          return NextResponse.json({ error: 'Too many requests (Degraded)' }, { status: 429 });
+        }
+      }
     }
   }
 
@@ -37,7 +74,6 @@ export async function proxy(request: NextRequest) {
 
   if (!supabaseUrl || !supabaseKey) {
     // Fail-open prevention: If we don't have supabase config, redirect to login if accessing protected routes
-    const { pathname } = request.nextUrl;
     if (pathname.startsWith('/admin') || pathname.startsWith('/portal')) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
@@ -69,8 +105,6 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  
-  const { pathname } = request.nextUrl;
   
   // Protect admin routes
   if (pathname.startsWith('/admin')) {

@@ -2,10 +2,19 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '../../../../lib/supabase-admin';
 import { sendWelcomeEmail } from '../../../../server/actions/email';
+import { Redis } from '@upstash/redis';
+import { stripeWebhookSchema } from '../../../../server/validation/webhook.schema';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_for_build', {
   apiVersion: '2024-12-18.acacia' as any,
 });
+
+const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+  : null;
 
 export async function POST(req: Request) {
   const payload = await req.text();
@@ -22,8 +31,29 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
+    // 1. Zod Strict Validation on Payload
+    const parsedEvent = stripeWebhookSchema.parse(event);
+
+    // 2. Drift Control (Reject events older than 5 minutes)
+    const eventTimestamp = parsedEvent.created * 1000;
+    const fiveMinutes = 5 * 60 * 1000;
+    if (Date.now() - eventTimestamp > fiveMinutes) {
+      console.warn(`[Drift Control] Rejected stale webhook ${parsedEvent.id}`);
+      return NextResponse.json({ error: 'Webhook payload too old' }, { status: 400 });
+    }
+
+    // 3. Replay Protection (Idempotency via Redis)
+    if (redis) {
+      // SETNX: Only set if it does not exist. EX: Expire in 24 hours (86400 seconds)
+      const lockAcquired = await redis.set(`webhook:${parsedEvent.id}`, 'processed', { nx: true, ex: 86400 });
+      if (!lockAcquired) {
+        console.log(`[Replay Protection] Webhook ${parsedEvent.id} already processed.`);
+        return NextResponse.json({ received: true }); // Acknowledge safely to Stripe
+      }
+    }
+
+    if (parsedEvent.type === 'checkout.session.completed') {
+      const session = parsedEvent.data.object as any;
 
       const customerEmail = session.customer_details?.email || session.metadata?.customer_email;
       const productId = session.metadata?.product_id;
@@ -84,7 +114,7 @@ export async function POST(req: Request) {
           const { error: accessInsertError } = await supabaseAdmin.from('user_access').insert({
             customer_email: customerEmail,
             product_id: product?.id || productId,
-            product_title: product?.title || 'المنتج',
+            product_title: product?.title || 'Unknown Product',
             file_url: product?.file_url || null,
             order_id: orderId,
             payment_gateway: 'stripe',
@@ -103,6 +133,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ received: true });
   } catch (err: any) {
+    if (err.name === 'ZodError') {
+      console.error('Webhook Validation Error:', err.errors);
+      return NextResponse.json({ error: 'Payload validation failed' }, { status: 400 });
+    }
     console.error('Webhook Error:', err.message);
     return NextResponse.json({ error: 'Webhook handler failed' }, { status: 400 });
   }
