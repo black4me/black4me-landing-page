@@ -47,3 +47,6 @@ jobs:
       env:
         STRIPE_WEBHOOK_SECRET: "whsec_dummy"
       run: node tests/smoke.test.js
+      
+    - name: Security Regression Tests & Enforcement Gate
+      run: npm run test
