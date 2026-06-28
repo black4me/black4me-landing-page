@@ -5,7 +5,7 @@ import { sendToActivepieces } from '../../../lib/activepieces';
 
 import { trackEvent, upsertUser } from '../../../server/actions/tracking';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function POST(req: Request) {
   try {

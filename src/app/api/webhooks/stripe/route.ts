@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import { supabaseAdmin } from '../../../../lib/supabase-admin';
 import { sendWelcomeEmail } from '../../../../server/actions/email';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy', {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_for_build', {
   apiVersion: '2024-12-18.acacia' as any,
 });
 

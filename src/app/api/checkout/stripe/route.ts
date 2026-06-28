@@ -4,7 +4,7 @@ import { supabaseAdmin } from '../../../../lib/supabase-admin';
 import { checkRateLimit, getClientIp } from '../../../../lib/rate-limiter';
 
 // Initialize stripe carefully to prevent build-time crashes if env var is missing
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key_for_build', {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia' as any,
 });
 

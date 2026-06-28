@@ -3,7 +3,7 @@ import type { NextConfig } from 'next';
 const nextConfig = {
   reactStrictMode: true,
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -11,6 +11,18 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 365,
     unoptimized: false,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'rgfiszmnxktetnahufpm.supabase.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/**',
+      }
+    ],
   },
   compress: true,
   poweredByHeader: false,

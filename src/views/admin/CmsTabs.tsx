@@ -12,6 +12,7 @@ export function SiteSettingsTab() {
     hero_video_url: siteSettings.hero_video_url || '',
     funnel_title: siteSettings.funnel_title || '',
     funnel_subtitle: siteSettings.funnel_subtitle || '',
+    comparison_title: siteSettings.comparison_title || '',
     comparison_subtitle: siteSettings.comparison_subtitle || '',
     enable_paypal: siteSettings.enable_paypal === 'true',
     enable_stripe: siteSettings.enable_stripe === 'true',

@@ -3,7 +3,7 @@
 import { Resend } from 'resend';
 import { supabaseAdmin } from '../../lib/supabase-admin';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function sendWelcomeEmail(email: string, name: string, orderId: string) {
   try {
