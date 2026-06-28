@@ -166,7 +166,13 @@ function AdminDashboardContent() {
 
     // Auth check
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    const adminEmails = ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com'];
+    
+    // Combine hardcoded defaults with dynamic env variables
+    const envEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS 
+      ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(',').map(e => e.trim().toLowerCase()) 
+      : [];
+    const adminEmails = ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com', 'black4mestore@gmail.com', ...envEmails];
+    
     if (authError || !user || !user.email || !adminEmails.includes(user.email.toLowerCase())) {
       router.push('/login');
       return;
