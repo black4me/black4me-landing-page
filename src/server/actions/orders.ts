@@ -24,7 +24,7 @@ export async function createOrder(payload: {
 
     if (error) {
       console.error('Error creating order:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: 'Internal server error while creating order.' };
     }
 
     // Upsert User as lead
@@ -44,61 +44,80 @@ export async function createOrder(payload: {
     return { success: true, orderId: data.id };
   } catch (err: any) {
     console.error('Exception creating order:', err);
-    return { success: false, error: err.message };
+    return { success: false, error: 'Internal server error while creating order.' };
   }
 }
 
 export async function grantAccess(customerEmail: string, productId: string, orderId: string) {
   try {
+    // Check idempotency: Has this order already been processed?
+    if (orderId) {
+      const { data: existingAccess } = await supabaseAdmin
+        .from('user_access')
+        .select('id')
+        .eq('order_id', orderId)
+        .single();
+        
+      if (existingAccess) {
+        console.log(`Order ${orderId} already processed. Skipping grantAccess.`);
+        return { success: true, message: 'Already processed' };
+      }
+    }
+
     // Fetch product details
-    const { data: product } = await supabaseAdmin
+    const { data: product, error: productError } = await supabaseAdmin
       .from('products')
       .select('id, title, file_url, price')
       .eq('id', productId)
       .single();
 
+    if (productError || !product) {
+      console.error('Failed to fetch product in grantAccess:', productError);
+      return { success: false, error: 'Product not found.' };
+    }
+
     // Insert into user_access — this is what the portal reads
     const { error } = await supabaseAdmin.from('user_access').insert({
       customer_email: customerEmail,
-      product_id: product?.id || productId,
-      product_title: product?.title || 'المنتج',
-      file_url: product?.file_url || null,
+      product_id: product.id,
+      product_title: product.title,
+      file_url: product.file_url,
       order_id: orderId,
       payment_gateway: 'manual',
     });
 
     if (error) {
       console.error('Error granting access:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: 'Internal server error while granting access.' };
     }
 
     // Track purchase success
     await trackEvent({
       eventType: 'purchase_success',
       userEmail: customerEmail,
-      parameters: { productId: product?.id || productId, orderId, productTitle: product?.title || 'المنتج' }
+      parameters: { productId: product.id, orderId, productTitle: product.title }
     });
 
     // Upsert User as VIP
     await upsertUser({
       email: customerEmail,
       status: 'vip',
-      revenue: product?.price || 0 // Warning: product price might need fetching or passed
+      revenue: product.price
     });
 
     // Notify Activepieces of a successful purchase
     await sendToActivepieces(process.env.ACTIVEPIECES_WEBHOOK_URL_PURCHASE, {
       event: 'purchase_completed',
       customerEmail,
-      productId: product?.id || productId,
-      productTitle: product?.title || 'المنتج',
+      productId: product.id,
+      productTitle: product.title,
       orderId,
     });
 
     return { success: true };
   } catch (err: any) {
     console.error('Exception granting access:', err);
-    return { success: false, error: err.message };
+    return { success: false, error: 'Internal server error while granting access.' };
   }
 }
 

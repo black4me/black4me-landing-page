@@ -5,11 +5,18 @@ import { render } from '@react-email/render';
 import WelcomeEmail from '../../../../emails/WelcomeEmail';
 import React from 'react';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
+const resend = new Resend(process.env.RESEND_API_KEY || 'dummy_for_build');
 
 export async function POST(req: Request) {
   try {
     const rawBody = await req.text();
+    const secretHeader = req.headers.get('x-spaceremit-secret');
+    
+    if (!process.env.SPACEREMIT_WEBHOOK_SECRET || secretHeader !== process.env.SPACEREMIT_WEBHOOK_SECRET) {
+      console.error('SpaceRemit Webhook: Unauthorized access attempt');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     let body: any;
     try {
       body = JSON.parse(rawBody);

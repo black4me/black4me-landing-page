@@ -5,7 +5,7 @@ import { render } from '@react-email/render';
 import WelcomeEmail from '../../../../emails/WelcomeEmail';
 import React from 'react';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key_for_build');
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function POST(req: Request) {
   try {

@@ -176,6 +176,6 @@ export async function POST(req: Request) {
 
   } catch (err: any) {
     console.error('PayPal Capture Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error during PayPal capture.' }, { status: 500 });
   }
 }

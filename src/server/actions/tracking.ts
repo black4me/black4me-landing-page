@@ -12,7 +12,7 @@ export async function trackEvent(payload: {
   parameters?: Record<string, any>;
 }) {
   try {
-    const headersList = headers();
+    const headersList = await headers();
     const userAgent = headersList.get('user-agent') || '';
     const ip = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown';
 
