@@ -8,6 +8,7 @@ const ADMIN_EMAILS = [
   'info@black4me.com',
   'admin@black4me.com',
   'black4mestore@gmail.com',
+  'admin@admin.com',
 ];
 
 export async function loginAction(formData: FormData) {
@@ -44,7 +45,7 @@ export async function loginAction(formData: FormData) {
 
   const userEmail = data.user?.email?.toLowerCase() ?? '';
   if (ADMIN_EMAILS.includes(userEmail)) {
-    redirect('/admin');
+    redirect('/admin/site-settings');
   } else {
     redirect('/portal');
   }
