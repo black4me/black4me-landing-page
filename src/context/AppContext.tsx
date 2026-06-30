@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase } from '../lib/supabase';
 import { User, Product, Order, Consultation, NewsletterSubscriber, Testimonial, FAQ, Coupon, SiteSettings, ComparisonItem, FunnelStage, ValueStackItem } from '../types';
 import { useSiteSettings, useComparisonItems, useFunnelStages, useValueStackItems, useCoupons, DbSiteSetting, DbComparisonItem, DbFunnelStage, DbValueStackItem, DbCoupon } from '../hooks/useSupabaseData';
+import { updateAdminSiteSetting } from '../server/actions/admin';
 
 // ─── Fallback data (used when Supabase tables don't exist yet) ─────────────
 
@@ -579,7 +580,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // ─── CMS Functions ───────────────────────────────────────────────────────
   
   const updateSiteSetting = async (key: string, value: string) => {
-    await supabase.from('site_settings').upsert({ key, value });
+    await updateAdminSiteSetting(key, value);
     setSiteSettings(prev => ({ ...prev, [key]: value }));
   };
 
@@ -716,3 +717,4 @@ export const useApp = () => {
   }
   return context;
 };
+
