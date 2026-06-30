@@ -39,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
     .select('key, value')
     .in('key', ['hero_title', 'hero_subtitle', 'site_favicon']);
 
-  const settings = data?.reduce((acc: Record<string, string>, row) => ({
+  const settings: Record<string, string> = data?.reduce((acc: Record<string, string>, row) => ({
     ...acc,
     [row.key]: row.value,
   }), {}) || {};
