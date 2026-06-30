@@ -39,7 +39,13 @@ export default function CustomerPortal() {
 
   useEffect(() => {
     const fetchUserAndAccess = async () => {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const { createBrowserClient } = await import('@supabase/ssr');
+      const supabaseBrowser = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      const { data: { user }, error: authError } = await supabaseBrowser.auth.getUser();
 
       if (authError || !user) {
         router.push('/login');
@@ -69,8 +75,14 @@ export default function CustomerPortal() {
   }, [router]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    const { createBrowserClient } = await import('@supabase/ssr');
+    const supabaseBrowser = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    await supabaseBrowser.auth.signOut();
     router.push('/login');
+    router.refresh();
   };
 
   if (loading) {
