@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { supabase } from '../../lib/supabase';
+import { createBrowserClient } from '@supabase/ssr';
 import {
   LogOut, Users, DollarSign, ShoppingBag, ShieldCheck,
   BarChart3, Tag, Calendar, MessageSquare, HelpCircle,
@@ -16,22 +16,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
 
-  // Check auth
   useEffect(() => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push('/login');
+      // getUser() validates via server — works with SSR cookies on Vercel
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.replace('/login');
       } else {
         setLoading(false);
       }
     };
+
     checkAuth();
   }, [router]);
 
   const handleLogout = async () => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
     await supabase.auth.signOut();
-    router.push('/login');
+    router.replace('/login');
   };
 
   if (loading) {
@@ -61,11 +71,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <AppProvider>
       <div className="min-h-screen bg-[#050505] text-white font-sans relative" dir="rtl">
-        {/* Background Decorative Gradients */}
         <div className="fixed top-0 right-1/4 w-[500px] h-[500px] bg-[#6C3BFF]/5 rounded-full blur-[150px] pointer-events-none mix-blend-screen" />
         <div className="fixed bottom-0 left-1/4 w-[500px] h-[500px] bg-[#F5C542]/5 rounded-full blur-[150px] pointer-events-none mix-blend-screen" />
 
-        {/* ─── Header ─── */}
         <header className="bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -93,7 +101,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
 
-        {/* ─── Tab Nav ─── */}
         <div className="bg-[#0A0A0A]/60 backdrop-blur-md border-b border-white/5 sticky top-16 z-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex gap-1 overflow-x-auto py-2 scrollbar-hide">
@@ -119,7 +126,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
 
-        {/* ─── Main Content ─── */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 relative z-10">
           {children}
         </main>
