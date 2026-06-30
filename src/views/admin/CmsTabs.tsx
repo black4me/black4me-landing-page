@@ -108,7 +108,13 @@ export function SiteSettingsTab() {
                 <div className="space-y-4">
                   <ImageUploader 
                     url={val as string || null}
-                    config={siteSettings[`${key}_config`] ? JSON.parse(siteSettings[`${key}_config`]) : null}
+                    config={(() => {
+                      try {
+                        return siteSettings[`${key}_config`] && siteSettings[`${key}_config`] !== 'undefined' ? JSON.parse(siteSettings[`${key}_config`]) : null;
+                      } catch (e) {
+                        return null;
+                      }
+                    })()}
                     onUrlChange={(newUrl) => {
                       setFormData(prev => ({ ...prev, [key]: newUrl }));
                       updateSiteSetting(key, newUrl);
@@ -454,4 +460,6 @@ export function CouponsTab() {
     </div>
   );
 }
+
+
 
