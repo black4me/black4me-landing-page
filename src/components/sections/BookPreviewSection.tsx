@@ -18,24 +18,58 @@ export default function BookPreviewSection() {
           </h2>
         </div>
 
-        {/* Infographic Preview Image */}
-        <div className="relative w-full mb-12 rounded-[1rem] overflow-hidden border border-brand-white/10 shadow-2xl bg-brand-black flex justify-center">
-          {siteSettings?.book_preview_image ? (
-            <Image 
-              src={siteSettings.book_preview_image} 
-              alt="من داخل الكتاب والنظام" 
-              width={600}
-              height={337}
-              className="w-full max-w-[600px] aspect-video object-contain mix-blend-lighten mx-auto rounded-xl block overflow-hidden" 
-            />
-          ) : (
-            <div className="w-full aspect-[4/3] md:aspect-[21/9] bg-[#050505] flex items-center justify-center">
-              <div className="text-center text-gray-500 p-8 border border-dashed border-gray-700 rounded-2xl mx-4">
-                <p className="text-lg font-bold mb-2">مكان صورة العرض الشامل</p>
-                <p className="text-sm">قم برفع الصورة من لوحة التحكم (إعدادات الموقع - Book Preview Image)</p>
+        {/* Infographic Preview Image & Map */}
+        <div className="relative w-full mb-12 rounded-[2rem] overflow-hidden border border-brand-white/10 shadow-2xl bg-brand-black p-8 md:p-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Features Map */}
+            <div className="space-y-8 order-2 lg:order-1">
+              <h3 className="text-2xl md:text-3xl font-black text-white">
+                خريطة محتويات <span className="text-brand-gold">النظام الشامل</span>
+              </h3>
+              
+              <div className="space-y-6">
+                {[
+                  { title: 'الأساسيات الاستراتيجية', desc: 'بناء العقلية وتحديد الأهداف بوضوح قبل الانطلاق لضمان نتائج حقيقية' },
+                  { title: 'كتاب "بدون التسويق كارثة"', desc: 'دليلك الشامل لمعرفة أسرار بناء الثروة من خلال التسويق الرقمي الفعال' },
+                  { title: 'بناء مسار المبيعات (Sales Funnel)', desc: 'نظام خطوة بخطوة لتحويل الزوار العابرين إلى عملاء دائمين ومستمرين' },
+                  { title: 'أدوات ونماذج تطبيقية جاهزة', desc: 'قوالب ونماذج قابلة للتعديل والنسخ توفر عليك مئات الساعات من العمل' },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex gap-4 items-start group">
+                    <div className="w-10 h-10 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center font-bold shrink-0 mt-0.5 group-hover:bg-brand-gold group-hover:text-brand-black transition-colors">
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-lg mb-1">{item.title}</h4>
+                      <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          )}
+
+            {/* Image Preview */}
+            <div className="order-1 lg:order-2 flex justify-center lg:justify-end items-center">
+              {siteSettings?.book_preview_image ? (
+                <div className="relative w-full max-w-[500px]">
+                  <div className="absolute inset-0 bg-brand-gold/20 blur-[100px] rounded-full" aria-hidden="true" />
+                  <Image 
+                    src={siteSettings.book_preview_image} 
+                    alt="من داخل الكتاب والنظام" 
+                    width={600}
+                    height={400}
+                    className="relative w-full h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" 
+                  />
+                </div>
+              ) : (
+                <div className="w-full aspect-[4/3] bg-[#050505] flex items-center justify-center rounded-2xl border border-dashed border-gray-700">
+                  <div className="text-center text-gray-500 p-8">
+                    <p className="text-lg font-bold mb-2">مكان صورة العرض الشامل</p>
+                    <p className="text-sm">قم برفع الصورة من لوحة التحكم (إعدادات الموقع - Book Preview Image)</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Bonus Cards */}
