@@ -19,12 +19,12 @@ export default function BookPreviewSection() {
         </div>
 
         {/* Infographic Preview Image */}
-        <div className="relative w-full mb-12 rounded-[1rem] overflow-hidden border border-brand-white/10 shadow-2xl bg-brand-black">
+        <div className="relative w-full mb-12 rounded-[1rem] overflow-hidden border border-brand-white/10 shadow-2xl bg-brand-black flex justify-center">
           {siteSettings?.book_preview_image ? (
             <img 
               src={siteSettings.book_preview_image} 
               alt="من داخل الكتاب والنظام" 
-              className="w-full h-auto block" 
+              className="w-full max-w-[600px] aspect-video object-contain mix-blend-lighten mx-auto rounded-xl block overflow-hidden" 
             />
           ) : (
             <div className="w-full aspect-[4/3] md:aspect-[21/9] bg-[#050505] flex items-center justify-center">
