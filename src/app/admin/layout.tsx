@@ -19,7 +19,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Check auth
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { createBrowserClient } = await import('@supabase/ssr');
+      const supabaseBrowser = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      
+      const { data: { session } } = await supabaseBrowser.auth.getSession();
       if (!session) {
         router.push('/login');
       } else {
@@ -30,8 +36,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [router]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    const { createBrowserClient } = await import('@supabase/ssr');
+    const supabaseBrowser = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    await supabaseBrowser.auth.signOut();
     router.push('/login');
+    router.refresh();
   };
 
   if (loading) {
