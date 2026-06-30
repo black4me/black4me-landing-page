@@ -59,9 +59,15 @@ export async function uploadImageAdmin(formData: FormData): Promise<{ url?: stri
       return { error: 'No file or fileName provided' };
     }
 
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
     const { error: uploadError } = await supabaseAdmin.storage
       .from('products')
-      .upload(fileName, file, { upsert: true });
+      .upload(fileName, buffer, { 
+        upsert: true,
+        contentType: file.type
+      });
 
     if (uploadError) {
       return { error: uploadError.message };
