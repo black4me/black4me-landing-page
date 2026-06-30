@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../../lib/supabase-admin';
 
-const PAYPAL_API_BASE = process.env.NODE_ENV === 'production'
-  ? 'https://api-m.paypal.com'
-  : 'https://api-m.sandbox.paypal.com';
+const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'sandbox' 
+  ? 'https://api-m.sandbox.paypal.com'
+  : (process.env.NODE_ENV === 'production'
+      ? 'https://api-m.paypal.com'
+      : 'https://api-m.sandbox.paypal.com');
 
 type CheckoutProduct = {
   id: string;

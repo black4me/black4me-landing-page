@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../../../lib/supabase-admin';
 import { sendWelcomeEmail } from '../../../../../server/actions/email';
 
-const PAYPAL_API_BASE = process.env.NODE_ENV === 'production'
-  ? 'https://api-m.paypal.com'
-  : 'https://api-m.sandbox.paypal.com';
+const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'sandbox' 
+  ? 'https://api-m.sandbox.paypal.com'
+  : (process.env.NODE_ENV === 'production'
+      ? 'https://api-m.paypal.com'
+      : 'https://api-m.sandbox.paypal.com');
 
 const generateAccessToken = async () => {
   if (!process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || !process.env.PAYPAL_SECRET) {
