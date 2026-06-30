@@ -12,7 +12,9 @@ const cairo = Cairo({
   subsets: ['arabic', 'latin'],
   weight: ['400', '600', '700'],
   variable: '--font-cairo',
-  display: 'swap',
+  display: 'optional',
+  fallback: ['Arial', 'sans-serif'],
+  adjustFontFallback: true,
   preload: true,
 });
 
@@ -20,7 +22,9 @@ const ibmPlex = IBM_Plex_Sans_Arabic({
   subsets: ['arabic', 'latin'],
   weight: ['400', '700'],
   variable: '--font-ibm',
-  display: 'swap',
+  display: 'optional',
+  fallback: ['Arial', 'sans-serif'],
+  adjustFontFallback: true,
   preload: true,
 });
 
@@ -152,9 +156,11 @@ export default function RootLayout({
     >
       <head>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://connect.facebook.net" />
-        <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
+        <link rel="preconnect" href="https://rgfiszmnxktetnahufpm.supabase.co" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://api.stripe.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://connect.facebook.net" />
+        <link rel="preconnect" href="https://analytics.tiktok.com" />
       </head>
       <body className="min-h-full font-sans bg-brand-black text-brand-white antialiased">
         <Providers>

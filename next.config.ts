@@ -34,12 +34,16 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb',
     },
     optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
+    browsersListForSwc: true,
   },
   headers: async () => [
     {
