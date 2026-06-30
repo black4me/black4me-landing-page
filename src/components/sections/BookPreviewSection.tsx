@@ -49,27 +49,28 @@ export default function BookPreviewSection() {
 
             {/* Image Preview */}
             <div className="order-1 lg:order-2 flex justify-center items-center w-full">
-              {siteSettings?.book_preview_image ? (
-                <div className="relative w-full max-w-[700px] xl:scale-110 xl:-translate-x-4">
-                  {/* Subtle ambient glow behind the infographic */}
-                  <div className="absolute inset-0 bg-brand-gold/10 blur-[120px] rounded-full transform scale-90" aria-hidden="true" />
-                  <Image 
-                    src={siteSettings.book_preview_image} 
-                    alt="محتويات النظام من الداخل" 
-                    width={800}
-                    height={800}
-                    className="relative w-full h-auto object-contain drop-shadow-2xl transition-transform duration-700 hover:scale-[1.02]" 
-                    unoptimized={true}
-                  />
-                </div>
-              ) : (
-                <div className="w-full aspect-[4/3] bg-[#050505] flex items-center justify-center rounded-2xl border border-dashed border-gray-700">
-                  <div className="text-center text-gray-500 p-8">
-                    <p className="text-lg font-bold mb-2">مكان صورة العرض الشامل</p>
-                    <p className="text-sm">قم برفع الصورة من لوحة التحكم (إعدادات الموقع - Book Preview Image)</p>
+              <div className="relative w-full aspect-[4/3] max-w-[700px] flex items-center justify-center xl:scale-110 xl:-translate-x-4">
+                {siteSettings?.book_preview_image ? (
+                  <>
+                    <div className="absolute inset-0 bg-brand-gold/10 blur-[120px] rounded-full transform scale-90" aria-hidden="true" />
+                    <Image 
+                      src={siteSettings.book_preview_image} 
+                      alt="محتويات النظام من الداخل" 
+                      fill
+                      className="object-contain drop-shadow-2xl transition-transform duration-700 hover:scale-[1.02]" 
+                      unoptimized={true}
+                      priority
+                    />
+                  </>
+                ) : (
+                  <div className="w-full h-full bg-[#050505] flex items-center justify-center rounded-2xl border border-dashed border-gray-700">
+                    <div className="text-center text-gray-500 p-8">
+                      <p className="text-lg font-bold mb-2">مكان صورة العرض الشامل</p>
+                      <p className="text-sm">قم برفع الصورة من لوحة التحكم (إعدادات الموقع - Book Preview Image)</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
