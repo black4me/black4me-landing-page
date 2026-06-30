@@ -21,9 +21,6 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              {siteSettings.site_favicon && (
-                <Image src={siteSettings.site_favicon} alt="Logo Icon" width={36} height={36} className="w-9 h-9 object-contain" />
-              )}
               {siteSettings.site_logo ? <Image src={siteSettings.site_logo} alt="BLACK4ME" width={160} height={32} className="h-8 w-auto object-contain" /> : <span className="font-mono text-base font-black tracking-widest text-white">BLACK4ME</span>}
             </div>
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
