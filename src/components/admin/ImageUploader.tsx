@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, ZoomIn, Maximize, Settings2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
