@@ -5,10 +5,6 @@ import { sendWelcomeEmail } from '../../../../server/actions/email';
 import { Redis } from '@upstash/redis';
 import { stripeWebhookSchema } from '../../../../server/validation/webhook.schema';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_for_build', {
-  apiVersion: '2024-12-18.acacia' as any,
-});
-
 const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
   ? new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL,
@@ -20,15 +16,28 @@ export async function POST(req: Request) {
   const payload = await req.text();
   const signature = req.headers.get('Stripe-Signature');
 
-  if (!signature || !process.env.STRIPE_WEBHOOK_SECRET) {
-    return NextResponse.json({ error: 'Missing signature or webhook secret' }, { status: 400 });
+  const { data: privateSettings } = await supabaseAdmin.from('private_settings').select('key, value');
+  const settingsMap = privateSettings?.reduce((acc: any, curr: any) => {
+    acc[curr.key] = curr.value;
+    return acc;
+  }, {}) || {};
+
+  const stripeSecret = settingsMap['STRIPE_SECRET_KEY'] || process.env.STRIPE_SECRET_KEY;
+  const webhookSecret = settingsMap['STRIPE_WEBHOOK_SECRET'] || process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!signature || !webhookSecret || !stripeSecret) {
+    return NextResponse.json({ error: 'Missing signature, webhook secret, or stripe secret' }, { status: 400 });
   }
+
+  const stripe = new Stripe(stripeSecret, {
+    apiVersion: '2024-12-18.acacia' as any,
+  });
 
   try {
     const event = stripe.webhooks.constructEvent(
       payload,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET
+      webhookSecret
     );
 
     // 1. Zod Strict Validation on Payload

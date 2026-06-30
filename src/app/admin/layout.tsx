@@ -6,7 +6,7 @@ import { supabase } from '../../lib/supabase';
 import {
   LogOut, Users, DollarSign, ShoppingBag, ShieldCheck,
   BarChart3, Tag, Calendar, MessageSquare, HelpCircle,
-  Settings, GitCompare, Layers, Ticket, Mail
+  Settings, GitCompare, Layers, Ticket, Mail, CreditCard
 } from 'lucide-react';
 import { AppProvider } from '../../context/AppContext';
 import Link from 'next/link';
@@ -68,6 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { id: '/admin/funnels', label: 'مراحل الفنل', icon: Layers },
     { id: '/admin/value-stack', label: 'الحزمة المضافة', icon: DollarSign },
     { id: '/admin/coupons', label: 'كوبونات الخصم', icon: Ticket },
+    { id: '/admin/payment-gateways', label: 'بوابات الدفع', icon: CreditCard },
   ];
 
   return (

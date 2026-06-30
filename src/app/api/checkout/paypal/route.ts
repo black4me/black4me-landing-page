@@ -1,12 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../../lib/supabase-admin';
 
-const PAYPAL_API_BASE = process.env.PAYPAL_MODE === 'sandbox' 
-  ? 'https://api-m.sandbox.paypal.com'
-  : (process.env.NODE_ENV === 'production'
-      ? 'https://api-m.paypal.com'
-      : 'https://api-m.sandbox.paypal.com');
-
 type CheckoutProduct = {
   id: string;
   title: string;
@@ -21,16 +15,14 @@ type CouponRecord = {
   is_active: boolean;
 };
 
-const generateAccessToken = async () => {
-  if (!process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || !process.env.PAYPAL_SECRET) {
+const generateAccessToken = async (clientId: string, secret: string, apiBase: string) => {
+  if (!clientId || !secret) {
     throw new Error('PayPal credentials are not configured');
   }
 
-  const auth = Buffer.from(
-    `${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}:${process.env.PAYPAL_SECRET}`
-  ).toString('base64');
+  const auth = Buffer.from(`${clientId}:${secret}`).toString('base64');
 
-  const response = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
+  const response = await fetch(`${apiBase}/v1/oauth2/token`, {
     method: 'POST',
     body: 'grant_type=client_credentials',
     headers: {
@@ -49,6 +41,26 @@ const generateAccessToken = async () => {
 
 export async function POST(req: Request) {
   try {
+    const { data: privateSettings } = await supabaseAdmin.from('private_settings').select('key, value');
+    const settingsMap = privateSettings?.reduce((acc: any, curr: any) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    }, {}) || {};
+
+    const paypalMode = settingsMap['PAYPAL_MODE'] || process.env.PAYPAL_MODE || 'live';
+    const clientId = settingsMap['NEXT_PUBLIC_PAYPAL_CLIENT_ID'] || process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+    const secret = settingsMap['PAYPAL_SECRET'] || process.env.PAYPAL_SECRET;
+    
+    const PAYPAL_API_BASE = paypalMode === 'sandbox' 
+      ? 'https://api-m.sandbox.paypal.com'
+      : (process.env.NODE_ENV === 'production'
+          ? 'https://api-m.paypal.com'
+          : 'https://api-m.sandbox.paypal.com');
+
+    if (!clientId || !secret) {
+      return NextResponse.json({ error: 'PayPal credentials not configured' }, { status: 500 });
+    }
+
     const body = await req.json();
     const { productId, customerEmail, customerName, customerCountry, couponCode } = body;
 
@@ -103,7 +115,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid checkout amount' }, { status: 400 });
     }
 
-    const accessToken = await generateAccessToken();
+    const accessToken = await generateAccessToken(clientId, secret, PAYPAL_API_BASE);
 
     const orderPayload = {
       intent: 'CAPTURE',
