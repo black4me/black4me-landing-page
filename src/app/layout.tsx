@@ -31,70 +31,81 @@ export const viewport: Viewport = {
   themeColor: '#000000',
 };
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://www.black4me.com'),
-  title: {
-    default: 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً | جاسم محمد',
-    template: '%s | BLACK4ME',
-  },
-  description: 'احصل على الحزمة الشاملة لبناء نظام تسويق رقمي متكامل: كتاب عملي + نظام تعليمي + قوالب جاهزة + استشارة خاصة. ابدأ بـ $49 فقط مع ضمان استرداد كامل.',
-  keywords: [
-    'كتاب تسويق رقمي',
-    'نظام جذب العملاء',
-    'قوالب تسويق جاهزة',
-    'تسويق إلكتروني عربي',
-    'بناء نظام مبيعات',
-    'جاسم محمد',
-    'BLACK4ME',
-    'كتاب بدون التسويق',
-    'نظام تسويقي متكامل',
-    'تسويق رقمي للمبتدئين',
-  ],
-  authors: [{ name: 'جاسم محمد', url: 'https://www.black4me.com' }],
-  creator: 'جاسم محمد',
-  publisher: 'BLACK4ME',
-  openGraph: {
-    type: 'website',
-    locale: 'ar_SA',
-    url: 'https://www.black4me.com',
-    siteName: 'BLACK4ME',
-    title: 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
-    description: 'الحزمة الشاملة لبناء نظام تسويق رقمي: كتاب + نظام تعليمي + قوالب + استشارة. ابدأ بـ $49 مع ضمان استرداد.',
-    images: [
-      {
-        url: '/images/book-cover.png',
-        width: 1200,
-        height: 628,
-        alt: 'كتاب بدون التسويق كارثة تهدد ثروتك المستقبلية — جاسم محمد',
-      },
+import { supabaseAdmin } from '../lib/supabase-admin';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { data } = await supabaseAdmin.from('site_settings').select('key, value').in('key', ['hero_title', 'hero_subtitle', 'site_favicon']);
+  const settings = data?.reduce((acc: any, row) => ({ ...acc, [row.key]: row.value }), {}) || {};
+
+  return {
+    metadataBase: new URL('https://www.black4me.com'),
+    title: {
+      default: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً | جاسم محمد',
+      template: '%s | BLACK4ME',
+    },
+    description: settings.hero_subtitle || 'احصل على الحزمة الشاملة لبناء نظام تسويق رقمي متكامل: كتاب عملي + نظام تعليمي + قوالب جاهزة + استشارة خاصة. ابدأ بـ $49 فقط مع ضمان استرداد كامل.',
+    icons: {
+      icon: settings.site_favicon || '/favicon.ico',
+      apple: settings.site_favicon || '/favicon.ico',
+    },
+    keywords: [
+      'كتاب تسويق رقمي',
+      'نظام جذب العملاء',
+      'قوالب تسويق جاهزة',
+      'تسويق إلكتروني عربي',
+      'بناء نظام مبيعات',
+      'جاسم محمد',
+      'BLACK4ME',
+      'كتاب بدون التسويق',
+      'نظام تسويقي متكامل',
+      'تسويق رقمي للمبتدئين',
     ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    site: '@black4me',
-    creator: '@black4me',
-    title: 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
-    description: 'الحزمة الشاملة لبناء نظام تسويق رقمي متكامل. ابدأ بـ $49 مع ضمان استرداد كامل.',
-    images: ['/images/book-cover.png'],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+    authors: [{ name: 'جاسم محمد', url: 'https://www.black4me.com' }],
+    creator: 'جاسم محمد',
+    publisher: 'BLACK4ME',
+    openGraph: {
+      type: 'website',
+      locale: 'ar_SA',
+      url: 'https://www.black4me.com',
+      siteName: 'BLACK4ME',
+      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
+      description: settings.hero_subtitle || 'الحزمة الشاملة لبناء نظام تسويق رقمي: كتاب + نظام تعليمي + قوالب + استشارة. ابدأ بـ $49 مع ضمان استرداد.',
+      images: [
+        {
+          url: '/images/book-cover.png',
+          width: 1200,
+          height: 628,
+          alt: 'كتاب بدون التسويق كارثة تهدد ثروتك المستقبلية — جاسم محمد',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@black4me',
+      creator: '@black4me',
+      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
+      description: settings.hero_subtitle || 'الحزمة الشاملة لبناء نظام تسويق رقمي متكامل. ابدأ بـ $49 مع ضمان استرداد كامل.',
+      images: ['/images/book-cover.png'],
+    },
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
-  },
-  alternates: {
-    canonical: 'https://www.black4me.com',
-  },
-  verification: {
-    google: process.env.NEXT_PUBLIC_GSC_ID || '',
-  },
-};
+    alternates: {
+      canonical: 'https://www.black4me.com',
+    },
+    verification: {
+      google: process.env.NEXT_PUBLIC_GSC_ID || '',
+    },
+  };
+}
 
 export default function RootLayout({
   children,
