@@ -21,16 +21,14 @@ export default function Tracker() {
     if (utmMedium) localStorage.setItem('utm_medium', utmMedium);
     if (utmCampaign) localStorage.setItem('utm_campaign', utmCampaign);
 
-    // Safe JSON.parse — prevents site crash if session data is malformed
-    let currentUserEmail: string | undefined = undefined;
+    // Get current user email if logged in
+    let currentUserEmail = undefined;
     try {
       const cu = localStorage.getItem('currentUser');
-      if (cu && cu !== 'undefined' && cu !== 'null') {
+      if (cu && cu !== 'undefined') {
         currentUserEmail = JSON.parse(cu).email;
       }
-    } catch (e) {
-      // Silently ignore malformed data
-    }
+    } catch (e) { /* ignore */ }
 
     trackEvent({
       eventType: 'page_view',
@@ -54,3 +52,6 @@ export const getUTMs = () => {
     utmCampaign: localStorage.getItem('utm_campaign'),
   };
 };
+
+
+
