@@ -374,6 +374,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, []);
 
+  // Update favicon dynamically when siteSettings load or change
+  useEffect(() => {
+    if (typeof document !== 'undefined' && siteSettings.site_favicon) {
+      let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = siteSettings.site_favicon;
+    }
+  }, [siteSettings.site_favicon]);
+
   // ─── Auth ───────────────────────────────────────────────────────────────
 
   const loginAs = (role: 'admin' | 'customer' | 'guest', userDetails?: Partial<User>) => {

@@ -42,23 +42,19 @@ export default function Navbar() {
         
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2 group" aria-label="BLACK4ME - الصفحة الرئيسية">
-          {siteSettings.site_favicon ? (
-            <img src={siteSettings.site_favicon} alt="Logo Icon" className="w-10 h-10 object-contain hover:scale-105 transition" />
+          {siteSettings.site_logo ? (
+            <img src={siteSettings.site_logo} alt="BLACK4ME" className="h-10 object-contain hover:scale-105 transition" />
           ) : (
-            <span className="w-10 h-10 rounded-xl bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono hover:scale-105 transition shadow-lg shadow-brand-gold/10 text-sm" aria-hidden="true">
-              B4M
-            </span>
-          )}
-          <div className="text-right flex flex-col justify-center">
-            {siteSettings.site_logo ? (
-              <img src={siteSettings.site_logo} alt="BLACK4ME" className="h-8 object-contain" />
-            ) : (
-              <>
+            <>
+              <span className="w-10 h-10 rounded-xl bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono hover:scale-105 transition shadow-lg shadow-brand-gold/10 text-sm" aria-hidden="true">
+                B4M
+              </span>
+              <div className="text-right flex flex-col justify-center">
                 <span className="font-mono text-lg font-black tracking-widest leading-none block text-white">BLACK4ME</span>
                 <span className="text-[9px] text-brand-gold font-medium block mt-0.5">JASIM MOHAMMED</span>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </Link>
 
         {/* Desktop Navigation Links */}
