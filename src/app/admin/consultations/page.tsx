@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
+import { ConsultationsTab } from '@/views/admin/ConsultationsTab';
 
 export default function Page() {
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">الاستشارات</h1>
-      <p className="text-gray-400">جاري نقل هذه الصفحة إلى النظام الجديد. ستتوفر قريباً.</p>
+      <ConsultationsTab />
     </div>
   );
 }

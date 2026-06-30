@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { Upload, Calendar, CheckCircle, Clock } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -112,3 +113,5 @@ export function NewsletterTab() {
     </div>
   );
 }
+
+
