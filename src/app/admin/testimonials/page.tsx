@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { supabase } from '../../../lib/supabase';
 import { Plus, Edit2, Trash2, Save, X, Star } from 'lucide-react';
 import { useAutoSave } from '../../../hooks/useAutoSave';
@@ -165,7 +166,7 @@ export default function TestimonialsPage() {
             {t.is_featured && <div className="absolute top-0 right-0 bg-[#F5C542] text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">مميز</div>}
             <div className="flex items-center gap-3 mb-3">
               {t.image_url ? (
-                <img src={t.image_url} alt={t.name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                <Image src={t.image_url} alt={t.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-white/10" />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 text-xs font-bold">
                   {t.name.charAt(0)}
