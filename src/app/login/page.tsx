@@ -35,10 +35,14 @@ export default function LoginPage() {
 
       const adminEmails = ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com'];
       
-      if (data.user?.email && adminEmails.includes(data.user.email.toLowerCase())) {
-        window.location.href = '/admin';
-      } else {
-        window.location.href = '/portal';
+      if (data.session) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (data.user?.email && adminEmails.includes(data.user.email.toLowerCase())) {
+          router.push('/admin');
+        } else {
+          router.push('/portal');
+        }
+        router.refresh();
       }
     } catch (err: any) {
       setError(err.message || 'بيانات الدخول غير صحيحة. يرجى المحاولة مرة أخرى.');
