@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, ZoomIn, Maximize, Settings2 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { uploadImageAdmin } from '../../server/actions/admin';
 
 export interface ImageConfig {
   scale?: number;
@@ -24,7 +24,7 @@ export default function ImageUploader({
   config, 
   onUrlChange, 
   onConfigChange, 
-  bucket = 'public',
+  bucket = 'products',
   className = '' 
 }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
@@ -62,19 +62,21 @@ export default function ImageUploader({
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `uploads/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file);
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('fileName', fileName);
 
-      if (uploadError) throw uploadError;
+      const { url: uploadedUrl, error } = await uploadImageAdmin(fd);
 
-      const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      onUrlChange(data.publicUrl);
-    } catch (error) {
+      if (error || !uploadedUrl) {
+        throw new Error(error || 'Upload failed');
+      }
+
+      onUrlChange(uploadedUrl);
+    } catch (error: any) {
       console.error('Error uploading image:', error);
-      alert('حدث خطأ أثناء رفع الصورة');
+      alert('حدث خطأ أثناء رفع الصورة: ' + error.message);
     } finally {
       setIsUploading(false);
     }
@@ -85,7 +87,9 @@ export default function ImageUploader({
       {/* Upload Zone */}
       {!url && (
         <div 
-          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragActive ? 'border-brand-primary bg-brand-primary/10' : 'border-gray-600 hover:border-gray-500 bg-gray-800/50'}`}
+          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
+            dragActive ? 'border-brand-primary bg-brand-primary/10' : 'border-gray-600 hover:border-gray-500 bg-gray-800/50'
+          }`}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
@@ -124,7 +128,7 @@ export default function ImageUploader({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Live Preview Canvas */}
+            {/* Live Preview */}
             <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-600 bg-gray-900 flex justify-center items-center">
               <img 
                 src={url} 
@@ -163,12 +167,16 @@ export default function ImageUploader({
                   <button 
                     type="button"
                     onClick={() => onConfigChange({ ...currentConfig, objectFit: 'cover' })}
-                    className={`flex-1 py-1.5 text-sm ${currentConfig.objectFit === 'cover' ? 'bg-brand-primary text-black font-semibold' : 'text-gray-400 hover:bg-gray-800'}`}
+                    className={`flex-1 py-1.5 text-sm ${
+                      currentConfig.objectFit === 'cover' ? 'bg-brand-primary text-black font-semibold' : 'text-gray-400 hover:bg-gray-800'
+                    }`}
                   >Cover</button>
                   <button 
                     type="button"
                     onClick={() => onConfigChange({ ...currentConfig, objectFit: 'contain' })}
-                    className={`flex-1 py-1.5 text-sm ${currentConfig.objectFit === 'contain' ? 'bg-brand-primary text-black font-semibold' : 'text-gray-400 hover:bg-gray-800'}`}
+                    className={`flex-1 py-1.5 text-sm ${
+                      currentConfig.objectFit === 'contain' ? 'bg-brand-primary text-black font-semibold' : 'text-gray-400 hover:bg-gray-800'
+                    }`}
                   >Contain</button>
                 </div>
               </div>
