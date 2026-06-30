@@ -26,10 +26,10 @@ const nextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  serverActions: {
+    bodySizeLimit: '10mb',
+  },
   experimental: {
-    serverActions: {
-      bodySizeLimit: '10mb',
-    },
     optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
   },

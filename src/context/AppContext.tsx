@@ -580,8 +580,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // ─── CMS Functions ───────────────────────────────────────────────────────
   
   const updateSiteSetting = async (key: string, value: string) => {
-    await updateAdminSiteSetting(key, value);
+    // Optimistic update
     setSiteSettings(prev => ({ ...prev, [key]: value }));
+    try {
+      await updateAdminSiteSetting(key, value);
+    } catch (error) {
+      console.error("Failed to update setting", error);
+    }
   };
 
   const addComparisonItem = async (itemData: Omit<ComparisonItem, 'id'>) => {
