@@ -24,13 +24,17 @@ export default function Tracker() {
     if (utmCampaign) localStorage.setItem('utm_campaign', utmCampaign);
 
     // Get current user email if logged in
-    const currentUser = localStorage.getItem('currentUser') 
-      ? JSON.parse(localStorage.getItem('currentUser') as string).email 
-      : undefined;
+    let currentUserEmail = undefined;
+    try {
+      const cu = localStorage.getItem('currentUser');
+      if (cu && cu !== 'undefined') {
+        currentUserEmail = JSON.parse(cu).email;
+      }
+    } catch (e) { /* ignore */ }
 
     trackEvent({
       eventType: 'page_view',
-      userEmail: currentUser,
+      userEmail: currentUserEmail,
       utmSource: utmSource || localStorage.getItem('utm_source'),
       utmMedium: utmMedium || localStorage.getItem('utm_medium'),
       utmCampaign: utmCampaign || localStorage.getItem('utm_campaign'),
@@ -50,3 +54,5 @@ export const getUTMs = () => {
     utmCampaign: localStorage.getItem('utm_campaign'),
   };
 };
+
+
