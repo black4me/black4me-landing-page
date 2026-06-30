@@ -18,7 +18,13 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const { createBrowserClient } = await import('@supabase/ssr');
+      const supabaseBrowser = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+
+      const { data, error: authError } = await supabaseBrowser.auth.signInWithPassword({
         email,
         password,
       });
@@ -29,16 +35,13 @@ export default function LoginPage() {
 
       const adminEmails = ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com'];
       
-      // Set the token in a cookie so middleware can see it
-      if (data.session?.access_token) {
-        document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=86400; SameSite=Lax`;
-      }
-
       if (data.user?.email && adminEmails.includes(data.user.email.toLowerCase())) {
         router.push('/admin');
       } else {
         router.push('/portal');
       }
+      
+      router.refresh();
     } catch (err: any) {
       setError(err.message || 'بيانات الدخول غير صحيحة. يرجى المحاولة مرة أخرى.');
     } finally {
