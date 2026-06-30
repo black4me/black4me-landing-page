@@ -201,3 +201,43 @@ export async function approveOrder(orderId: string): Promise<{ success: boolean;
 }
 
 
+
+export async function getPrivateSettings() {
+  try {
+    const { data, error } = await supabaseAdmin.from('private_settings').select('*');
+    if (error) {
+      if (error.code === '42P01') {
+        // Table doesn't exist yet
+        return { settings: {} };
+      }
+      throw error;
+    }
+    const settingsObj: Record<string, string> = {};
+    if (data) {
+      data.forEach(item => {
+        if (item.value && item.value.length > 8 && item.key.includes('SECRET')) {
+          // Mask secrets (show first 3 and last 3 characters)
+          const val = item.value;
+          settingsObj[item.key] = `${val.substring(0, 3)}...${val.substring(val.length - 3)}`;
+        } else {
+          settingsObj[item.key] = item.value;
+        }
+      });
+    }
+    return { settings: settingsObj };
+  } catch (err: any) {
+    console.error('getPrivateSettings error:', err);
+    return { error: err.message };
+  }
+}
+
+export async function updatePrivateSetting(key: string, value: string) {
+  try {
+    const { error } = await supabaseAdmin.from('private_settings').upsert({ key, value });
+    if (error) throw error;
+    return { success: true };
+  } catch (err: any) {
+    console.error('updatePrivateSetting error:', err);
+    return { error: err.message };
+  }
+}

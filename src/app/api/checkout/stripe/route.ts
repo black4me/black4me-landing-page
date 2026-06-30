@@ -3,10 +3,7 @@ import Stripe from 'stripe';
 import { supabaseAdmin } from '../../../../lib/supabase-admin';
 import { checkRateLimit, getClientIp } from '../../../../lib/rate-limiter';
 
-// Initialize stripe carefully to prevent build-time crashes if env var is missing
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia' as any,
-});
+// We will initialize stripe inside the POST handler dynamically
 
 type CheckoutProduct = {
   id: string;
@@ -29,6 +26,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Too many requests, please try again later.' }, { status: 429 });
     }
 
+    const { data: privateSettings } = await supabaseAdmin.from('private_settings').select('key, value');
+    const settingsMap = privateSettings?.reduce((acc: any, curr: any) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    }, {}) || {};
+    
+    const stripeSecret = settingsMap['STRIPE_SECRET_KEY'] || process.env.STRIPE_SECRET_KEY;
+    
+    if (!stripeSecret) {
+      return NextResponse.json({ error: 'Stripe configuration missing' }, { status: 500 });
+    }
+
+    const stripe = new Stripe(stripeSecret, {
+      apiVersion: '2024-12-18.acacia' as any,
+    });
+
     const body = await req.json();
     const { productId, customerEmail, customerName, customerCountry, couponCode } = body;
 
@@ -38,6 +51,7 @@ export async function POST(req: Request) {
 
     const normalizedEmail = String(customerEmail).trim().toLowerCase();
     const normalizedCouponCode = typeof couponCode === 'string' ? couponCode.trim().toUpperCase() : '';
+
 
     const { data: product, error: productError } = await supabaseAdmin
       .from('products')
