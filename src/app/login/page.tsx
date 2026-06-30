@@ -33,7 +33,9 @@ export default function LoginPage() {
         throw authError;
       }
 
-      const adminEmails = ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com'];
+      const adminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS 
+        ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(',').map(e => e.trim().toLowerCase()) 
+        : ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com', 'black4mestore@gmail.com'];
       
       if (data.session) {
         await new Promise(resolve => setTimeout(resolve, 500));
