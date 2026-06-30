@@ -39,7 +39,7 @@ async function requireAdmin() {
 export async function updateAdminSiteSetting(key: string, value: string) {
   try {
     await requireAdmin();
-    const { error } = await supabaseAdmin.from('site_settings').upsert({ key, value });
+    const { error } = await supabaseAdmin.from('site_settings').upsert({ key, value }, { onConflict: 'key' });
     if (error) throw error;
     revalidatePath('/', 'layout');
     return { success: true };
