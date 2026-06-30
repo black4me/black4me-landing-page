@@ -48,16 +48,18 @@ export default function BookPreviewSection() {
             </div>
 
             {/* Image Preview */}
-            <div className="order-1 lg:order-2 flex justify-center lg:justify-end items-center">
+            <div className="order-1 lg:order-2 flex justify-center items-center w-full">
               {siteSettings?.book_preview_image ? (
-                <div className="relative w-full max-w-[500px]">
-                  <div className="absolute inset-0 bg-brand-gold/20 blur-[100px] rounded-full" aria-hidden="true" />
+                <div className="relative w-full max-w-[700px] xl:scale-110 xl:-translate-x-4">
+                  {/* Subtle ambient glow behind the infographic */}
+                  <div className="absolute inset-0 bg-brand-gold/10 blur-[120px] rounded-full transform scale-90" aria-hidden="true" />
                   <Image 
                     src={siteSettings.book_preview_image} 
-                    alt="من داخل الكتاب والنظام" 
-                    width={600}
-                    height={400}
-                    className="relative w-full h-auto object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500" 
+                    alt="محتويات النظام من الداخل" 
+                    width={800}
+                    height={800}
+                    className="relative w-full h-auto object-contain drop-shadow-2xl transition-transform duration-700 hover:scale-[1.02]" 
+                    unoptimized={true}
                   />
                 </div>
               ) : (
