@@ -21,9 +21,11 @@ export default function BookPreviewSection() {
         {/* Infographic Preview Image */}
         <div className="relative w-full mb-12 rounded-[1rem] overflow-hidden border border-brand-white/10 shadow-2xl bg-brand-black flex justify-center">
           {siteSettings?.book_preview_image ? (
-            <img 
+            <Image 
               src={siteSettings.book_preview_image} 
               alt="من داخل الكتاب والنظام" 
+              width={600}
+              height={337}
               className="w-full max-w-[600px] aspect-video object-contain mix-blend-lighten mx-auto rounded-xl block overflow-hidden" 
             />
           ) : (
@@ -65,7 +67,7 @@ export default function BookPreviewSection() {
                 </div>
                 <span className="text-xs font-mono font-bold text-gray-300 line-through">قيمتها {bonus.value}</span>
               </div>
-              <h4 className="text-sm font-bold text-white mb-1">{bonus.title}</h4>
+              <h3 className="text-sm font-bold text-white mb-1">{bonus.title}</h3>
               <p className="text-xs text-gray-300 leading-relaxed">{bonus.desc}</p>
             </div>
           ))}
