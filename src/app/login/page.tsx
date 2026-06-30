@@ -1,54 +1,32 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '../../lib/supabase';
+import React, { useState, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { loginAction } from './actions';
 import { Shield, Lock, Mail, Loader2, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const searchParams = useSearchParams();
+  const errorParam = searchParams.get('error');
+  const [isPending, startTransition] = useTransition();
+  const [clientError, setClientError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const error = clientError || errorParam || '';
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const { createBrowserClient } = await import('@supabase/ssr');
-      const supabaseBrowser = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-
-      const { data, error: authError } = await supabaseBrowser.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (authError) {
-        throw authError;
-      }
-
-      const adminEmails = ['info@black4me.com', 'admin@black4me.com', 'admin@admin.com', 'test@test.com'];
-      
-      if (data.session) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        if (data.user?.email && adminEmails.includes(data.user.email.toLowerCase())) {
-          router.push('/admin');
-        } else {
-          router.push('/portal');
+    setClientError('');
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      try {
+        await loginAction(formData);
+      } catch (err: any) {
+        // redirect() throws — only real errors land here
+        if (!err?.message?.includes('NEXT_REDIRECT')) {
+          setClientError(err?.message || 'بيانات الدخول غير صحيحة.');
         }
-        router.refresh();
       }
-    } catch (err: any) {
-      setError(err.message || 'بيانات الدخول غير صحيحة. يرجى المحاولة مرة أخرى.');
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   return (
@@ -72,7 +50,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label htmlFor="login-email" className="block text-xs font-bold text-gray-400 mb-2">البريد الإلكتروني</label>
             <div className="relative">
@@ -81,10 +59,9 @@ export default function LoginPage() {
               </div>
               <input
                 id="login-email"
+                name="email"
                 type="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3.5 pr-12 pl-4 text-white placeholder-gray-500 focus:outline-none focus:border-brand-purple transition-colors font-mono text-left"
                 placeholder="user@example.com"
                 dir="ltr"
@@ -100,10 +77,9 @@ export default function LoginPage() {
               </div>
               <input
                 id="login-password"
+                name="password"
                 type="password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-brand-black border border-brand-white/10 rounded-xl py-3.5 pr-12 pl-4 text-white placeholder-gray-500 focus:outline-none focus:border-brand-purple transition-colors font-mono text-left"
                 placeholder="••••••••••••"
                 dir="ltr"
@@ -113,12 +89,12 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isPending}
             className={`w-full bg-brand-gold hover:bg-yellow-500 text-black font-black py-4 rounded-xl transition-all shadow-[0_4px_14px_0_rgba(245,197,66,0.39)] flex items-center justify-center gap-2 mt-4 ${
-              isLoading ? 'opacity-75 cursor-not-allowed' : ''
+              isPending ? 'opacity-75 cursor-not-allowed' : ''
             }`}
           >
-            {isLoading ? (
+            {isPending ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span>جاري المصادقة...</span>
