@@ -20,6 +20,8 @@ export function SiteSettingsTab() {
     enable_stripe: siteSettings.enable_stripe === 'true',
     checkout_cover_image: siteSettings.checkout_cover_image || '',
     book_preview_image: siteSettings.book_preview_image || '',
+    site_logo: siteSettings.site_logo || '',
+    site_favicon: siteSettings.site_favicon || '',
   });
 
   const [uploadingImage, setUploadingImage] = useState<{ [key: string]: boolean }>({});
@@ -37,6 +39,8 @@ export function SiteSettingsTab() {
       enable_stripe: siteSettings.enable_stripe === 'true',
       checkout_cover_image: siteSettings.checkout_cover_image || '',
       book_preview_image: siteSettings.book_preview_image || '',
+    site_logo: siteSettings.site_logo || '',
+    site_favicon: siteSettings.site_favicon || '',
     });
   }, [siteSettings]);
 
@@ -100,7 +104,7 @@ export function SiteSettingsTab() {
             <div key={key} className="bg-brand-darkgray p-6 rounded-2xl border border-brand-white/5 space-y-3">
               <label className="text-sm text-brand-gold font-bold block capitalize">{key.replace(/_/g, ' ')}</label>
               
-              {key === 'checkout_cover_image' || key === 'book_preview_image' ? (
+              {key === 'checkout_cover_image' || key === 'book_preview_image' || key === 'site_logo' || key === 'site_favicon' ? (
                 <div className="space-y-4">
                   <ImageUploader 
                     url={val as string || null}
@@ -450,3 +454,4 @@ export function CouponsTab() {
     </div>
   );
 }
+

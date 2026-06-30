@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Shield, Mail, Phone } from 'lucide-react';
+import { useApp } from '../context/AppContext';
 
 export default function Footer() {
+  const { siteSettings } = useApp();
   const pathname = usePathname();
 
   // Hide footer on admin pages
@@ -19,7 +21,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="w-9 h-9 rounded-lg bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono text-sm" aria-hidden="true">B4</span>
-              <span className="font-mono text-base font-black tracking-widest text-white">BLACK4ME</span>
+              {siteSettings.site_logo ? <img src={siteSettings.site_logo} alt="BLACK4ME" className="h-8 object-contain" /> : <span className="font-mono text-base font-black tracking-widest text-white">BLACK4ME</span>}
             </div>
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
               منصة متخصصة في بناء أنظمة تسويق رقمية متكاملة للسوق العربي. أدوات عملية، قوالب جاهزة، واستشارات مباشرة.
@@ -90,3 +92,4 @@ export default function Footer() {
     </footer>
   );
 }
+
