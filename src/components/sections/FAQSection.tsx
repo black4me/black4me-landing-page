@@ -69,7 +69,11 @@ export default function FAQSection() {
                   role="region"
                   aria-labelledby={`faq-question-${faq.id}`}
                 >
-                  <p className="text-sm text-gray-300 leading-relaxed pt-4">{faq.answer}</p>
+                  <p className="text-sm text-gray-300 leading-relaxed pt-4">
+                    {faq.answer.trim().startsWith(faq.question.trim())
+                      ? faq.answer.trim().substring(faq.question.trim().length).trim().replace(/^[-:]\s*/, '')
+                      : faq.answer}
+                  </p>
                 </div>
               )}
             </div>
