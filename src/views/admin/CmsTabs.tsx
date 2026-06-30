@@ -3,6 +3,7 @@ import { useApp } from '../../context/AppContext';
 import { uploadImageAdmin } from '../../server/actions/admin';
 import { ComparisonItem, FunnelStage, ValueStackItem, Coupon } from '../../types';
 import { Plus, Edit2, Trash2, CheckCircle, XCircle, Upload, Loader2 } from 'lucide-react';
+import ImageUploader from '../../components/admin/ImageUploader';
 
 export function SiteSettingsTab() {
   const { siteSettings, updateSiteSetting } = useApp();
@@ -100,18 +101,17 @@ export function SiteSettingsTab() {
               
               {key === 'checkout_cover_image' || key === 'book_preview_image' ? (
                 <div className="space-y-4">
-                  {val ? (
-                    <img src={val as string} alt="Image Preview" className="w-full h-40 object-contain bg-brand-black/50 rounded-lg border border-brand-white/10" />
-                  ) : (
-                    <div className="w-full h-40 bg-brand-black/50 border border-brand-white/10 rounded-lg flex items-center justify-center text-gray-500 text-xs">لا توجد صورة حالياً</div>
-                  )}
-                  <div className="relative">
-                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, key)} disabled={uploadingImage[key]} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                    <div className="bg-brand-black border border-brand-white/10 text-white text-xs px-4 py-3 rounded-lg flex items-center justify-center gap-2">
-                      {uploadingImage[key] ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                      {uploadingImage[key] ? 'جاري الرفع...' : 'تغيير الصورة'}
-                    </div>
-                  </div>
+                  <ImageUploader 
+                    url={val as string || null}
+                    config={siteSettings[`${key}_config`] ? JSON.parse(siteSettings[`${key}_config`]) : null}
+                    onUrlChange={(newUrl) => {
+                      setFormData(prev => ({ ...prev, [key]: newUrl }));
+                      updateSiteSetting(key, newUrl);
+                    }}
+                    onConfigChange={(newConfig) => {
+                      updateSiteSetting(`${key}_config`, JSON.stringify(newConfig));
+                    }}
+                  />
                 </div>
               ) : typeof val === 'boolean' ? (
                 <div className="flex items-center gap-3">
