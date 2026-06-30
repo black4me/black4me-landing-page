@@ -4,6 +4,17 @@ import { supabaseAdmin } from '../../lib/supabase-admin';
 import { Order, NewsletterSubscriber, Consultation, Coupon, Testimonial } from '../../types';
 import { sendWelcomeEmail } from './email';
 
+export async function updateAdminSiteSetting(key: string, value: string) {
+  try {
+    const { error } = await supabaseAdmin.from('site_settings').upsert({ key, value });
+    if (error) throw error;
+    return { success: true };
+  } catch (err: any) {
+    console.error('updateAdminSiteSetting error:', err);
+    return { error: err.message };
+  }
+}
+
 export async function uploadImageAdmin(formData: FormData): Promise<{ url?: string; error?: string }> {
   try {
     const file = formData.get('file') as File;
@@ -186,3 +197,4 @@ export async function approveOrder(orderId: string): Promise<{ success: boolean;
     return { success: false, error: err.message };
   }
 }
+
