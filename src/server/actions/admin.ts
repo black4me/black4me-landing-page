@@ -1,6 +1,7 @@
 "use server";
 
 import { supabaseAdmin } from '../../lib/supabase-admin';
+import { revalidatePath } from 'next/cache';
 import { Order, NewsletterSubscriber, Consultation, Coupon, Testimonial } from '../../types';
 import { sendWelcomeEmail } from './email';
 
@@ -8,6 +9,7 @@ export async function updateAdminSiteSetting(key: string, value: string) {
   try {
     const { error } = await supabaseAdmin.from('site_settings').upsert({ key, value });
     if (error) throw error;
+    revalidatePath('/', 'layout');
     return { success: true };
   } catch (err: any) {
     console.error('updateAdminSiteSetting error:', err);
@@ -197,4 +199,5 @@ export async function approveOrder(orderId: string): Promise<{ success: boolean;
     return { success: false, error: err.message };
   }
 }
+
 
