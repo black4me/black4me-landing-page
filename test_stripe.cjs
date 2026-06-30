@@ -1,6 +1,6 @@
-async function testPaypalCheckout() {
+async function testStripeCheckout() {
   try {
-    const res = await fetch('https://www.black4me.com/api/checkout/paypal', {
+    const res = await fetch('https://www.black4me.com/api/checkout/stripe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -14,4 +14,4 @@ async function testPaypalCheckout() {
     console.error(err);
   }
 }
-testPaypalCheckout();
+testStripeCheckout();
