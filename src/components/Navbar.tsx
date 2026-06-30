@@ -43,13 +43,7 @@ export default function Navbar() {
         
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2 group" aria-label="BLACK4ME - الصفحة الرئيسية">
-          {siteSettings.site_favicon ? (
-            <Image src={siteSettings.site_favicon} alt="Logo Icon" width={40} height={40} className="w-10 h-10 object-contain hover:scale-105 transition" />
-          ) : (
-            <span className="w-10 h-10 rounded-xl bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono hover:scale-105 transition shadow-lg shadow-brand-gold/10 text-sm" aria-hidden="true">
-              B4M
-            </span>
-          )}
+
           <div className="text-right flex flex-col justify-center">
             {siteSettings.site_logo ? (
               <Image src={siteSettings.site_logo} alt="BLACK4ME" width={160} height={32} className="h-8 w-auto object-contain" />
