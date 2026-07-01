@@ -26,7 +26,7 @@ export default function TestimonialsSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6" role="list" aria-label="شهادات العملاء">
           {displayTestimonials.slice(0, 3).map((t) => (
             <div key={t.id} className="glass rounded-2xl p-6 hover:border-brand-gold/15 transition-all" role="listitem">
-              <div className="flex gap-0.5 mb-4" aria-label={`تقييم ${t.rating} من 5 نجوم`}>
+              <div className="flex gap-0.5 mb-4" role="img" aria-label={`تقييم ${t.rating} من 5 نجوم`}>
                 {[...Array(t.rating)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 text-brand-gold fill-brand-gold" aria-hidden="true" />
                 ))}

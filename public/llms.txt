@@ -1,24 +1,17 @@
-# BLACK4ME Platform Documentation
+# BLACK4ME — نظام تسويق رقمي متكامل
 
-BLACK4ME is a comprehensive digital marketing platform for the Arab market, offering a book, digital courses, ready-to-use templates, and one-on-one consulting to help entrepreneurs scale their businesses.
+> منصة تسويق رقمي عربية تقدم كتباً ودورات وقوالب تسويقية
 
-## Key Offerings
+## الصفحات
+- [الرئيسية](https://www.black4me.com/)
+- [الشراء](https://www.black4me.com/checkout)
+- [بوابة العملاء](https://www.black4me.com/portal)
+- [سياسة الخصوصية](https://www.black4me.com/privacy)
+- [الشروط والأحكام](https://www.black4me.com/terms)
 
-- **Digital Book**: "بدون التسويق" - A practical guide to marketing.
-- **Complete Bundle**: Includes the book, bonus guides, 9-module educational system, and templates.
-- **Consulting**: 60-minute one-on-one strategy session with the founder, Jasim Mohammed.
+## المنتجات
+- كتاب "بدون التسويق كارثة" — $49
+- الحزمة الشاملة: كتاب + دورة + قوالب + استشارة — $199
 
-## Core Features
-- Stripe and PayPal integrations for seamless payments.
-- Secure Admin Dashboard for managing site settings, testimonials, orders, and emails.
-- Waitlist and Lead Generation via newsletter subscriptions.
-
-## Tech Stack
-- Frontend: Next.js 14, React, Tailwind CSS, Lucide Icons.
-- Backend/Database: Supabase (Auth, Postgres DB, Storage).
-- Payments: Stripe API, PayPal API.
-- Email: Resend.
-
-## Contact
-Email: black4mestore@gmail.com
-WhatsApp: +96879191793
+## التواصل
+- البريد: black4mestore@gmail.com
