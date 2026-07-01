@@ -171,7 +171,7 @@ export default function RootLayout({
             انتقل للمحتوى الرئيسي
           </a>
           <Navbar />
-          <main id="main-content" className="min-h-[calc(100vh-80px)]">
+          <main id="main-content" className="min-h-[calc(100dvh-80px)]">
             {children}
           </main>
           <Footer />
