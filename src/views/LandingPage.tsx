@@ -146,7 +146,7 @@ function HeroSection() {
               {/* Book Image - no animation to prevent CLS */}
               <div className="relative flex justify-center w-full mx-auto">
                 <Image
-                  src="/images/book-cover.png"
+                  src="/images/book-cover.jpg"
                   alt="غلاف كتاب بدون تسويق - جاسم محمد"
                   width={400}
                   height={560}

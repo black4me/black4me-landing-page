@@ -158,7 +158,7 @@ export default function RootLayout({
         <link
           rel="preload"
           as="image"
-          href="/images/book-cover.png"
+          href="/images/book-cover.jpg"
           fetchPriority="high"
         />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
