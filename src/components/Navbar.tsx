@@ -38,7 +38,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-brand-black/80 backdrop-blur-md border-b border-brand-white/10 py-4 px-6 md:px-12 sticky top-0 z-50" dir="rtl" role="navigation" aria-label="القائمة الرئيسية">
+    <nav className="h-[80px] bg-brand-black/80 backdrop-blur-md border-b border-brand-white/10 py-4 px-6 md:px-12 sticky top-0 z-50" dir="rtl" role="navigation" aria-label="القائمة الرئيسية">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         
         {/* Brand Logo */}

@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+:root {
+  --navbar-height: 80px;
+}
+
+body {
+  font-synthesis: none;
+}
+
+section#hero .absolute {
+  will-change: auto;
+  transform: translateZ(0);
+}
+
 @theme {
   --font-sans: var(--font-cairo), system-ui, -apple-system, sans-serif;
   --font-display: var(--font-ibm), var(--font-cairo), system-ui, sans-serif;
