@@ -147,14 +147,13 @@ function HeroSection() {
               <div className="relative flex justify-center w-full mx-auto">
                 <Image
                   src="/images/book-cover.jpg"
-                  alt="غلاف كتاب بدون تسويق - جاسم محمد"
-                  width={400}
-                  height={560}
-                  className="drop-shadow-2xl object-cover rounded-2xl"
                   priority={true}
                   fetchPriority="high"
                   loading="eager"
-                  quality={85}
+                  alt="غلاف كتاب بدون تسويق كارثة تهدد ثروتك المستقبلية - جاسم محمد"
+                  width={420}
+                  height={580}
+                  className="drop-shadow-2xl"
                 />
               </div>
 
