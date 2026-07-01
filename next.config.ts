@@ -25,7 +25,6 @@ const nextConfig: NextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
       {
-        // fallback: allow any path from supabase (covers signed URLs etc.)
         protocol: 'https',
         hostname: 'rgfiszmnxktetnahufpm.supabase.co',
         pathname: '/**',
@@ -43,7 +42,6 @@ const nextConfig: NextConfig = {
     },
     optimizeCss: true,
     optimizePackageImports: ['lucide-react'],
-    browsersListForSwc: true,
   },
   headers: async () => [
     {
