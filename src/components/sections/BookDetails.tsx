@@ -114,8 +114,14 @@ export default function BookDetails() {
         {/* ── Author Bio ── */}
         <div className="bg-gradient-to-l from-yellow-400/5 to-transparent border border-yellow-400/20 rounded-2xl p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-shrink-0 w-20 h-20 rounded-full bg-yellow-400/20 flex items-center justify-center text-3xl">
-              👤
+            <div className="flex-shrink-0 w-24 h-24 rounded-full overflow-hidden ring-2 ring-yellow-400/50">
+              <Image
+                src="/images/jassim-author.jpg"
+                alt="جاسم محمد - مستشار تسويقي ومؤسس BLACK4ME"
+                width={96}
+                height={96}
+                className="w-full h-full object-cover object-top"
+              />
             </div>
             <div>
               <p className="text-yellow-400 text-sm font-semibold mb-1">عن المؤلف</p>
