@@ -144,16 +144,17 @@ function HeroSection() {
               <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/20 to-brand-gold/10 blur-[60px] rounded-full scale-110" />
               
               {/* Book Image - no animation to prevent CLS */}
-              <div className="relative w-full max-w-[450px] mx-auto" style={{ aspectRatio: '4/5' }}>
+              <div className="relative flex justify-center w-full mx-auto">
                 <Image
-                  src={siteSettings?.checkout_cover_image || "/images/book-cover.png"}
-                  alt="كتاب بدون التسويق كارثة تهدد ثروتك المستقبلية — تأليف جاسم محمد"
-                  fill
+                  src="/images/book-cover.png"
+                  alt="غلاف كتاب بدون تسويق - جاسم محمد"
+                  width={400}
+                  height={560}
                   className="drop-shadow-2xl object-cover rounded-2xl"
-                  priority
+                  priority={true}
                   fetchPriority="high"
+                  loading="eager"
                   quality={85}
-                  sizes="(max-width: 1024px) 300px, 450px"
                 />
               </div>
 
