@@ -8,18 +8,19 @@ import { Sparkles, ArrowLeft, ArrowDown, Star, Lock, CreditCard, RefreshCw, Targ
 import { trackAllPixels } from '../lib/tracking';
 import { useApp } from '../context/AppContext';
 
+import BookPreviewSection from '../components/sections/BookPreviewSection';
+
 // Dynamic imports for code splitting - SSR enabled for fast FCP/LCP
 const ProblemSection = dynamic(() => import('../components/sections/ProblemSection'));
 const HowItWorksSection = dynamic(() => import('../components/sections/HowItWorksSection'));
-const BookPreviewSection = dynamic(() => import('../components/sections/BookPreviewSection'));
-const PricingSection = dynamic(() => import('../components/sections/PricingSection'));
-const TestimonialsSection = dynamic(() => import('../components/sections/TestimonialsSection'));
+const PricingSection = dynamic(() => import('../components/sections/PricingSection'), { loading: () => <div className="h-[600px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
+const TestimonialsSection = dynamic(() => import('../components/sections/TestimonialsSection'), { loading: () => <div className="h-[400px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
 const GuaranteeSection = dynamic(() => import('../components/sections/GuaranteeSection'));
-const FAQSection = dynamic(() => import('../components/sections/FAQSection'));
+const FAQSection = dynamic(() => import('../components/sections/FAQSection'), { loading: () => <div className="h-[300px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
 const ConsultationSection = dynamic(() => import('../components/sections/ConsultationSection'));
 const NewsletterSection = dynamic(() => import('../components/sections/NewsletterSection'));
 const StickyMobileCTA = dynamic(() => import('../components/sections/StickyMobileCTA'));
-const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'));
+const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'), { loading: () => <div className="h-[200px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
 
 /* ═══════════════════════════════════════════════════════════════
    HERO SECTION — Above the fold, result-oriented
@@ -149,6 +150,8 @@ function HeroSection() {
                   fill
                   className="drop-shadow-2xl object-cover rounded-2xl"
                   priority
+                  fetchPriority="high"
+                  quality={85}
                   sizes="(max-width: 1024px) 300px, 450px"
                 />
               </div>

@@ -62,9 +62,9 @@ function TrackingScriptsInner({ gaId, metaPixelId, tiktokPixelId }: TrackingScri
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-            strategy="lazyOnload"
+            strategy="afterInteractive"
           />
-          <Script id="ga4" strategy="lazyOnload">
+          <Script id="ga4" strategy="afterInteractive">
             {`
               window.dataLayer = window.dataLayer || [];
               window.gtag = function gtag(){window.dataLayer.push(arguments);};
