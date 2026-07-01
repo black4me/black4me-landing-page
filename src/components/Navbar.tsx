@@ -46,7 +46,7 @@ export default function Navbar() {
 
           <div className="text-right flex flex-col justify-center">
             {siteSettings.site_logo ? (
-              <Image src={siteSettings.site_logo} alt="BLACK4ME" width={160} height={32} className="h-8 w-auto object-contain" />
+              <Image src={siteSettings.site_logo} alt="BLACK4ME" width={160} height={32} className="h-8 w-auto object-contain" priority={true} />
             ) : (
               <>
                 <span className="font-mono text-lg font-black tracking-widest leading-none block text-white">BLACK4ME</span>
