@@ -9,6 +9,7 @@ import { trackAllPixels } from '../lib/tracking';
 import { useApp } from '../context/AppContext';
 
 import BookPreviewSection from '../components/sections/BookPreviewSection';
+import BookDetails from '../components/sections/BookDetails';
 
 // Dynamic imports for code splitting - SSR enabled for fast FCP/LCP
 const ProblemSection = dynamic(() => import('../components/sections/ProblemSection'));
@@ -271,6 +272,7 @@ export default function LandingPage() {
       </div>
 
       <HeroSection />
+      <BookDetails />
       <ProblemSection />
       <HowItWorksSection />
       <BookPreviewSection />
