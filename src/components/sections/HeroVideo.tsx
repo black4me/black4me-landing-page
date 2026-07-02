@@ -2,8 +2,10 @@
 
 import React, { useRef, useState } from 'react';
 import { Play, Volume2, VolumeX } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
 
 export default function HeroVideo() {
+  const { siteSettings } = useApp();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
   const [playing, setPlaying] = useState(false);
