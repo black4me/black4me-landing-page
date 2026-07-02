@@ -1,5 +1,8 @@
+"use client";
+
 import { BookOpen, Users, Award, TrendingUp, Megaphone, Layers } from "lucide-react";
 import Image from "next/image";
+import { useApp } from "../../context/AppContext";
 
 const chapters = [
   {
@@ -41,6 +44,7 @@ const chapters = [
 ];
 
 export default function BookDetails() {
+  const { siteSettings } = useApp();
   return (
     <section className="bg-black py-20 px-4" dir="rtl">
       <div className="max-w-6xl mx-auto">

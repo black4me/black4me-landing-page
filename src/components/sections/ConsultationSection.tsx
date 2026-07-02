@@ -5,9 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, TrendingUp, Radio, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useApp } from '../../context/AppContext';
 
 export default function ConsultationSection() {
   const router = useRouter();
+  const { siteSettings } = useApp();
 
   return (
     <section id="consultations-section" className="section-padding bg-[#050505] border-y border-white/5" dir="rtl" aria-labelledby="consultation-heading">
