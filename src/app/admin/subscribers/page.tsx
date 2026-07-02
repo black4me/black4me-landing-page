@@ -1,10 +1,10 @@
 import React from 'react';
-import { NewsletterTab } from '@/views/admin/NewsletterTab';
+import { SubscribersTab } from '@/views/admin/SubscribersTab';
 
 export default function Page() {
   return (
     <div className="p-6">
-      <NewsletterTab />
+      <SubscribersTab />
     </div>
   );
 }
