@@ -47,8 +47,8 @@ export default function PricingSection() {
     {
       name: 'الحزمة + استشارة',
       subtitle: 'للجادين في التغيير',
-      price: 149,
-      originalPrice: 399,
+      price: 49,
+      originalPrice: 199,
       features: [
         'كل محتويات الحزمة الشاملة',
         'جلسة استشارة فردية (60 دقيقة)',

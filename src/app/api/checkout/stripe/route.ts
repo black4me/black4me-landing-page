@@ -59,8 +59,8 @@ export async function POST(req: Request) {
       product = {
         id: 'prod-consultation',
         title: 'جلسة استشارية + خطة عمل',
-        price: 399,
-        sale_price: 149,
+        price: 199,
+        sale_price: 49,
         is_active: true
       };
     } else if (productId === 'prod-main-book') {

@@ -22,15 +22,15 @@ function CheckoutContent() {
   const [couponCode, setCouponCode] = useState('');
   const [discountPercent, setDiscountPercent] = useState(0);
   const [couponStatus, setCouponStatus] = useState<{ type: 'success' | 'error' | null; msg: string }>({ type: null, msg: '' });
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal' | 'spaceremit'>('stripe');
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal'>('stripe');
   const [receiptUrl, setReceiptUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
 
   // Pricing
   const isConsultation = mode === 'consultation';
-  const basePrice = isConsultation ? 149 : 49;
-  const originalPrice = isConsultation ? 399 : 199;
+  const basePrice = 49;
+  const originalPrice = 199;
   const discountAmount = Math.round((basePrice * discountPercent) / 100);
   const finalPrice = basePrice - discountAmount;
 
@@ -67,35 +67,7 @@ function CheckoutContent() {
       const actualProduct = products.find(p => p.title.includes(targetProductTitle)) || products[0];
       const actualProductId = actualProduct ? actualProduct.id : (isConsultation ? 'prod-consultation' : 'prod-main-book');
 
-      if (paymentMethod === 'spaceremit') {
-        if (!receiptUrl.trim()) {
-          setError('يرجى إرفاق رابط إيصال الحوالة البنكية.');
-          setIsProcessing(false);
-          return;
-        }
-        
-        const response = await fetch('/api/checkout/spaceremit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            productId: actualProductId,
-            title: productTitle,
-            price: finalPrice,
-            customerEmail: email,
-            customerName: name,
-            customerCountry: country,
-            receiptUrl: receiptUrl
-          }),
-        });
-
-        const data = await response.json();
-        if (data.success && data.orderId) {
-          window.location.href = `/thankyou?spaceremit_order=${data.orderId}`;
-        } else {
-          setError(data.error || 'حدث خطأ في تقديم الطلب عبر سبيس ريميت. يرجى المحاولة مرة أخرى.');
-        }
-      } else {
-        const endpoint = paymentMethod === 'stripe' ? '/api/checkout/stripe' : '/api/checkout/paypal';
+      const endpoint = paymentMethod === 'stripe' ? '/api/checkout/stripe' : '/api/checkout/paypal';
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -116,7 +88,6 @@ function CheckoutContent() {
         } else {
           setError(data.error || 'حدث خطأ في بوابة الدفع. يرجى المحاولة مرة أخرى.');
         }
-      }
     } catch (err: any) {
       setError('تعذر الاتصال ببوابة الدفع. تحقق من اتصالك بالإنترنت.');
     } finally {
@@ -240,47 +211,8 @@ function CheckoutContent() {
                       </span>
                       <span className="block text-[10px] text-gray-400 mt-0.5">حساب أو بطاقة</span>
                     </button>
-                    <button
-                      type="button"
-                      role="radio"
-                      aria-checked={paymentMethod === 'spaceremit'}
-                      onClick={() => setPaymentMethod('spaceremit')}
-                      className={`p-4 rounded-xl border transition text-center col-span-2 ${
-                        paymentMethod === 'spaceremit'
-                          ? 'border-brand-blue bg-brand-blue/10'
-                          : 'border-brand-white/10 bg-transparent hover:bg-brand-white/5'
-                      }`}
-                    >
-                      <span className={`text-lg font-bold ${paymentMethod === 'spaceremit' ? 'text-brand-blue' : 'text-gray-400'}`}>S</span>
-                      <span className={`text-xs font-bold block ${paymentMethod === 'spaceremit' ? 'text-white' : 'text-gray-400'}`}>
-                        SpaceRemit
-                      </span>
-                      <span className="block text-[10px] text-gray-400 mt-0.5">حوالة بنكية مباشرة</span>
-                    </button>
                   </div>
                 </div>
-
-                {/* SpaceRemit Receipt Input */}
-                {paymentMethod === 'spaceremit' && (
-                  <div className="bg-brand-blue/5 border border-brand-blue/20 rounded-xl p-4 space-y-3">
-                    <p className="text-[11px] text-gray-300 leading-relaxed">
-                      للشراء عبر <span className="text-brand-blue font-bold">SpaceRemit</span>، يرجى إجراء الحوالة البنكية، ثم رفع صورة الإيصال إلى أي موقع تخزين (مثل Google Drive أو Dropbox) ووضع الرابط هنا لتأكيد طلبك. سيتم تفعيل حسابك بمجرد مراجعة الإيصال.
-                    </p>
-                    <div>
-                      <label htmlFor="checkout-receipt" className="block text-[10px] font-bold text-gray-400 mb-1">رابط إيصال الدفع *</label>
-                      <input
-                        id="checkout-receipt"
-                        type="url"
-                        value={receiptUrl}
-                        onChange={(e) => setReceiptUrl(e.target.value)}
-                        required={paymentMethod === 'spaceremit'}
-                        placeholder="https://..."
-                        dir="ltr"
-                        className="w-full bg-brand-black border border-brand-white/10 rounded-lg py-2.5 px-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand-blue transition text-xs text-left"
-                      />
-                    </div>
-                  </div>
-                )}
 
                 {/* Error */}
                 {error && (
