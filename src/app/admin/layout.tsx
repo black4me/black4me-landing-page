@@ -6,7 +6,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import {
   LogOut, Users, DollarSign, ShoppingBag, ShieldCheck,
   BarChart3, Tag, Calendar, MessageSquare, HelpCircle,
-  Settings, GitCompare, Layers, Ticket, Mail
+  Settings, GitCompare, Layers, Ticket, Mail, Gift
 } from 'lucide-react';
 import { AppProvider } from '../../context/AppContext';
 import Link from 'next/link';
@@ -61,6 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { id: '/admin/faq', label: 'الأسئلة الشائعة', icon: HelpCircle },
     { id: '/admin/subscribers', label: 'المشتركون', icon: Users },
     { id: '/admin/campaigns', label: 'التسويق البريدي', icon: Mail },
+    { id: '/admin/lead-magnet', label: 'الهدية المجانية', icon: Gift },
     { id: '/admin/site-settings', label: 'إعدادات الموقع والنصوص', icon: Settings },
     { id: '/admin/comparison', label: 'جدول المقارنة', icon: GitCompare },
     { id: '/admin/funnels', label: 'مراحل الفنل', icon: Layers },

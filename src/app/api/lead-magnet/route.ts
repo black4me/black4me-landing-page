@@ -24,8 +24,31 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Failed to save lead' }, { status: 500 });
     }
 
+    // Fetch site settings
+    const { data: settingsData } = await supabase.from('site_settings').select('*');
+    const settings = (settingsData || []).reduce((acc, row) => {
+      acc[row.key] = row.value;
+      return acc;
+    }, {} as Record<string, string>);
+
     // Attempt to send email via Resend if key exists
     if (process.env.RESEND_API_KEY) {
+      const { render } = await import('@react-email/render');
+      const LeadMagnetEmail = (await import('../../../emails/LeadMagnetEmail')).default;
+
+      const htmlContent = await render(
+        LeadMagnetEmail({
+          userFirstname: name,
+          downloadLink: settings.lead_magnet_file_url || 'https://www.black4me.com',
+          emailSubject: settings.lead_magnet_email_subject || '🎁 هديتك المجانية جاهزة',
+          emailBody: settings.lead_magnet_email_body || 'شكراً لاهتمامك! لقد قمنا بتجهيز الهدية المجانية خصيصاً لك.',
+          logoUrl: settings.site_logo,
+          instagramUrl: settings.social_instagram_url,
+          whatsappUrl: settings.social_whatsapp_url,
+          supportEmail: settings.social_support_email,
+        })
+      );
+
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -35,8 +58,8 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           from: 'BLACK4ME <hello@black4me.com>',
           to: email,
-          subject: '🎁 هديتك المجانية جاهزة',
-          html: `<h1>مرحباً ${name}!</h1><p>حمّل نموذج صفحة الهبوط من هنا: <a href="https://www.black4me.com/magnet-download">رابط التحميل</a></p>`
+          subject: settings.lead_magnet_email_subject || '🎁 هديتك المجانية جاهزة',
+          html: htmlContent
         })
       }).catch(err => console.error('Email send failed:', err));
     }
