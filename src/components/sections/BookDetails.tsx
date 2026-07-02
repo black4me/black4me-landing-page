@@ -172,19 +172,15 @@ export default function BookDetails() {
 
               {/* Social Links */}
               <div className="flex gap-4 justify-center md:justify-start flex-wrap">
-                <a href="https://linkedin.com/in/jasim-mohammed" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.linkedin.com/in/jasim-mohmmed-b18849268/" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0077B5]/10 text-[#0077B5] border border-[#0077B5]/30 rounded-full text-sm font-semibold hover:bg-[#0077B5]/20 transition">
                   in LinkedIn
                 </a>
-                <a href="https://twitter.com/jasim_mohammed" target="_blank" rel="noopener noreferrer"
+                <a href="https://x.com/black4mestore" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/5 text-white border border-white/20 rounded-full text-sm font-semibold hover:bg-white/10 transition">
                   𝕏 Twitter
                 </a>
-                <a href="https://youtube.com/@black4me" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600/10 text-red-400 border border-red-500/30 rounded-full text-sm font-semibold hover:bg-red-600/20 transition">
-                  ▶ YouTube
-                </a>
-                <a href="https://instagram.com/black4me" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.instagram.com/black4mee/" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-pink-600/10 text-pink-400 border border-pink-500/30 rounded-full text-sm font-semibold hover:bg-pink-600/20 transition">
                   📷 Instagram
                 </a>
