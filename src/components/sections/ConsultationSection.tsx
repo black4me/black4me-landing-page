@@ -2,55 +2,93 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { MessageSquare, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, TrendingUp, Radio, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function ConsultationSection() {
+  const router = useRouter();
+
   return (
-    <section id="consultations-section" className="section-padding bg-brand-black" dir="rtl" aria-labelledby="consultation-heading">
-      <div className="max-w-5xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
-          <div>
-            <span className="text-brand-gold text-xs font-bold uppercase tracking-widest mb-3 block">للجادين فقط</span>
-            <h2 id="consultation-heading" className="text-2xl md:text-3xl font-black text-white mb-4">
-              استشارة استراتيجية فردية مع جاسم محمد
+    <section id="consultations-section" className="section-padding bg-[#050505] border-y border-white/5" dir="rtl" aria-labelledby="consultation-heading">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-20 items-start">
+          
+          {/* Right Side - Text Content */}
+          <div className="lg:col-span-7 pt-4">
+            <h2 id="consultation-heading" className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-6 leading-tight">
+              استشارة خاصة <br />
+              <span className="text-[#ceae88]">مع جاسم محمد</span>
             </h2>
-            <p className="text-gray-300 leading-relaxed mb-6">
-              جلسة مباشرة مدتها 60 دقيقة نحلل فيها مسار عملك التسويقي بالكامل، نحدد الثغرات، ونبني لك خريطة طريق مخصصة للنمو. تشمل متابعة بريدية لمدة 30 يوم بعد الجلسة.
+            
+            <p className="text-[#ceae88] font-bold mb-6 text-sm md:text-base">
+              جلسة فيديو لمدة 60 دقيقة نركز فيها على تشخيص وضع مشروعك بدقة.
             </p>
-            <ul className="space-y-3 mb-8">
-              {[
-                'تحليل شامل لوضعك التسويقي الحالي',
-                'بناء خريطة طريق مخصصة لمشروعك',
-                'تحديد أولويات التنفيذ والميزانية',
-                'متابعة ودعم لمدة 30 يوم',
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
-                  <CheckCircle2 className="w-4 h-4 text-brand-gold flex-shrink-0" aria-hidden="true" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/checkout?mode=consultation"
-              className="inline-flex items-center gap-2 bg-brand-purple hover:bg-brand-purple-light text-white font-bold py-3.5 px-8 rounded-xl transition-all shadow-lg shadow-brand-purple/20"
-              aria-label="احجز استشارتك — $149"
-            >
-              <span>احجز استشارتك — $149</span>
-              <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-            </Link>
-          </div>
-          <div className="glass rounded-3xl p-8 text-center">
-            <div className="w-20 h-20 bg-brand-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <MessageSquare className="w-10 h-10 text-brand-gold" aria-hidden="true" />
+
+            <p className="text-sm md:text-base text-gray-300 leading-relaxed mb-6">
+              أغلب أصحاب المشاريع يعتقدون بأن النجاح في أي عمل تجاري يعتمد على قوة المنتج وينسون وقد لا يعرفون بأن هناك أعمدة أخرى أساسية يجب التركيز عليها وهنا يخسر الكثير.
+            </p>
+            
+            <p className="text-sm md:text-base text-gray-300 leading-relaxed mb-10">
+              الهدف من الاستشارات ليس حل المشكلة (هذا ليس واقعي) وإنما تشخيص المشكلة الحقيقية ووضع خطة عملية بسيطة مناسبة لك لتعمل عليها استناداً بتنطيق للموضوع.
+            </p>
+
+            <h3 className="text-white font-bold mb-5 text-sm md:text-base">بعض مواضيع الاستشارة حسب احتياجك:</h3>
+            
+            <div className="space-y-4 mb-10">
+              <div className="flex items-center gap-4 bg-[#0a0a0a] border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-colors">
+                <TrendingUp className="w-5 h-5 text-[#ceae88] flex-shrink-0" />
+                <span className="text-sm md:text-base text-gray-200">نناقش أساسيات التسويق وكيف تكسب العميل بأقل تكلفة.</span>
+              </div>
+              <div className="flex items-center gap-4 bg-[#0a0a0a] border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-colors">
+                <Radio className="w-5 h-5 text-[#ceae88] flex-shrink-0" />
+                <span className="text-sm md:text-base text-gray-200">كيف ينتشر براندك التجاري أو الشخصي على السوشل ميديا وتخلق تأثير حقيقي.</span>
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">جلسة 1-على-1</h3>
-            <p className="text-sm text-gray-300 mb-4">مع المؤسس جاسم محمد شخصياً</p>
-            <div className="flex items-baseline justify-center gap-2 mb-2">
-              <span className="text-3xl font-black text-white">$149</span>
-              <span className="text-sm text-gray-300 line-through" aria-label="السعر الأصلي">$399</span>
+
+            <h3 className="text-white font-bold mb-5 text-sm md:text-base">بعد الجلسة تحصل على:</h3>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm md:text-base text-gray-300">
+               <span className="flex items-center gap-2">
+                 <span className="text-[#ceae88] font-black text-xl leading-none">|</span> ملخص مخصص
+               </span>
+               <span className="flex items-center gap-2">
+                 <span className="text-[#ceae88] font-black text-xl leading-none">|</span> مراجع إضافية
+               </span>
+               <span className="flex items-center gap-2">
+                 <span className="text-[#ceae88] font-black text-xl leading-none">|</span> عرض عمل لنتائج العمل سوياً
+               </span>
             </div>
-            <span className="text-xs text-gray-300">متضمنة في الحزمة المتقدمة</span>
           </div>
+
+          {/* Left Side - Portrait & Booking Box */}
+          <div className="lg:col-span-5 relative">
+            <div className="bg-[#111111] border border-white/10 rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
+               <div className="relative h-[400px] md:h-[500px] w-full bg-[#1a1a1a]">
+                 <Image 
+                   src="/images/jassim-author.jpg" 
+                   alt="استشارة جاسم محمد" 
+                   fill
+                   className="object-cover object-top opacity-90 grayscale hover:grayscale-0 transition-all duration-700" 
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/20 to-transparent"></div>
+               </div>
+               
+               <button 
+                 onClick={() => router.push('/checkout?mode=consultation')}
+                 className="bg-[#ceae88] hover:bg-[#b89b78] p-6 flex items-center justify-between transition-colors group w-full text-right"
+                 aria-label="احجز موعد استشارتك الآن"
+               >
+                 <span className="text-black font-black flex items-center gap-3 text-lg md:text-xl">
+                   احجز موعد استشارتك الآن
+                   <ArrowLeft className="w-5 h-5 group-hover:-translate-x-2 transition-transform" />
+                 </span>
+                 <span className="text-black font-bold border border-black/30 px-4 py-1.5 rounded-xl text-lg">
+                   $149
+                 </span>
+               </button>
+            </div>
+          </div>
+          
         </div>
       </div>
     </section>
