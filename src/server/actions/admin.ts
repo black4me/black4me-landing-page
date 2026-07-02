@@ -248,3 +248,39 @@ export async function getSignedUploadUrlAdmin(fileName: string): Promise<{ signe
   }
 }
 
+export async function getCustomerHistoryAdmin(email: string) {
+  try {
+    const [ordersRes, leadMagnetsRes, consultationsRes] = await Promise.all([
+      supabaseAdmin.from('orders').select('*').eq('customer_email', email),
+      supabaseAdmin.from('lead_magnets').select('*').eq('email', email),
+      supabaseAdmin.from('consultations').select('*').eq('email', email),
+    ]);
+
+    const history: any[] = [];
+
+    if (ordersRes.data) {
+      ordersRes.data.forEach(order => {
+        history.push({ type: 'order', date: order.created_at, details: order });
+      });
+    }
+
+    if (leadMagnetsRes.data) {
+      leadMagnetsRes.data.forEach(lm => {
+        history.push({ type: 'lead_magnet', date: lm.created_at, details: lm });
+      });
+    }
+
+    if (consultationsRes.data) {
+      consultationsRes.data.forEach(cons => {
+        history.push({ type: 'consultation', date: cons.created_at, details: cons });
+      });
+    }
+
+    history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return history;
+  } catch (err: any) {
+    console.error('getCustomerHistoryAdmin error:', err);
+    return [];
+  }
+}
+
