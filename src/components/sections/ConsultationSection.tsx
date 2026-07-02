@@ -68,7 +68,7 @@ export default function ConsultationSection() {
                    src="/images/jassim-author.jpg" 
                    alt="استشارة جاسم محمد" 
                    fill
-                   className="object-cover object-top opacity-90 grayscale hover:grayscale-0 transition-all duration-700" 
+                   className="object-cover object-top" 
                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/20 to-transparent"></div>
                </div>
