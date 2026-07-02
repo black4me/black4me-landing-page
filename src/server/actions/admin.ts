@@ -227,3 +227,24 @@ export async function updatePrivateSetting(key: string, value: string) {
   }
 }
 
+export async function getSignedUploadUrlAdmin(fileName: string): Promise<{ signedUrl?: string; path?: string; token?: string; error?: string }> {
+  try {
+    const { data, error } = await supabaseAdmin.storage
+      .from('products')
+      .createSignedUploadUrl(fileName);
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { 
+      signedUrl: data?.signedUrl, 
+      path: data?.path, 
+      token: data?.token 
+    };
+  } catch (err: any) {
+    console.error('getSignedUploadUrlAdmin error:', err);
+    return { error: err.message };
+  }
+}
+
