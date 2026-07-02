@@ -53,28 +53,14 @@ export default function BookPreviewSection() {
                 {/* Book Cover */}
                 <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-brand-white/10">
                   <div className="absolute inset-0 bg-brand-gold/10 blur-[120px] rounded-full transform scale-90" aria-hidden="true" />
-                  {siteSettings?.book_preview_image ? (
-                    <Image
-                      src={siteSettings.book_preview_image}
-                      alt="كتاب بدون تسويق كارثة — الحزمة الشاملة"
-                      fill
-                      className="object-contain drop-shadow-2xl transition-transform duration-700 hover:scale-[1.02]"
-                      unoptimized={true}
-                      priority
-                    />
-                  ) : (
-                    <Image
-                      src="/images/book-cover.webp"
-                      alt="كتاب بدون تسويق كارثة — الحزمة الشاملة"
-                      fill
-                      className="object-cover drop-shadow-2xl transition-transform duration-700 hover:scale-[1.02]"
-                      priority
-                      onError={(e) => {
-                        // TODO: استبدل الصورة بغلاف الكتاب الحقيقي من جاسم
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  )}
+                  <Image
+                    src={siteSettings?.book_preview_image || '/images/book-preview.png'}
+                    alt="كتاب بدون تسويق كارثة — الحزمة الشاملة"
+                    fill
+                    className="object-contain drop-shadow-2xl transition-transform duration-700 hover:scale-[1.02]"
+                    priority
+                    unoptimized
+                  />
                 </div>
 
                 {/* Platform Preview with overlay */}
