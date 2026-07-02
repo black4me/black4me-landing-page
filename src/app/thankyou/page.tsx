@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, AlertCircle, Loader2, ArrowLeft, Download } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Loader2, ArrowLeft, Download, Calendar } from 'lucide-react';
 import { trackPurchase } from '../../lib/tracking';
 
 function ThankYouContent() {
@@ -14,7 +14,7 @@ function ThankYouContent() {
   const spaceremitOrder = searchParams.get('spaceremit_order');
 
   const [loading, setLoading] = useState(true);
-  const [product, setProduct] = useState<{title: string, file_url: string | null} | null>(null);
+  const [product, setProduct] = useState<{id?: string, title: string, file_url: string | null} | null>(null);
   const [isPendingSpaceremit, setIsPendingSpaceremit] = useState(false);
   const [error, setError] = useState('');
   const [purchaseTracked, setPurchaseTracked] = useState(false);
@@ -136,6 +136,20 @@ function ThankYouContent() {
           >
             <Download className="w-5 h-5" />
             <span>تنزيل الملفات الآن</span>
+          </a>
+        </div>
+      ) : product?.id === 'prod-consultation' ? (
+        <div className="glass-gold rounded-3xl p-8 w-full mb-12 border-brand-gold/30">
+          <h3 className="text-xl font-bold text-white mb-3">الخطوة الأخيرة: احجز موعدك</h3>
+          <p className="text-sm text-gray-400 mb-8">اختر اليوم والوقت المناسب لك لإجراء جلسة الاستشارة المباشرة عبر الفيديو.</p>
+          <a 
+            href="https://calendar.notion.so/meet/black4me/di783v4a" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="cta-glow flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-brand-gold hover:bg-yellow-400 text-brand-black font-black rounded-2xl transition-all shadow-lg"
+          >
+            <Calendar className="w-5 h-5" />
+            <span>افتح التقويم لاختيار الموعد</span>
           </a>
         </div>
       ) : (

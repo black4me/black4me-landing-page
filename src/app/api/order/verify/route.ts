@@ -43,6 +43,7 @@ export async function GET(req: Request) {
     return NextResponse.json({
       success: true,
       product: {
+        id: productId,
         title: product?.title || 'Your Product',
         file_url: product?.file_url || null,
       }

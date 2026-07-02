@@ -177,6 +177,7 @@ export async function POST(req: Request) {
         return NextResponse.json({
           success: true,
           product: {
+            id: productDbId,
             title: productTitle,
             file_url: fileUrl,
           }
