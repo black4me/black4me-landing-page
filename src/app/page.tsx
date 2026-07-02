@@ -9,6 +9,15 @@ export const metadata: Metadata = {
   },
 };
 
+import CountdownTimer from '../components/CountdownTimer';
+
 export default function HomePage() {
-  return <LandingPage />;
+  return (
+    <>
+      <div className="sticky top-0 z-50">
+        <CountdownTimer hours={24} label="العرض ينتهي خلال" />
+      </div>
+      <LandingPage />
+    </>
+  );
 }

@@ -22,6 +22,7 @@ const ConsultationSection = dynamic(() => import('../components/sections/Consult
 const NewsletterSection = dynamic(() => import('../components/sections/NewsletterSection'));
 const StickyMobileCTA = dynamic(() => import('../components/sections/StickyMobileCTA'));
 const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'), { loading: () => <div className="h-[200px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
+const LeadMagnet = dynamic(() => import('../components/LeadMagnet'));
 
 /* ═══════════════════════════════════════════════════════════════
    HERO SECTION — Above the fold, result-oriented
@@ -281,6 +282,7 @@ export default function LandingPage() {
       <GuaranteeSection />
       <FAQSection />
       <ConsultationSection />
+      <LeadMagnet />
       <FinalCTA />
       <NewsletterSection />
       <StickyMobileCTA />
