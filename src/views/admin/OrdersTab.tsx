@@ -21,7 +21,7 @@ export function OrdersTab() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterGateway, setFilterGateway] = useState<'all'|'stripe'|'paypal'|'spaceremit'>('all');
+  const [filterGateway, setFilterGateway] = useState<'all'|'stripe'|'paypal'>('all');
 
   useEffect(() => {
     fetchOrders();
@@ -91,7 +91,6 @@ export function OrdersTab() {
             <option value="all">جميع البوابات</option>
             <option value="stripe">Stripe</option>
             <option value="paypal">PayPal</option>
-            <option value="spaceremit">SpaceRemit</option>
           </select>
         </div>
       </div>
