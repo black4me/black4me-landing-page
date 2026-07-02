@@ -78,6 +78,7 @@ function CheckoutContent() {
           customerEmail: email,
           customerName: name,
           customerCountry: country,
+          couponCode: couponCode,
         }),
       });
 
