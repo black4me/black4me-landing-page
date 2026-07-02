@@ -9,6 +9,7 @@ interface Order {
   customer_email: string;
   customer_name?: string;
   product_title?: string;
+  product_id?: string;
   amount: number;
   payment_gateway: string;
   status: string;
@@ -124,13 +125,13 @@ export function OrdersTab() {
               ) : filteredOrders.map(order => (
                 <tr key={order.id} className="hover:bg-white/5 transition-colors group">
                   <td className="px-6 py-4">
-                    <div className="font-bold text-white mb-1">{order.customer_name || 'غير معروف'}</div>
+                    <div className="font-bold text-white mb-1">{order.customer_name || 'عميل مجهول'}</div>
                     <div className="text-gray-500 text-xs">{order.customer_email}</div>
                     <div className="text-gray-600 text-[10px] mt-1 font-mono">#{order.id.substring(0, 8)}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="font-black text-[#F5C542]">${order.amount}</div>
-                    <div className="text-gray-500 text-xs capitalize">{order.payment_gateway}</div>
+                    <div className="text-sm text-gray-300 mb-1">{order.product_id === 'prod-consultation' ? 'جلسة استشارية' : order.product_id === 'prod-main-book' ? 'كتاب المبيعات' : order.product_id || 'مجهول'}</div>
+                    <div className="font-black text-[#F5C542]">${order.amount} <span className="text-gray-500 text-xs font-normal capitalize mr-1">({order.payment_gateway})</span></div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-gray-300">{new Date(order.created_at).toLocaleDateString('ar-EG')}</div>
