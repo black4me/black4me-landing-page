@@ -8,10 +8,10 @@ import {
   Text,
   Link,
   Heading,
-  Hr,
   Img,
   Row,
-  Column
+  Column,
+  Hr
 } from '@react-email/components';
 
 interface LeadMagnetEmailProps {
@@ -29,14 +29,13 @@ export default function LeadMagnetEmail({
   userFirstname,
   downloadLink,
   emailSubject,
-  emailBody,
   logoUrl,
   instagramUrl,
   whatsappUrl,
   supportEmail
 }: LeadMagnetEmailProps) {
-  // Replace newlines with <br /> for HTML formatting
-  const formattedBody = emailBody.replace(/\n/g, '<br />');
+  // Use the provided logo URL or fallback to the standard one
+  const finalLogoUrl = logoUrl || 'https://www.black4me.com/logo.png';
 
   return (
     <Html>
@@ -45,76 +44,73 @@ export default function LeadMagnetEmail({
         <Container style={container}>
           {/* Header */}
           <Section style={header}>
-            {logoUrl ? (
-              <Img src={logoUrl} alt="BLACK4ME Logo" width="140" style={logo} />
-            ) : (
-              <Heading style={logoText}>BLACK4ME</Heading>
-            )}
+            <Img src={finalLogoUrl} alt="BLACK4ME" height="40" style={logo} />
+          </Section>
+
+          {/* Hero Icon */}
+          <Section style={heroIconContainer}>
+            <Text style={heroIcon}>🎁</Text>
           </Section>
 
           <Section style={contentSection}>
-            <Heading style={h1}>{emailSubject}</Heading>
-            
-            <Text style={greeting}>
-              أهلاً بك يا بطل <span style={highlightRed}>{userFirstname}</span>،
-            </Text>
+            <Heading style={h1}>
+              هديتك الحصرية بانتظارك يا <span style={highlightName}>{userFirstname}</span>
+            </Heading>
 
-            <Text style={text} dangerouslySetInnerHTML={{ __html: formattedBody }} />
+            <Hr style={divider} />
 
-            <Section style={quoteSection}>
-              <Text style={quoteText}>
-                "النجاح الحقيقي يبدأ عندما تتوقف عن الاستهلاك، وتبدأ في الاستثمار في عقلك وأدواتك."
+            <Section style={messageContainer}>
+              <Text style={text}>
+                النجاح ليس ضربة حظ، بل هو نتيجة لنظام تسويقي دقيق تبنيه اليوم ليقودك نحو الثراء غداً. لأننا في <strong style={{color: '#fff'}}>BLACK4ME</strong> نؤمن بأن مهاراتك تستحق أن تصل للعالم، جهّزنا لك أداة استثنائية لتبدأ رحلتك في السيطرة على السوق.
+              </Text>
+              <Text style={text}>
+                هذه الهدية ليست مجرد ملف، بل هي المفتاح العملي لتحويل خبرتك إلى أرقام ملموسة.
               </Text>
             </Section>
 
             <Section style={btnContainer}>
               <Link href={downloadLink} style={button}>
-                تحميل هديتك المجانية الآن 🚀
+                احصل على هديتك الآن 🚀
               </Link>
             </Section>
 
-            <Text style={successMessage}>
-              <span style={highlightGreen}>●</span> نضمن لك قيمة حقيقية في هذه الهدية.
-            </Text>
+            <Section style={trustSection}>
+              <Text style={trustText}>
+                <span style={dot}>●</span> نضمن لك قيمة حقيقية وفورية
+              </Text>
+            </Section>
           </Section>
-
-          <Hr style={hr} />
 
           {/* Footer */}
           <Section style={footerSection}>
-            <Text style={footerText}>
-              استمر في رحلة صعودك، وكن جزءاً من مجتمعنا النخبوي:
-            </Text>
-
-            <Row style={{ marginTop: '20px' }}>
-              {instagramUrl && (
-                <Column align="center" style={socialColumn}>
-                  <Link href={instagramUrl} style={socialLink}>
-                    <Img src="https://img.icons8.com/fluent/48/000000/instagram-new.png" width="36" height="36" alt="Instagram" />
-                    <Text style={socialText}>انستجرام</Text>
-                  </Link>
-                </Column>
-              )}
-              {whatsappUrl && (
-                <Column align="center" style={socialColumn}>
-                  <Link href={whatsappUrl} style={socialLink}>
-                    <Img src="https://img.icons8.com/color/48/000000/whatsapp--v1.png" width="36" height="36" alt="WhatsApp" />
-                    <Text style={socialText}>واتساب</Text>
-                  </Link>
-                </Column>
-              )}
-              {supportEmail && (
-                <Column align="center" style={socialColumn}>
-                  <Link href={`mailto:${supportEmail}`} style={socialLink}>
-                    <Img src="https://img.icons8.com/color/48/000000/circled-envelope.png" width="36" height="36" alt="Email" />
-                    <Text style={socialText}>فريق الدعم</Text>
-                  </Link>
-                </Column>
-              )}
+            <Row>
+              <Column align="center">
+                <Row style={socialRow}>
+                  {instagramUrl && (
+                    <Column style={socialColumn}>
+                      <Link href={instagramUrl}>
+                        <Img src="https://img.icons8.com/ios-filled/50/a1a1aa/instagram-new.png" width="24" height="24" alt="Instagram" />
+                      </Link>
+                    </Column>
+                  )}
+                  {whatsappUrl && (
+                    <Column style={socialColumn}>
+                      <Link href={whatsappUrl}>
+                        <Img src="https://img.icons8.com/ios-filled/50/a1a1aa/whatsapp--v1.png" width="24" height="24" alt="WhatsApp" />
+                      </Link>
+                    </Column>
+                  )}
+                  {supportEmail && (
+                    <Column style={socialColumn}>
+                      <Link href={`mailto:${supportEmail}`}>
+                        <Img src="https://img.icons8.com/ios-filled/50/a1a1aa/email.png" width="24" height="24" alt="Email" />
+                      </Link>
+                    </Column>
+                  )}
+                </Row>
+              </Column>
             </Row>
-          </Section>
-          
-          <Section style={bottomFooter}>
+            
             <Text style={bottomFooterText}>
               © {new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
             </Text>
@@ -126,45 +122,48 @@ export default function LeadMagnetEmail({
 }
 
 const main = {
-  backgroundColor: '#050505',
-  fontFamily: 'Tajawal, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-  padding: '40px 0',
+  backgroundColor: '#000000',
+  fontFamily: 'Tajawal, Cairo, "Helvetica Neue", Arial, sans-serif',
+  padding: '60px 0',
 };
 
 const container = {
-  backgroundColor: '#111111',
+  backgroundColor: '#0a0a0a',
   margin: '0 auto',
-  borderRadius: '12px',
-  overflow: 'hidden',
-  border: '1px solid #222222',
-  maxWidth: '600px',
-  boxShadow: '0 4px 24px rgba(108, 59, 255, 0.1)', // Subtle purple glow
+  border: '1px solid #1f1f22',
+  maxWidth: '560px',
+  color: '#ffffff',
+  textAlign: 'center' as const,
+  direction: 'rtl' as const,
 };
 
 const header = {
-  backgroundColor: '#0a0a0a',
-  padding: '30px 20px',
+  padding: '40px 20px',
   textAlign: 'center' as const,
-  borderBottom: '2px solid #6C3BFF', // Purple accent
+  backgroundColor: '#000000',
+  borderBottom: '1px solid #1f1f22',
 };
 
 const logo = {
   margin: '0 auto',
+  display: 'block',
 };
 
-const logoText = {
-  color: '#ffffff',
-  fontSize: '28px',
-  fontWeight: 'bold',
-  letterSpacing: '2px',
-  margin: '0',
+const heroIconContainer = {
   textAlign: 'center' as const,
+  paddingTop: '40px',
+};
+
+const heroIcon = {
+  fontSize: '48px',
+  margin: '0',
+  lineHeight: '1',
+  textShadow: '0 0 40px rgba(255,140,0,0.5)',
 };
 
 const contentSection = {
-  padding: '40px 30px',
+  padding: '20px 40px 40px',
   textAlign: 'center' as const,
-  direction: 'rtl' as const,
 };
 
 const h1 = {
@@ -172,113 +171,90 @@ const h1 = {
   fontSize: '24px',
   fontWeight: 'bold',
   textAlign: 'center' as const,
-  marginBottom: '24px',
+  margin: '0 0 30px 0',
+  lineHeight: '1.4',
 };
 
-const greeting = {
-  color: '#e0e0e0',
-  fontSize: '18px',
-  fontWeight: 'bold',
-  textAlign: 'right' as const,
-  marginBottom: '16px',
+const highlightName = {
+  color: '#ff8c00', // Premium Orange
+};
+
+const divider = {
+  borderColor: '#1f1f22',
+  margin: '30px 0',
+};
+
+const messageContainer = {
+  marginBottom: '40px',
 };
 
 const text = {
-  color: '#b0b0b0',
+  color: '#a1a1aa', // Elegant light gray
   fontSize: '16px',
-  lineHeight: '28px',
-  textAlign: 'right' as const,
-  marginBottom: '32px',
-};
-
-const quoteSection = {
-  backgroundColor: '#1a1a1a',
-  padding: '20px',
-  borderRadius: '8px',
-  borderRight: '4px solid #E53935', // Red accent
-  marginBottom: '32px',
-};
-
-const quoteText = {
-  color: '#ffffff',
-  fontSize: '16px',
-  fontStyle: 'italic',
+  lineHeight: '30px',
   textAlign: 'center' as const,
-  margin: 0,
+  margin: '0 0 20px 0',
 };
 
 const btnContainer = {
   textAlign: 'center' as const,
-  marginTop: '10px',
-  marginBottom: '20px',
+  marginBottom: '30px',
 };
 
 const button = {
-  backgroundColor: '#F5C542', // Orange/Gold
-  borderRadius: '8px',
+  backgroundColor: '#ff8c00',
+  borderRadius: '4px',
   color: '#000000',
-  fontSize: '18px',
+  fontSize: '16px',
   fontWeight: 'bold',
   textDecoration: 'none',
   textAlign: 'center' as const,
   display: 'inline-block',
-  padding: '16px 32px',
-  boxShadow: '0 4px 14px rgba(245, 197, 66, 0.4)',
+  padding: '16px 40px',
+  letterSpacing: '0.5px',
 };
 
-const successMessage = {
-  color: '#888888',
+const trustSection = {
+  backgroundColor: '#111111',
+  border: '1px solid #1f1f22',
+  borderRadius: '4px',
+  padding: '12px',
+  display: 'inline-block',
+};
+
+const trustText = {
+  color: '#a1a1aa',
   fontSize: '14px',
-  textAlign: 'center' as const,
-  marginTop: '20px',
+  margin: '0',
+  display: 'inline-block',
 };
 
-const hr = {
-  borderColor: '#222222',
-  margin: '0',
+const dot = {
+  color: '#10b981', // Emerald Green
+  marginRight: '6px',
 };
 
 const footerSection = {
-  backgroundColor: '#0a0a0a',
-  padding: '40px 30px',
-  direction: 'rtl' as const,
+  backgroundColor: '#050505',
+  padding: '30px 40px',
+  textAlign: 'center' as const,
+  borderTop: '1px solid #1f1f22',
 };
 
-const footerText = {
-  color: '#ffffff',
-  fontSize: '16px',
-  fontWeight: 'bold',
-  textAlign: 'center' as const,
-  marginBottom: '20px',
+const socialRow = {
+  display: 'inline-block',
+  margin: '0 auto 20px',
 };
 
 const socialColumn = {
-  padding: '0 10px',
-};
-
-const socialLink = {
-  textDecoration: 'none',
+  padding: '0 12px',
   display: 'inline-block',
 };
 
-const socialText = {
-  color: '#888888',
-  fontSize: '12px',
-  marginTop: '8px',
-  textAlign: 'center' as const,
-};
-
-const bottomFooter = {
-  backgroundColor: '#050505',
-  padding: '16px',
-};
-
 const bottomFooterText = {
-  color: '#555555',
+  color: '#52525b', // Very dim gray
   fontSize: '12px',
   textAlign: 'center' as const,
   margin: 0,
+  letterSpacing: '1px',
 };
-
-const highlightRed = { color: '#E53935' };
-const highlightGreen = { color: '#00C853' };
