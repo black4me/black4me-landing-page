@@ -1,8 +1,9 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { uploadImageAdmin } from '../../server/actions/admin';
+import { uploadImageAdmin, getSignedUploadUrlAdmin } from '../../server/actions/admin';
 import { Save, Upload, Link as LinkIcon, MessageSquare, Instagram, Mail, FileText } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 export function LeadMagnetTab() {
   const { siteSettings, updateSiteSetting } = useApp();
@@ -47,15 +48,26 @@ export function LeadMagnetTab() {
       const fileExt = file.name.split('.').pop();
       const fileName = `lead_magnet_${Date.now()}.${fileExt}`;
 
-      const formDataObj = new FormData();
-      formDataObj.append('file', file);
-      formDataObj.append('fileName', fileName);
+      // Use signed URL to bypass Vercel's 4.5MB server action limit
+      const { signedUrl, path, token, error: signError } = await getSignedUploadUrlAdmin(fileName);
 
-      // We can use uploadImageAdmin for generic files as it uploads to public products bucket
-      const { url, error } = await uploadImageAdmin(formDataObj);
+      if (signError || !path || !token) {
+        throw new Error(signError || 'Failed to get upload signature');
+      }
 
-      if (error || !url) {
-        throw new Error(error || 'Failed to upload file');
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('products')
+        .uploadToSignedUrl(path, token, file);
+
+      if (uploadError) {
+        throw new Error(uploadError.message || 'Failed to upload file to storage');
+      }
+
+      const { data: urlData } = supabase.storage.from('products').getPublicUrl(path);
+      const url = urlData.publicUrl;
+
+      if (!url) {
+        throw new Error('Failed to get public URL');
       }
 
       setFormData(prev => ({ ...prev, lead_magnet_file_url: url }));
