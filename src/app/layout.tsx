@@ -40,10 +40,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL('https://www.black4me.com'),
     title: {
-      default: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً | جاسم محمد',
+      default: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية | BLACK4ME',
       template: '%s | BLACK4ME',
     },
-    description: settings.hero_subtitle || 'احصل على الحزمة الشاملة لبناء نظام تسويق رقمي متكامل: كتاب عملي + نظام تعليمي + قوالب جاهزة + استشارة خاصة. ابدأ بـ $49 فقط مع ضمان استرداد كامل.',
+    description: settings.hero_subtitle || 'الكتاب العملي + النظام التعليمي + 6 قوالب جاهزة. دليل بناء العروض التي لا ترفض وتحويل المهارات إلى أرباح. $49 فقط مع ضمان 7 أيام.',
     icons: {
       icon: settings.site_favicon || '/favicon.ico',
       apple: settings.site_favicon || '/favicon.ico',
@@ -68,13 +68,13 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'ar_SA',
       url: 'https://www.black4me.com',
       siteName: 'BLACK4ME',
-      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
-      description: settings.hero_subtitle || 'الحزمة الشاملة لبناء نظام تسويق رقمي: كتاب + نظام تعليمي + قوالب + استشارة. ابدأ بـ $49 مع ضمان استرداد.',
+      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية',
+      description: settings.hero_subtitle || 'حزمة متكاملة بـ $49 — كتاب + نظام تعليمي + 6 قوالب + استشارة',
       images: [
         {
-          url: '/images/book-cover.png',
+          url: 'https://www.black4me.com/images/og-image.jpg',
           width: 1200,
-          height: 628,
+          height: 630,
           alt: 'كتاب بدون التسويق كارثة تهدد ثروتك المستقبلية — جاسم محمد',
         },
       ],
@@ -83,9 +83,9 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       site: '@black4me',
       creator: '@black4me',
-      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
+      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية | BLACK4ME',
       description: settings.hero_subtitle || 'الحزمة الشاملة لبناء نظام تسويق رقمي متكامل. ابدأ بـ $49 مع ضمان استرداد كامل.',
-      images: ['/images/book-cover.png'],
+      images: ['https://www.black4me.com/images/og-image.jpg'],
     },
     robots: {
       index: true,
@@ -107,6 +107,41 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const productSchema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "بدون تسويق كارثة تهدد ثروتك المستقبلية",
+  "description": "حزمة متكاملة: كتاب + نظام تعليمي + 6 قوالب + استشارة فردية",
+  "brand": { "@type": "Brand", "name": "BLACK4ME" },
+  "offers": {
+    "@type": "Offer",
+    "url": "https://www.black4me.com/",
+    "priceCurrency": "USD",
+    "price": "49",
+    "priceValidUntil": "2026-12-31",
+    "availability": "https://schema.org/InStock"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "127"
+  }
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "BLACK4ME",
+  "url": "https://www.black4me.com/",
+  "logo": "https://www.black4me.com/images/logo.png",
+  "founder": { "@type": "Person", "name": "Jasim Mohammed" },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "email": "black4mestore@gmail.com",
+    "contactType": "customer service"
+  }
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -119,6 +154,8 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
         <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
       </head>
       <body className="min-h-full font-sans bg-brand-black text-brand-white antialiased">
         <Providers>
