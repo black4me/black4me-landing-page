@@ -38,10 +38,11 @@ export default function LeadMagnetEmail({
   const finalLogoUrl = logoUrl || 'https://www.black4me.com/logo.png';
 
   return (
-    <Html>
+    <Html lang="ar" dir="rtl">
       <Head />
       <Body style={main}>
-        <Container style={container}>
+        <div style={wrapper}>
+          <Container style={container}>
           {/* Header */}
           <Section style={header}>
             <Img src={finalLogoUrl} alt="BLACK4ME" height="40" style={logo} />
@@ -116,6 +117,7 @@ export default function LeadMagnetEmail({
             </Text>
           </Section>
         </Container>
+        </div>
       </Body>
     </Html>
   );
@@ -124,7 +126,12 @@ export default function LeadMagnetEmail({
 const main = {
   backgroundColor: '#000000',
   fontFamily: 'Tajawal, Cairo, "Helvetica Neue", Arial, sans-serif',
+};
+
+const wrapper = {
+  backgroundColor: '#000000',
   padding: '60px 0',
+  width: '100%',
 };
 
 const container = {
