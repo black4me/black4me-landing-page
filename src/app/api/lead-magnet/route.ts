@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    // Save to Supabase
+    // Save to Supabase (Lead Magnets)
     const { data, error } = await supabase
       .from('lead_magnets')
       .insert({ email, name, magnet, created_at: new Date().toISOString() });
@@ -23,6 +23,11 @@ export async function POST(req: Request) {
       console.error('Supabase insert error:', error);
       return NextResponse.json({ error: 'Failed to save lead' }, { status: 500 });
     }
+
+    // Upsert to subscribers table for marketing emails
+    await supabase
+      .from('subscribers')
+      .upsert({ email, name, created_at: new Date().toISOString() }, { onConflict: 'email' });
 
     // Fetch site settings
     const { data: settingsData } = await supabase.from('site_settings').select('*');
