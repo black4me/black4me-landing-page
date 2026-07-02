@@ -43,9 +43,33 @@ export default function WelcomeEmail({ userFirstname, downloadLink }: WelcomeEma
 
           <Hr style={hr} />
 
-          <Text style={footer}>
+          <Text style={text}>
             إذا كان لديك أي أسئلة أو احتجت إلى مساعدة، فلا تتردد في التواصل معنا.
           </Text>
+
+          <Hr style={hr} />
+
+          {/* Academy Access Section */}
+          <Section style={{ padding: '0 40px' }}>
+            <Heading style={{ ...h1, fontSize: '18px', paddingBottom: '8px' }}>
+              🎓 حسابك في المنصة التعليمية
+            </Heading>
+            <Text style={text}>
+              يمكنك الوصول إلى أكاديمية التسويق الرقمية مجاناً كجزء من الحزمة:
+            </Text>
+            <Text style={{ ...text, marginTop: '8px' }}>
+              🔗 رابط الدخول:{' '}
+              <Link href="https://marketing-academy-liard.vercel.app/login" style={{ color: '#F5C542' }}>
+                https://marketing-academy-liard.vercel.app/login
+              </Link>
+            </Text>
+            <Text style={{ ...text, marginTop: '4px' }}>
+              📧 البريد: {userFirstname} (نفس البريد الذي اشتريت به)
+            </Text>
+            <Text style={{ ...text, marginTop: '4px', fontSize: '13px', color: '#888' }}>
+              ملاحظة: إذا كانت هذه أول مرة تدخل فيها، اضغط على "نسيت كلمة المرور" لإنشاء كلمة مرور جديدة.
+            </Text>
+          </Section>
         </Container>
       </Body>
     </Html>

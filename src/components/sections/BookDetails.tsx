@@ -112,27 +112,89 @@ export default function BookDetails() {
         </div>
 
         {/* ── Author Bio ── */}
-        <div className="bg-gradient-to-l from-yellow-400/5 to-transparent border border-yellow-400/20 rounded-2xl p-8">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-shrink-0 w-24 h-24 rounded-full overflow-hidden ring-2 ring-yellow-400/50">
-              <Image
-                src="/images/jassim-author.jpg"
-                alt="جاسم محمد - مستشار تسويقي ومؤسس BLACK4ME"
-                width={96}
-                height={96}
-                className="w-full h-full object-cover object-top"
-              />
+        <section className="bg-gradient-to-br from-[#0d0d0d] to-black border border-yellow-400/20 rounded-2xl p-8 md:p-12">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            {/* Author Photo */}
+            <div className="flex-shrink-0">
+              <div className="w-40 h-40 rounded-full overflow-hidden ring-4 ring-yellow-400/40 shadow-2xl">
+                <Image
+                  src="/images/jasim-mohammed.webp"
+                  alt="جاسم محمد — مؤسس BLACK4ME"
+                  width={160}
+                  height={160}
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    // TODO: استبدل الصورة بالصورة الشخصية الاحترافية من جاسم
+                    (e.currentTarget as HTMLImageElement).src = '/images/jassim-author.jpg';
+                  }}
+                />
+              </div>
             </div>
-            <div>
-              <p className="text-yellow-400 text-sm font-semibold mb-1">عن المؤلف</p>
-              <h4 className="text-white text-xl font-bold mb-2">جاسم محمد</h4>
-              <p className="text-gray-400 text-sm leading-relaxed max-w-2xl">
-                مستشار تسويقي ميداني ومؤسس BLACK4ME. يساعد أصحاب المشاريع والمستقلين على 
-                تحويل مهاراتهم إلى عروض لا تُرفض، وبناء أنظمة مبيعات تعمل دون إعلانات مدفوعة.
+
+            {/* Author Details */}
+            <div className="flex-1 text-center md:text-right">
+              <p className="text-yellow-400 text-sm font-semibold tracking-widest uppercase mb-2">عن المؤلف</p>
+              <h2 className="text-white text-3xl font-bold mb-2">جاسم محمد</h2>
+              <p className="text-yellow-400/80 text-sm mb-4 font-medium">مؤسس BLACK4ME | مستشار التسويق الرقمي</p>
+
+              <p className="text-gray-300 text-base leading-relaxed mb-6 max-w-2xl">
+                خبير في بناء أنظمة تسويق رقمية متكاملة للسوق العربي.
+                خلال <strong className="text-white">5 سنوات</strong> من العمل الميداني، ساعد أكثر من{' '}
+                <strong className="text-yellow-400">300 رائد أعمال</strong> على تحقيق نتائج ملموسة في التسويق الرقمي.
               </p>
+
+              {/* Achievements */}
+              <ul className="text-gray-300 space-y-2 mb-6 text-right">
+                <li className="flex items-start gap-2 justify-center md:justify-start">
+                  <span className="text-yellow-400 mt-0.5">●</span>
+                  <span>بناء عروض تسويقية لا ترفض لأكثر من <strong className="text-white">300 رائد أعمال</strong></span>
+                </li>
+                <li className="flex items-start gap-2 justify-center md:justify-start">
+                  <span className="text-yellow-400 mt-0.5">●</span>
+                  <span>تطوير أنظمة تسويق مؤتمتة لقطاعات متعددة</span>
+                </li>
+                <li className="flex items-start gap-2 justify-center md:justify-start">
+                  <span className="text-yellow-400 mt-0.5">●</span>
+                  <span>تحقيق أكثر من <strong className="text-white">2 مليون دولار</strong> في مبيعات لعملائه</span>
+                </li>
+              </ul>
+
+              {/* Stats Row */}
+              <div className="flex flex-wrap gap-6 justify-center md:justify-start mb-6">
+                {[
+                  { value: '+300', label: 'رائد أعمال' },
+                  { value: '5+', label: 'سنوات خبرة' },
+                  { value: '$2M+', label: 'مبيعات لعملائه' },
+                ].map((stat, i) => (
+                  <div key={i} className="text-center">
+                    <div className="text-yellow-400 text-2xl font-black">{stat.value}</div>
+                    <div className="text-gray-400 text-xs">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Social Links */}
+              <div className="flex gap-4 justify-center md:justify-start flex-wrap">
+                <a href="https://linkedin.com/in/jasim-mohammed" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#0077B5]/10 text-[#0077B5] border border-[#0077B5]/30 rounded-full text-sm font-semibold hover:bg-[#0077B5]/20 transition">
+                  in LinkedIn
+                </a>
+                <a href="https://twitter.com/jasim_mohammed" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/5 text-white border border-white/20 rounded-full text-sm font-semibold hover:bg-white/10 transition">
+                  𝕏 Twitter
+                </a>
+                <a href="https://youtube.com/@black4me" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600/10 text-red-400 border border-red-500/30 rounded-full text-sm font-semibold hover:bg-red-600/20 transition">
+                  ▶ YouTube
+                </a>
+                <a href="https://instagram.com/black4me" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-pink-600/10 text-pink-400 border border-pink-500/30 rounded-full text-sm font-semibold hover:bg-pink-600/20 transition">
+                  📷 Instagram
+                </a>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
       </div>
     </section>
