@@ -31,7 +31,7 @@ export default function HeroVideo() {
         muted
         loop
         playsInline
-        poster="/images/video-poster.webp"
+        poster={siteSettings?.video_poster || "/images/video-poster.webp"}
         className="w-full rounded-2xl"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}

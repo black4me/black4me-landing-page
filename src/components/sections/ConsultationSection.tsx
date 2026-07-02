@@ -65,7 +65,7 @@ export default function ConsultationSection() {
             <div className="bg-[#111111] border border-white/10 rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
                <div className="relative h-[400px] md:h-[500px] w-full bg-[#1a1a1a]">
                  <Image 
-                   src="/images/jassim-author.jpg" 
+                   src={siteSettings?.author_image || "/images/jassim-author.jpg"} 
                    alt="استشارة جاسم محمد" 
                    fill
                    className="object-cover object-top" 

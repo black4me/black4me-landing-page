@@ -66,7 +66,7 @@ export default function BookPreviewSection() {
                 {/* Platform Preview with overlay */}
                 <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-brand-white/10">
                   <Image
-                    src="/images/platform-preview.webp"
+                    src={siteSettings?.platform_preview_image || "/images/platform-preview.webp"}
                     alt="معاينة أكاديمية التسويق الرقمية"
                     fill
                     className="object-cover"

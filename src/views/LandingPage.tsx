@@ -147,7 +147,7 @@ function HeroSection() {
               {/* Book Image - no animation to prevent CLS */}
               <div className="relative flex justify-center w-full mx-auto">
                 <Image
-                  src="/images/book-cover.jpg"
+                  src={siteSettings?.hero_image || "/images/book-cover.jpg"}
                   priority={true}
                   fetchPriority="high"
                   loading="eager"
