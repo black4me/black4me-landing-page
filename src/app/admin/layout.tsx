@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { supabase } from '../../lib/supabase';
+import { createBrowserClient } from '@supabase/ssr';
 import {
   LogOut, Users, DollarSign, ShoppingBag, ShieldCheck,
   BarChart3, Tag, Calendar, MessageSquare, HelpCircle,
-  Settings, GitCompare, Layers, Ticket, Mail, CreditCard
+  Settings, GitCompare, Layers, Ticket, Mail
 } from 'lucide-react';
 import { AppProvider } from '../../context/AppContext';
 import Link from 'next/link';
@@ -16,34 +16,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
 
-  // Check auth
   useEffect(() => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
     const checkAuth = async () => {
-      const { createBrowserClient } = await import('@supabase/ssr');
-      const supabaseBrowser = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      
-      const { data: { session } } = await supabaseBrowser.auth.getSession();
-      if (!session) {
-        router.push('/login');
+      // getUser() validates via server — works with SSR cookies on Vercel
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.replace('/login');
       } else {
         setLoading(false);
       }
     };
+
     checkAuth();
   }, [router]);
 
   const handleLogout = async () => {
-    const { createBrowserClient } = await import('@supabase/ssr');
-    const supabaseBrowser = createBrowserClient(
+    const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    await supabaseBrowser.auth.signOut();
-    router.push('/login');
-    router.refresh();
+    await supabase.auth.signOut();
+    router.replace('/login');
   };
 
   if (loading) {
@@ -68,7 +66,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { id: '/admin/funnels', label: 'مراحل الفنل', icon: Layers },
     { id: '/admin/value-stack', label: 'الحزمة المضافة', icon: DollarSign },
     { id: '/admin/coupons', label: 'كوبونات الخصم', icon: Ticket },
-    { id: '/admin/payment-gateways', label: 'بوابات الدفع', icon: CreditCard },
   ];
 
   return (
@@ -143,3 +140,4 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </AppProvider>
   );
 }
+

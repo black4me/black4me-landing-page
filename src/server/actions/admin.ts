@@ -5,41 +5,9 @@ import { revalidatePath } from 'next/cache';
 import { Order, NewsletterSubscriber, Consultation, Coupon, Testimonial } from '../../types';
 import { sendWelcomeEmail } from './email';
 
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-
-async function requireAdmin() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll() },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          )
-        },
-      },
-    }
-  );
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Unauthorized');
-  
-  const adminEmails = process.env.ADMIN_EMAILS
-    ? process.env.ADMIN_EMAILS.split(',').map(e => e.trim().toLowerCase())
-    : ['info@black4me.com', 'admin@black4me.com', 'black4mestore@gmail.com'];
-    
-  if (!user.email || !adminEmails.includes(user.email.toLowerCase())) {
-    throw new Error('Forbidden');
-  }
-}
-
 export async function updateAdminSiteSetting(key: string, value: string) {
   try {
-    await requireAdmin();
-    const { error } = await supabaseAdmin.from('site_settings').upsert({ key, value }, { onConflict: 'key' });
+    const { error } = await supabaseAdmin.from('site_settings').upsert({ key, value });
     if (error) throw error;
     revalidatePath('/', 'layout');
     return { success: true };
@@ -51,7 +19,6 @@ export async function updateAdminSiteSetting(key: string, value: string) {
 
 export async function uploadImageAdmin(formData: FormData): Promise<{ url?: string; error?: string }> {
   try {
-    await requireAdmin();
     const file = formData.get('file') as File;
     const fileName = formData.get('fileName') as string;
 
@@ -59,15 +26,9 @@ export async function uploadImageAdmin(formData: FormData): Promise<{ url?: stri
       return { error: 'No file or fileName provided' };
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
     const { error: uploadError } = await supabaseAdmin.storage
       .from('products')
-      .upload(fileName, buffer, { 
-        upsert: true,
-        contentType: file.type
-      });
+      .upload(fileName, file, { upsert: true });
 
     if (uploadError) {
       return { error: uploadError.message };
@@ -83,7 +44,6 @@ export async function uploadImageAdmin(formData: FormData): Promise<{ url?: stri
 
 export async function getAdminOrders(): Promise<Order[]> {
   try {
-    await requireAdmin();
     const { data } = await supabaseAdmin.from('orders').select('*').order('created_at', { ascending: false });
     return (data || []).map(row => ({
       id: row.id,
@@ -106,7 +66,6 @@ export async function getAdminOrders(): Promise<Order[]> {
 
 export async function getAdminSubscribers(): Promise<NewsletterSubscriber[]> {
   try {
-    await requireAdmin();
     const { data } = await supabaseAdmin.from('subscribers').select('*').order('created_at', { ascending: false });
     return (data || []).map(row => ({
       id: row.id,
@@ -123,7 +82,6 @@ export async function getAdminSubscribers(): Promise<NewsletterSubscriber[]> {
 
 export async function getAdminConsultations(): Promise<Consultation[]> {
   try {
-    await requireAdmin();
     const { data } = await supabaseAdmin.from('consultations').select('*').order('created_at', { ascending: false });
     return (data || []).map(row => ({
       id: row.id,
@@ -143,7 +101,6 @@ export async function getAdminConsultations(): Promise<Consultation[]> {
 
 export async function getAdminCoupons(): Promise<Coupon[]> {
   try {
-    await requireAdmin();
     const { data } = await supabaseAdmin.from('coupons').select('*');
     return (data || []).map(row => ({
       id: row.id,
@@ -159,7 +116,6 @@ export async function getAdminCoupons(): Promise<Coupon[]> {
 
 export async function getAllTestimonials(): Promise<Testimonial[]> {
   try {
-    await requireAdmin();
     // Fetches ALL testimonials including pending ones for the admin moderation
     const { data } = await supabaseAdmin.from('testimonials').select('*').order('created_at', { ascending: false });
     return (data || []).map(row => ({
@@ -179,7 +135,6 @@ export async function getAllTestimonials(): Promise<Testimonial[]> {
 
 export async function approveOrder(orderId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAdmin();
     // 1. Fetch order details
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
@@ -246,45 +201,3 @@ export async function approveOrder(orderId: string): Promise<{ success: boolean;
 }
 
 
-
-export async function getPrivateSettings() {
-  try {
-    await requireAdmin();
-    const { data, error } = await supabaseAdmin.from('private_settings').select('*');
-    if (error) {
-      if (error.code === '42P01') {
-        // Table doesn't exist yet
-        return { settings: {} };
-      }
-      throw error;
-    }
-    const settingsObj: Record<string, string> = {};
-    if (data) {
-      data.forEach(item => {
-        if (item.value && item.value.length > 8 && item.key.includes('SECRET')) {
-          // Mask secrets (show first 3 and last 3 characters)
-          const val = item.value;
-          settingsObj[item.key] = `${val.substring(0, 3)}...${val.substring(val.length - 3)}`;
-        } else {
-          settingsObj[item.key] = item.value;
-        }
-      });
-    }
-    return { settings: settingsObj };
-  } catch (err: any) {
-    console.error('getPrivateSettings error:', err);
-    return { error: err.message };
-  }
-}
-
-export async function updatePrivateSetting(key: string, value: string) {
-  try {
-    await requireAdmin();
-    const { error } = await supabaseAdmin.from('private_settings').upsert({ key, value });
-    if (error) throw error;
-    return { success: true };
-  } catch (err: any) {
-    console.error('updatePrivateSetting error:', err);
-    return { error: err.message };
-  }
-}

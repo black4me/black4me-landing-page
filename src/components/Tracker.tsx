@@ -10,7 +10,6 @@ export default function Tracker() {
   const tracked = useRef(false);
 
   useEffect(() => {
-    // Only track page view once per mount to avoid double firing in React strict mode
     if (tracked.current) return;
     tracked.current = true;
 
@@ -18,7 +17,6 @@ export default function Tracker() {
     const utmMedium = searchParams?.get('utm_medium');
     const utmCampaign = searchParams?.get('utm_campaign');
 
-    // Store UTMs in localStorage for later attribution (e.g. checkout, consultation)
     if (utmSource) localStorage.setItem('utm_source', utmSource);
     if (utmMedium) localStorage.setItem('utm_medium', utmMedium);
     if (utmCampaign) localStorage.setItem('utm_campaign', utmCampaign);
@@ -43,7 +41,7 @@ export default function Tracker() {
 
   }, [searchParams, pathname]);
 
-  return null; // Hidden component
+  return null;
 }
 
 export const getUTMs = () => {
@@ -54,5 +52,6 @@ export const getUTMs = () => {
     utmCampaign: localStorage.getItem('utm_campaign'),
   };
 };
+
 
 

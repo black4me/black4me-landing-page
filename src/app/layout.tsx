@@ -12,9 +12,7 @@ const cairo = Cairo({
   subsets: ['arabic', 'latin'],
   weight: ['400', '600', '700'],
   variable: '--font-cairo',
-  display: 'optional',
-  fallback: ['Arial', 'sans-serif'],
-  adjustFontFallback: true,
+  display: 'swap',
   preload: true,
 });
 
@@ -22,9 +20,7 @@ const ibmPlex = IBM_Plex_Sans_Arabic({
   subsets: ['arabic', 'latin'],
   weight: ['400', '700'],
   variable: '--font-ibm',
-  display: 'optional',
-  fallback: ['Arial', 'sans-serif'],
-  adjustFontFallback: true,
+  display: 'swap',
   preload: true,
 });
 
@@ -38,42 +34,19 @@ export const viewport: Viewport = {
 import { supabaseAdmin } from '../lib/supabase-admin';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { data } = await supabaseAdmin
-    .from('site_settings')
-    .select('key, value')
-    .in('key', ['hero_title', 'hero_subtitle', 'site_favicon']);
-
-  const settings: Record<string, string> = data?.reduce((acc: Record<string, string>, row) => ({
-    ...acc,
-    [row.key]: row.value,
-  }), {}) || {};
-
-  // Normalize favicon URL — must be absolute for external, relative for local
-  const faviconUrl = settings.site_favicon
-    ? settings.site_favicon.startsWith('http')
-      ? settings.site_favicon
-      : `/${settings.site_favicon.replace(/^\//, '')}`
-    : '/favicon.ico';
+  const { data } = await supabaseAdmin.from('site_settings').select('key, value').in('key', ['hero_title', 'hero_subtitle', 'site_favicon']);
+  const settings = data?.reduce((acc: any, row) => ({ ...acc, [row.key]: row.value }), {}) || {};
 
   return {
     metadataBase: new URL('https://www.black4me.com'),
     title: {
-      default: settings.hero_title
-        ? `${settings.hero_title} | BLACK4ME`
-        : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً | جاسم محمد',
+      default: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً | جاسم محمد',
       template: '%s | BLACK4ME',
     },
-    description:
-      settings.hero_subtitle ||
-      'احصل على الحزمة الشاملة لبناء نظام تسويق رقمي متكامل: كتاب عملي + نظام تعليمي + قوالب جاهزة + استشارة خاصة. ابدأ بـ $49 فقط مع ضمان استرداد كامل.',
+    description: settings.hero_subtitle || 'احصل على الحزمة الشاملة لبناء نظام تسويق رقمي متكامل: كتاب عملي + نظام تعليمي + قوالب جاهزة + استشارة خاصة. ابدأ بـ $49 فقط مع ضمان استرداد كامل.',
     icons: {
-      icon: [
-        { url: faviconUrl, sizes: 'any' },
-      ],
-      apple: [
-        { url: faviconUrl, sizes: '180x180', type: 'image/png' },
-      ],
-      shortcut: faviconUrl,
+      icon: settings.site_favicon || '/favicon.ico',
+      apple: settings.site_favicon || '/favicon.ico',
     },
     keywords: [
       'كتاب تسويق رقمي',
@@ -95,12 +68,8 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'ar_SA',
       url: 'https://www.black4me.com',
       siteName: 'BLACK4ME',
-      title: settings.hero_title
-        ? `${settings.hero_title} | BLACK4ME`
-        : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
-      description:
-        settings.hero_subtitle ||
-        'الحزمة الشاملة لبناء نظام تسويق رقمي: كتاب + نظام تعليمي + قوالب + استشارة. ابدأ بـ $49 مع ضمان استرداد.',
+      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
+      description: settings.hero_subtitle || 'الحزمة الشاملة لبناء نظام تسويق رقمي: كتاب + نظام تعليمي + قوالب + استشارة. ابدأ بـ $49 مع ضمان استرداد.',
       images: [
         {
           url: '/images/book-cover.png',
@@ -114,12 +83,8 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       site: '@black4me',
       creator: '@black4me',
-      title: settings.hero_title
-        ? `${settings.hero_title} | BLACK4ME`
-        : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
-      description:
-        settings.hero_subtitle ||
-        'الحزمة الشاملة لبناء نظام تسويق رقمي متكامل. ابدأ بـ $49 مع ضمان استرداد كامل.',
+      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'BLACK4ME — نظام تسويق يجلب لك 20 عميل شهرياً',
+      description: settings.hero_subtitle || 'الحزمة الشاملة لبناء نظام تسويق رقمي متكامل. ابدأ بـ $49 مع ضمان استرداد كامل.',
       images: ['/images/book-cover.png'],
     },
     robots: {
@@ -148,36 +113,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="ar"
-      dir="rtl"
-      className={`${cairo.variable} ${ibmPlex.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="ar" dir="rtl" className={`${cairo.variable} ${ibmPlex.variable}`} suppressHydrationWarning>
       <head>
-        <link
-          rel="preload"
-          as="image"
-          href="/images/book-cover.jpg"
-          fetchPriority="high"
-        />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://rgfiszmnxktetnahufpm.supabase.co" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://api.stripe.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://connect.facebook.net" />
-        <link rel="preconnect" href="https://analytics.tiktok.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://connect.facebook.net" />
+        <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
       </head>
       <body className="min-h-full font-sans bg-brand-black text-brand-white antialiased">
         <Providers>
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-brand-gold focus:text-brand-black focus:p-2 focus:rounded"
-          >
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-brand-gold focus:text-brand-black focus:p-2 focus:rounded">
             انتقل للمحتوى الرئيسي
           </a>
           <Navbar />
-          <main id="main-content" className="min-h-[calc(100dvh-80px)]">
+          <main id="main-content" className="min-h-[calc(100vh-80px)]">
             {children}
           </main>
           <Footer />

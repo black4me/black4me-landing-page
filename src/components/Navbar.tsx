@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useApp } from '../context/AppContext';
 import { ShieldCheck, Menu, X } from 'lucide-react';
@@ -38,22 +37,24 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="h-[80px] bg-brand-black/80 backdrop-blur-md border-b border-brand-white/10 py-4 px-6 md:px-12 sticky top-0 z-50" dir="rtl" role="navigation" aria-label="القائمة الرئيسية">
+    <nav className="bg-brand-black/80 backdrop-blur-md border-b border-brand-white/10 py-4 px-6 md:px-12 sticky top-0 z-50" dir="rtl" role="navigation" aria-label="القائمة الرئيسية">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2 group" aria-label="BLACK4ME - الصفحة الرئيسية">
-
-          <div className="text-right flex flex-col justify-center">
-            {siteSettings.site_logo ? (
-              <Image src={siteSettings.site_logo} alt="BLACK4ME" width={160} height={32} className="h-8 w-auto object-contain" priority={true} />
-            ) : (
-              <>
+          {siteSettings.site_logo ? (
+            <img src={siteSettings.site_logo} alt="BLACK4ME" className="h-10 object-contain hover:scale-105 transition" />
+          ) : (
+            <>
+              <span className="w-10 h-10 rounded-xl bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono hover:scale-105 transition shadow-lg shadow-brand-gold/10 text-sm" aria-hidden="true">
+                B4M
+              </span>
+              <div className="text-right flex flex-col justify-center">
                 <span className="font-mono text-lg font-black tracking-widest leading-none block text-white">BLACK4ME</span>
                 <span className="text-[9px] text-brand-gold font-medium block mt-0.5">JASIM MOHAMMED</span>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </Link>
 
         {/* Desktop Navigation Links */}
