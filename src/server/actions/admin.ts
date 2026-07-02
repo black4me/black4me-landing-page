@@ -200,4 +200,30 @@ export async function approveOrder(orderId: string): Promise<{ success: boolean;
   }
 }
 
+export async function getPrivateSettings() {
+  try {
+    const { data } = await supabaseAdmin.from('private_settings').select('*');
+    const settings: Record<string, string> = {};
+    if (data) {
+      data.forEach(row => {
+        settings[row.key] = row.value;
+      });
+    }
+    return { settings };
+  } catch (error: any) {
+    console.error('getPrivateSettings error:', error);
+    return { error: error.message };
+  }
+}
+
+export async function updatePrivateSetting(key: string, value: string) {
+  try {
+    const { error } = await supabaseAdmin.from('private_settings').upsert({ key, value });
+    if (error) throw error;
+    return { success: true };
+  } catch (err: any) {
+    console.error('updatePrivateSetting error:', err);
+    return { error: err.message };
+  }
+}
 
