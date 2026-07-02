@@ -256,7 +256,7 @@ export async function getCustomerHistoryAdmin(email: string) {
     const [ordersRes, leadMagnetsRes, consultationsRes] = await Promise.all([
       supabaseAdmin.from('orders').select('*').eq('customer_email', email),
       supabaseAdmin.from('lead_magnets').select('*').eq('email', email),
-      supabaseAdmin.from('consultations').select('*').eq('email', email),
+      supabaseAdmin.from('consultations').select('*').eq('customer_email', email),
     ]);
 
     const history: any[] = [];
