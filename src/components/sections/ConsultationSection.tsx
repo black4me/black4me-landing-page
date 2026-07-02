@@ -83,7 +83,7 @@ export default function ConsultationSection() {
                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-2 transition-transform" />
                  </span>
                  <span className="text-black font-bold border border-black/30 px-4 py-1.5 rounded-xl text-lg">
-                   $149
+                   $49
                  </span>
                </button>
             </div>
