@@ -7,7 +7,10 @@ import { sendWelcomeEmail } from './email';
 
 export async function updateAdminSiteSetting(key: string, value: string) {
   try {
-    const { error } = await supabaseAdmin.from('site_settings').upsert({ key, value });
+    const { error } = await supabaseAdmin.from('site_settings').upsert(
+      { key, value },
+      { onConflict: 'key' }
+    );
     if (error) throw error;
     revalidatePath('/', 'layout');
     return { success: true };
