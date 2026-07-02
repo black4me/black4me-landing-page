@@ -16,9 +16,16 @@ export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
     salePrice: 49
   };
 
-  // Helper to split title for styling
-  const titleParts = mainProduct.title.split('...');
-  const titlePart1 = titleParts[0] ? titleParts[0] + '...' : mainProduct.title;
+  const heroTitle = siteSettings?.hero_title || mainProduct.title;
+  const heroBadge = siteSettings?.hero_badge || '🔥 عرض محدود: $49 بدل $199 — وفّر 75%';
+  const heroSubtitle = siteSettings?.hero_subtitle || 'الكتاب العملي + النظام التعليمي + 6 قوالب جاهزة';
+  const heroCtaPrimary = siteSettings?.hero_cta_primary || '← احصل على الحزمة الشاملة — $49';
+  const heroCtaSecondary = siteSettings?.hero_cta_secondary || 'شاهد عينة مجانية من الكتاب';
+  const heroSupportText = siteSettings?.hero_support_text || mainProduct.description;
+
+  // Helper to split title for styling (if it contains '...')
+  const titleParts = heroTitle.split('...');
+  const titlePart1 = titleParts[0] ? titleParts[0] + (titleParts.length > 1 ? '...' : '') : heroTitle;
   const titlePart2 = titleParts[1] ? titleParts[1] : '';
 
   return (
@@ -37,19 +44,25 @@ export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
           
           {/* Right Column: Text and Action items */}
           <div className="lg:col-span-7 py-12 flex flex-col justify-center text-right">
-            <span className="text-brand-gold font-bold text-lg mb-4 block tracking-wide">
-              {siteSettings.hero_subtitle || 'JASIM MOHAMMED يقدم'}
-            </span>
+            <div className="mb-6">
+              <span className="inline-block bg-[#F5C542] text-black px-4 py-1.5 rounded-full text-sm font-bold shadow-[0_0_15px_rgba(245,197,66,0.3)]">
+                {heroBadge}
+              </span>
+            </div>
             
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] mb-4">
               {titlePart1} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F5C542] via-[#F5C542] to-[#6C3BFF] drop-shadow-[0_2px_15px_rgba(245,197,66,0.15)]">
                 {titlePart2}
               </span>
             </h1>
 
+            <h2 className="text-xl md:text-2xl mt-2 mb-6 text-gray-300 font-bold">
+              {heroSubtitle}
+            </h2>
+
             <p className="text-lg sm:text-xl text-white/70 mb-8 max-w-xl leading-relaxed">
-              {mainProduct.description}
+              {heroSupportText}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
@@ -58,8 +71,7 @@ export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
                 onClick={onBuyClick}
                 className="px-8 py-4 bg-[#F5C542] hover:bg-yellow-500 text-black font-black text-lg rounded-xl flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95 cursor-pointer shadow-[0_0_25px_rgba(245,197,66,0.35)]"
               >
-                <span>امتلك الحزمة الشاملة ($49)</span>
-                <ArrowLeft className="w-5 h-5 shrink-0" />
+                <span>{heroCtaPrimary}</span>
               </button>
               
               <button
@@ -67,7 +79,7 @@ export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
                 onClick={onExploreClick}
                 className="px-8 py-4 bg-white/5 border border-white/10 rounded-xl font-bold text-lg hover:bg-white/10 text-white transition cursor-pointer"
               >
-                استكشف نظام الرحلة
+                {heroCtaSecondary}
               </button>
             </div>
 
