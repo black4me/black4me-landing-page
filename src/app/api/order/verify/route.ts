@@ -33,19 +33,33 @@ export async function GET(req: Request) {
        return NextResponse.json({ error: 'No product metadata' }, { status: 400 });
     }
 
-    // Fetch product details from Supabase to get the file_url
-    const { data: product } = await supabaseAdmin
-      .from('products')
-      .select('title, file_url, file_type')
-      .eq('id', productId)
-      .single();
+    // Fetch product details
+    let title = 'Your Product';
+    let fileUrl = null;
+    
+    if (productId === 'prod-consultation') {
+      title = 'جلسة استشارية + خطة عمل';
+    } else if (productId === 'prod-main-book') {
+      title = 'كتاب "أسرار المبيعات" الشامل';
+    } else {
+      const { data: dbProduct, error: productError } = await supabaseAdmin
+        .from('products')
+        .select('title, file_url, file_type')
+        .eq('id', productId)
+        .single();
+        
+      if (!productError && dbProduct) {
+        title = dbProduct.title;
+        fileUrl = dbProduct.file_url;
+      }
+    }
 
     return NextResponse.json({
       success: true,
       product: {
         id: productId,
-        title: product?.title || 'Your Product',
-        file_url: product?.file_url || null,
+        title: title,
+        file_url: fileUrl,
       }
     });
 

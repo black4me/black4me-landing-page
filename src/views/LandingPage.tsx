@@ -23,6 +23,7 @@ const NewsletterSection = dynamic(() => import('../components/sections/Newslette
 const StickyMobileCTA = dynamic(() => import('../components/sections/StickyMobileCTA'));
 const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'), { loading: () => <div className="h-[200px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
 const LeadMagnet = dynamic(() => import('../components/LeadMagnet'));
+const HeroVideo = dynamic(() => import('../components/sections/HeroVideo'), { ssr: false });
 
 /* ═══════════════════════════════════════════════════════════════
    HERO SECTION — Above the fold, result-oriented
@@ -69,19 +70,18 @@ function HeroSection() {
             </div>
 
             {/* H1 — Result-oriented headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.2rem] font-black leading-[1.15] mb-6">
-              <span className="block">أبني لك نظام تسويق يجلب</span>
-              <span className="block text-transparent bg-clip-text bg-gradient-to-l from-brand-gold via-brand-gold to-brand-purple drop-shadow-[0_2px_15px_rgba(245,197,66,0.15)]">
-                20 عميل مؤكد شهرياً
-              </span>
-              <span className="block text-2xl sm:text-3xl md:text-3xl mt-2 text-gray-300 font-bold">
-                خلال 60 يوم — ضمان استرداد أو عمل مجاني حتى تحقق النتيجة.
-              </span>
+            <h1 className="text-4xl md:text-6xl font-bold mt-6 leading-tight mb-4">
+              بدون تسويق كارثة تهدد ثروتك المستقبلية
             </h1>
+
+            <h2 className="text-xl md:text-2xl mt-4 text-gray-300 font-bold mb-6">
+              الكتاب العملي + النظام التعليمي + 6 قوالب جاهزة
+            </h2>
 
             {/* Description paragraph */}
             <p className="text-base md:text-lg text-gray-400 leading-relaxed mb-8 max-w-2xl">
-              حزمة متكاملة تجمع كتاب عملي + نظام تعليمي رقمي + قوالب تسويقية جاهزة + استشارة فردية مباشرة — كل ما تحتاجه لتحوّل مهارتك إلى مصدر دخل مستقر بدون ملاحقة العملاء.
+              دليل بناء العروض التي لا ترفض وتحويل المهارات إلى أرباح طائلة.
+              من تأليف جاسم محمد — مستشار التسويق الرقمي في BLACK4ME.
             </p>
 
             {/* Value Bullets */}
@@ -179,6 +179,11 @@ function HeroSection() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Hero Video — below the fold split */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 pb-12 relative z-10">
+        <HeroVideo />
       </div>
 
       {/* Scroll Indicator */}

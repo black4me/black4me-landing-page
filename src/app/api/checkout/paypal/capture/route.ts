@@ -142,7 +142,15 @@ export async function POST(req: Request) {
         let productTitle = 'المنتج';
         let productDbId = productId;
 
-        if (productId) {
+        if (productId === 'prod-consultation') {
+          fileUrl = null;
+          productTitle = 'جلسة استشارية + خطة عمل';
+          productDbId = 'prod-consultation';
+        } else if (productId === 'prod-main-book') {
+          fileUrl = null;
+          productTitle = 'كتاب "أسرار المبيعات" الشامل';
+          productDbId = 'prod-main-book';
+        } else if (productId) {
           const { data: prod } = await supabaseAdmin
             .from('products')
             .select('id, title, file_url')

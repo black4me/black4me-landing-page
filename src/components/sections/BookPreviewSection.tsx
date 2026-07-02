@@ -49,27 +49,52 @@ export default function BookPreviewSection() {
 
             {/* Image Preview */}
             <div className="order-1 lg:order-2 flex justify-center items-center w-full">
-              <div className="relative w-full aspect-[4/3] max-w-[700px] flex items-center justify-center xl:scale-110 xl:-translate-x-4">
-                {siteSettings?.book_preview_image ? (
-                  <>
-                    <div className="absolute inset-0 bg-brand-gold/10 blur-[120px] rounded-full transform scale-90" aria-hidden="true" />
-                    <Image 
-                      src={siteSettings.book_preview_image} 
-                      alt="محتويات النظام من الداخل" 
+              <div className="relative w-full max-w-[700px] space-y-6">
+                {/* Book Cover */}
+                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-brand-white/10">
+                  <div className="absolute inset-0 bg-brand-gold/10 blur-[120px] rounded-full transform scale-90" aria-hidden="true" />
+                  {siteSettings?.book_preview_image ? (
+                    <Image
+                      src={siteSettings.book_preview_image}
+                      alt="كتاب بدون تسويق كارثة — الحزمة الشاملة"
                       fill
-                      className="object-contain drop-shadow-2xl transition-transform duration-700 hover:scale-[1.02]" 
+                      className="object-contain drop-shadow-2xl transition-transform duration-700 hover:scale-[1.02]"
                       unoptimized={true}
                       priority
                     />
-                  </>
-                ) : (
-                  <div className="w-full h-full bg-[#050505] flex items-center justify-center rounded-2xl border border-dashed border-gray-700">
-                    <div className="text-center text-gray-500 p-8">
-                      <p className="text-lg font-bold mb-2">مكان صورة العرض الشامل</p>
-                      <p className="text-sm">قم برفع الصورة من لوحة التحكم (إعدادات الموقع - Book Preview Image)</p>
-                    </div>
+                  ) : (
+                    <Image
+                      src="/images/book-cover.webp"
+                      alt="كتاب بدون تسويق كارثة — الحزمة الشاملة"
+                      fill
+                      className="object-cover drop-shadow-2xl transition-transform duration-700 hover:scale-[1.02]"
+                      priority
+                      onError={(e) => {
+                        // TODO: استبدل الصورة بغلاف الكتاب الحقيقي من جاسم
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* Platform Preview with overlay */}
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-brand-white/10">
+                  <Image
+                    src="/images/platform-preview.webp"
+                    alt="معاينة أكاديمية التسويق الرقمية"
+                    fill
+                    className="object-cover"
+                    onError={(e) => {
+                      // TODO: استبدل الصورة بلقطة شاشة حقيقية للمنصة
+                      (e.currentTarget as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center pb-6 rounded-2xl">
+                    <p className="text-white text-lg font-bold text-center px-4">
+                      🎓 أكثر من 27 درساً و 6 قوالب جاهزة
+                    </p>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
