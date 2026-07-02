@@ -84,6 +84,7 @@ export default function ImageUploader({
 
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* Upload Zone */}
       {!url && (
         <div 
           className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
@@ -109,6 +110,7 @@ export default function ImageUploader({
         </div>
       )}
 
+      {/* Preview & Controls */}
       {url && (
         <div className="bg-gray-800/80 rounded-xl p-4 border border-gray-700">
           <div className="flex justify-between items-center mb-4">
@@ -126,6 +128,7 @@ export default function ImageUploader({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Live Preview */}
             <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-600 bg-gray-900 flex justify-center items-center">
               <img 
                 src={url} 
@@ -140,6 +143,7 @@ export default function ImageUploader({
               />
             </div>
 
+            {/* Controls */}
             <div className="space-y-4">
               <div>
                 <label className="flex items-center justify-between text-sm text-gray-300 mb-2">
