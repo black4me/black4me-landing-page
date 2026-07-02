@@ -118,7 +118,7 @@ export default function BookDetails() {
             <div className="flex-shrink-0">
               <div className="w-40 h-40 rounded-full overflow-hidden ring-4 ring-yellow-400/40 shadow-2xl">
                 <Image
-                  src="/images/jassim-author.jpg"
+                  src={siteSettings?.author_image || "/images/jassim-author.jpg"}
                   alt="جاسم محمد — مؤسس BLACK4ME"
                   width={160}
                   height={160}
