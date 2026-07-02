@@ -1,33 +1,28 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { supabase } from '../../../lib/supabase';
 import { Plus, Edit2, Trash2, Save, X, Star } from 'lucide-react';
 import { useAutoSave } from '../../../hooks/useAutoSave';
 
 interface Testimonial {
   id: string;
-  name: string;
-  role: string;
-  content: string;
+  customer_name: string;
+  country: string;
+  comment: string;
   rating: number;
-  image_url?: string;
-  imageUrl?: string;
-  is_featured: boolean;
-  isFeatured?: boolean;
+  is_approved: boolean;
 }
 
 export default function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Testimonial | null>(null);
-  const [uploadingFile, setUploadingFile] = useState(false);
 
-  const initialForm = { name: '', role: '', content: '', rating: 5, image_url: '', is_featured: false };
+  const initialForm = { customer_name: '', country: '', comment: '', rating: 5, is_approved: true };
 
   const { data: form, updateData: setForm, clearDraft } = useAutoSave({
-    key: 'testimonial_form',
+    key: 'testimonial_form_db',
     initialData: initialForm,
   });
 
@@ -36,8 +31,9 @@ export default function TestimonialsPage() {
   }, []);
 
   const fetchData = async () => {
-    const { data } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
     if (data) setTestimonials(data);
+    if (error) console.error('Error fetching testimonials:', error);
   };
 
   const openAdd = () => {
@@ -49,12 +45,11 @@ export default function TestimonialsPage() {
   const openEdit = (item: Testimonial) => {
     setEditingItem(item);
     setForm({
-      name: item.name,
-      role: item.role,
-      content: item.content,
+      customer_name: item.customer_name,
+      country: item.country,
+      comment: item.comment,
       rating: item.rating,
-      image_url: item.image_url || item.imageUrl || '',
-      is_featured: item.is_featured ?? item.isFeatured ?? false,
+      is_approved: item.is_approved,
     });
     setShowForm(true);
   };
@@ -82,25 +77,6 @@ export default function TestimonialsPage() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    try {
-      setUploadingFile(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const { error } = await supabase.storage.from('testimonials').upload(fileName, file);
-      if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from('testimonials').getPublicUrl(fileName);
-      setForm({ image_url: publicUrl });
-      alert('تم رفع الصورة بنجاح!');
-    } catch (error: any) {
-      alert('حدث خطأ أثناء رفع الصورة: ' + error.message);
-    } finally {
-      setUploadingFile(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -123,17 +99,17 @@ export default function TestimonialsPage() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-1.5">اسم العميل *</label>
-                <input required type="text" value={form.name} onChange={e => setForm({name: e.target.value})}
+                <input required type="text" value={form.customer_name} onChange={e => setForm({customer_name: e.target.value})}
                   className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#6C3BFF]" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1.5">المسمى الوظيفي / الدور *</label>
-                <input required type="text" value={form.role} onChange={e => setForm({role: e.target.value})}
+                <label className="block text-xs font-bold text-gray-400 mb-1.5">الدولة / البلد *</label>
+                <input required type="text" value={form.country} onChange={e => setForm({country: e.target.value})}
                   className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#6C3BFF]" />
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-gray-400 mb-1.5">نص التقييم *</label>
-                <textarea required rows={4} value={form.content} onChange={e => setForm({content: e.target.value})}
+                <textarea required rows={4} value={form.comment} onChange={e => setForm({comment: e.target.value})}
                   className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#6C3BFF] resize-none" />
               </div>
               <div>
@@ -141,14 +117,10 @@ export default function TestimonialsPage() {
                 <input type="number" min="1" max="5" value={form.rating} onChange={e => setForm({rating: Number(e.target.value)})}
                   className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-[#6C3BFF]" />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1.5">الصورة (اختياري)</label>
-                <input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploadingFile} className="w-full text-white text-sm" />
-                {uploadingFile && <span className="text-xs text-[#F5C542]">جاري الرفع...</span>}
-              </div>
+              
               <div className="sm:col-span-2 flex items-center gap-3">
-                <input type="checkbox" id="isFeatured" checked={form.is_featured} onChange={e => setForm({is_featured: e.target.checked})} className="w-4 h-4 accent-[#6C3BFF]" />
-                <label htmlFor="isFeatured" className="text-sm text-gray-300 cursor-pointer">تقييم مميز (يظهر في الأعلى)</label>
+                <input type="checkbox" id="isApproved" checked={form.is_approved} onChange={e => setForm({is_approved: e.target.checked})} className="w-4 h-4 accent-[#6C3BFF]" />
+                <label htmlFor="isApproved" className="text-sm text-gray-300 cursor-pointer">معتمد (يظهر للعامة)</label>
               </div>
             </div>
             <div className="flex gap-3 pt-2">
@@ -163,26 +135,22 @@ export default function TestimonialsPage() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {testimonials.map(t => (
           <div key={t.id} className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-5 flex flex-col relative overflow-hidden">
-            {t.is_featured && <div className="absolute top-0 right-0 bg-[#F5C542] text-black text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">مميز</div>}
+            {!t.is_approved && <div className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">مخفي</div>}
             <div className="flex items-center gap-3 mb-3">
-              {t.image_url ? (
-                <Image src={t.image_url} alt={t.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-white/10" />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 text-xs font-bold">
-                  {t.name.charAt(0)}
-                </div>
-              )}
+              <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 text-xs font-bold">
+                {t.customer_name?.charAt(0) || '?'}
+              </div>
               <div>
-                <h3 className="text-sm font-bold text-white leading-tight">{t.name}</h3>
-                <p className="text-[10px] text-gray-500">{t.role}</p>
+                <h3 className="text-sm font-bold text-white leading-tight">{t.customer_name}</h3>
+                <p className="text-[10px] text-gray-500">{t.country}</p>
               </div>
             </div>
             <div className="flex gap-0.5 mb-2">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`w-3 h-3 ${i < t.rating ? 'text-[#F5C542] fill-[#F5C542]' : 'text-white/10'}`} />
+                <Star key={i} className={`w-3 h-3 ${i < (t.rating || 0) ? 'text-[#F5C542] fill-[#F5C542]' : 'text-white/10'}`} />
               ))}
             </div>
-            <p className="text-xs text-gray-400 line-clamp-3 mb-4 flex-1">{t.content}</p>
+            <p className="text-xs text-gray-400 line-clamp-3 mb-4 flex-1">{t.comment}</p>
             <div className="flex items-center gap-2 pt-4 border-t border-white/5">
               <button onClick={() => openEdit(t)} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold text-gray-300 hover:text-white border border-white/10 hover:border-[#6C3BFF]/40 hover:bg-[#6C3BFF]/10 py-2 rounded-xl transition">
                 <Edit2 className="w-3.5 h-3.5" /> تعديل
