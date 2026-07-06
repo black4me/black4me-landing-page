@@ -80,9 +80,9 @@ export default function BlogPostClient({ post, products }: { post: any, products
                         {[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < 4 ? 'text-[#F5C542] fill-[#F5C542]' : 'text-[#F5C542]/30 fill-[#F5C542]/30'}`} />)}
                       </div>
                       <p className="text-gray-400 text-sm mb-4 line-clamp-2 leading-relaxed">{product.description}</p>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mt-4">
                         <span className="text-2xl font-black text-white font-mono">${product.sale_price || product.price}</span>
-                        <Link href={`/product/${product.slug}`} className="bg-white/5 hover:bg-white/10 text-white font-bold px-6 py-2 rounded-xl transition text-sm">
+                        <Link href={`/product/${product.slug || product.id}`} className="bg-white/5 hover:bg-white/10 text-white font-bold px-6 py-2 rounded-xl transition text-sm">
                           عرض التفاصيل
                         </Link>
                       </div>
@@ -95,8 +95,8 @@ export default function BlogPostClient({ post, products }: { post: any, products
                 // Mock consultation card as requested in design
                 return (
                   <div key={block.id} className="my-10 bg-gradient-to-r from-[#0d0d10] to-[#111] border border-white/5 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-8 group">
-                     <div className="w-24 h-24 bg-[#1a1a1d] rounded-full overflow-hidden relative shrink-0 border-2 border-[#F5C542]/20">
-                      <img src="/images/avatar-placeholder.png" alt="استشارة" className="w-full h-full object-cover" />
+                    <div className="w-24 h-24 bg-[#1a1a1d] rounded-full overflow-hidden relative shrink-0 border-2 border-[#F5C542]/20">
+                      <img src="/images/jasim-avatar.png" alt="استشارة" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 text-center md:text-right">
                       <h3 className="text-xl font-bold text-white mb-2">استشارة تسويق شخصية</h3>
@@ -106,10 +106,10 @@ export default function BlogPostClient({ post, products }: { post: any, products
                       </div>
                       <p className="text-gray-500 text-xs uppercase tracking-widest font-bold">العمل اللصيق - مدة مفتوحة</p>
                     </div>
-                    <div className="shrink-0 text-center">
-                      <button className="bg-transparent border border-[#F5C542]/50 text-[#F5C542] hover:bg-[#F5C542]/10 font-bold px-8 py-2.5 rounded-xl transition text-sm w-full md:w-auto">
+                    <div className="shrink-0 text-center w-full md:w-auto">
+                      <Link href="/checkout" className="bg-transparent border border-[#F5C542]/50 text-[#F5C542] hover:bg-[#F5C542]/10 font-bold px-8 py-2.5 rounded-xl transition text-sm w-full md:w-auto inline-block">
                         حجز الآن
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 );
@@ -161,8 +161,8 @@ export default function BlogPostClient({ post, products }: { post: any, products
             {/* Author Profile */}
             <div className="bg-[#111114] border border-white/5 p-6 rounded-3xl text-center">
               <div className="w-20 h-20 bg-[#1a1a1d] rounded-full mx-auto mb-4 overflow-hidden border border-white/10 relative">
-                {/* Fallback image */}
-                <img src="/images/avatar-placeholder.png" alt="جاسم محمد" className="w-full h-full object-cover" />
+                {/* User image */}
+                <img src="/images/jasim-avatar.png" alt="جاسم محمد" className="w-full h-full object-cover" />
               </div>
               <h3 className="text-lg font-bold text-white mb-1">جاسم محمد</h3>
               <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">المؤسس - BLACK4ME</p>
@@ -193,9 +193,9 @@ export default function BlogPostClient({ post, products }: { post: any, products
                 </div>
               </div>
               
-              <button className="w-full bg-transparent border border-[#F5C542]/30 hover:bg-[#F5C542]/10 text-[#F5C542] font-bold py-3 rounded-xl transition text-sm">
+              <Link href="/checkout" className="w-full bg-transparent border border-[#F5C542]/30 hover:bg-[#F5C542]/10 text-[#F5C542] font-bold py-3 rounded-xl transition text-sm flex items-center justify-center">
                 حجز الآن
-              </button>
+              </Link>
             </div>
 
             {/* Latest Offers Ad */}
@@ -208,7 +208,10 @@ export default function BlogPostClient({ post, products }: { post: any, products
                   <span className="text-2xl text-[#F5C542] font-black">%</span>
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">أحدث العروض</h3>
-                <p className="text-gray-400 text-xs leading-relaxed">احصل على خصومات حصرية للمشتركين فقط على منتجاتنا المتميزة.</p>
+                <p className="text-gray-400 text-xs leading-relaxed mb-4">احصل على خصومات حصرية للمشتركين فقط على منتجاتنا المتميزة.</p>
+                <Link href="/checkout" className="bg-[#F5C542] hover:bg-[#e0b53c] text-[#111] font-bold py-2 px-6 rounded-xl transition text-sm">
+                  تصفح العروض
+                </Link>
               </div>
             </div>
 

@@ -4,7 +4,9 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import ProductDetailsClient from './ProductDetailsClient';
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> | { slug: string } }) {
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,7 +23,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const { data: product } = await supabase
     .from('products')
     .select('*, category:categories(name)')
-    .eq('slug', params.slug)
+    .or(`slug.eq.${slug},id.eq.${slug}`)
     .eq('is_active', true)
     .single();
 

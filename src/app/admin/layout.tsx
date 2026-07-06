@@ -91,7 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Super Admin
             </div>
             <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 relative bg-[#1a1a1d]">
-              <img src="/images/avatar-placeholder.png" alt="Profile" className="w-full h-full object-cover" />
+              <img src="/images/jasim-avatar.png" alt="Profile" className="w-full h-full object-cover" />
             </div>
           </div>
 
