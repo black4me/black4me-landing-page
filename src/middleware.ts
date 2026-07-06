@@ -17,7 +17,7 @@ const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_RE
 const ratelimit = redis
   ? new Ratelimit({
       redis,
-      limiter: Ratelimit.slidingWindow(10, "10 s"),
+      limiter: Ratelimit.slidingWindow(30, "10 s"),
     })
   : null;
 
@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  if (ratelimit && (pathname.startsWith('/api/checkout') || pathname.startsWith('/login') || pathname.startsWith('/api/webhooks'))) {
+  if (ratelimit && (request.method === 'POST' || pathname.startsWith('/api/'))) {
     const ip = request.headers.get('x-forwarded-for') ?? '127.0.0.1';
     
     try {

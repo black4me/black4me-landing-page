@@ -169,6 +169,7 @@ export default function RootLayout({
           <Footer />
         </Providers>
         <TrackingScripts
+          gtmId={process.env.NEXT_PUBLIC_GTM_ID}
           gaId={process.env.NEXT_PUBLIC_GA_ID}
           metaPixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID}
           tiktokPixelId={process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID}

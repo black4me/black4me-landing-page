@@ -12,9 +12,12 @@ import {
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
-  const mode = searchParams.get('mode') || 'book';
+  const productId = searchParams.get('productId');
   const { coupons, products, siteSettings } = useApp();
 
+  // Find the selected product from DB
+  const actualProduct = products.find(p => p.id === productId) || products[0];
+  
   // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -28,15 +31,11 @@ function CheckoutContent() {
   const [error, setError] = useState('');
 
   // Pricing
-  const isConsultation = mode === 'consultation';
-  const basePrice = 49;
-  const originalPrice = 199;
+  const basePrice = actualProduct?.salePrice || actualProduct?.price || 49;
+  const originalPrice = actualProduct?.price || 199;
   const discountAmount = Math.round((basePrice * discountPercent) / 100);
   const finalPrice = basePrice - discountAmount;
-
-  const productTitle = isConsultation
-    ? 'الحزمة المتقدمة + استشارة فردية'
-    : 'الحزمة الشاملة — كتاب + نظام + قوالب';
+  const productTitle = actualProduct?.title || 'الحزمة الشاملة';
 
   // Apply coupon
   const handleApplyCoupon = () => {
@@ -62,10 +61,7 @@ function CheckoutContent() {
     setIsProcessing(true);
 
     try {
-      // Safely determine product ID based on context products
-      const targetProductTitle = isConsultation ? 'استشارة' : 'بدون التسويق';
-      const actualProduct = products.find(p => p.title.includes(targetProductTitle)) || products[0];
-      const actualProductId = actualProduct ? actualProduct.id : (isConsultation ? 'prod-consultation' : 'prod-main-book');
+      const actualProductId = actualProduct?.id || 'prod-main-book';
 
       const endpoint = paymentMethod === 'stripe' ? '/api/checkout/stripe' : '/api/checkout/paypal';
       const response = await fetch(endpoint, {
@@ -284,7 +280,7 @@ function CheckoutContent() {
                   'نظام تعليمي (9 وحدات)',
                   'قوالب وأدوات جاهزة',
                   'تحديثات مدى الحياة',
-                  ...(isConsultation ? ['استشارة فردية (60 دقيقة)', 'متابعة 30 يوم'] : []),
+                  ...(actualProduct?.features || []),
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs text-gray-400">
                     <CheckCircle2 className="w-3 h-3 text-brand-green flex-shrink-0" />

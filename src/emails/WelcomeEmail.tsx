@@ -55,12 +55,12 @@ export default function WelcomeEmail({ userFirstname, downloadLink }: WelcomeEma
               🎓 حسابك في المنصة التعليمية
             </Heading>
             <Text style={text}>
-              يمكنك الوصول إلى أكاديمية التسويق الرقمية مجاناً كجزء من الحزمة:
+              يمكنك الوصول إلى أكاديمية التسويق الرقمية كجزء من اشتراكك في الحزمة. استخدم كود الدخول الخاص بك لتسجيل الدخول:
             </Text>
             <Text style={{ ...text, marginTop: '8px' }}>
               🔗 رابط الدخول:{' '}
-              <Link href="https://marketing-academy-liard.vercel.app/login" style={{ color: '#F5C542' }}>
-                https://marketing-academy-liard.vercel.app/login
+              <Link href="https://www.black4me.com/academy" style={{ color: '#F5C542' }}>
+                https://www.black4me.com/academy
               </Link>
             </Text>
             <Text style={{ ...text, marginTop: '4px' }}>

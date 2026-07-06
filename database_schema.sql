@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
   amount numeric DEFAULT 0,
   payment_gateway text,
   status text DEFAULT 'completed',
+  access_code text,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

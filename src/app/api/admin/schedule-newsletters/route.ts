@@ -129,12 +129,14 @@ export async function POST(req: Request) {
 
       // Generate highly styled HTML directly
       const finalHtml = generateBrandedHTML(subject, bodyText);
+      const targetAudience = campaign['target_audience'] || 'all';
 
       inserts.push({
         subject,
         body: finalHtml,
         scheduled_at: scheduledAt,
-        status: 'scheduled'
+        status: 'scheduled',
+        target_audience: targetAudience
       });
     }
 

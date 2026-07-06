@@ -71,36 +71,14 @@ export async function POST(req: Request) {
     const normalizedEmail = String(customerEmail).trim().toLowerCase();
     const normalizedCouponCode = typeof couponCode === 'string' ? couponCode.trim().toUpperCase() : '';
 
-    let product: CheckoutProduct | null = null;
-    
-    if (productId === 'prod-consultation') {
-      product = {
-        id: 'prod-consultation',
-        title: 'جلسة استشارية + خطة عمل',
-        price: 199,
-        sale_price: 49,
-        is_active: true
-      };
-    } else if (productId === 'prod-main-book') {
-      product = {
-        id: 'prod-main-book',
-        title: 'كتاب "أسرار المبيعات" الشامل',
-        price: 199,
-        sale_price: 49,
-        is_active: true
-      };
-    } else {
-      const { data: dbProduct, error: productError } = await supabaseAdmin
-        .from('products')
-        .select('id, title, price, sale_price, is_active')
-        .eq('id', productId)
-        .eq('is_active', true)
-        .single<CheckoutProduct>();
-        
-      if (!productError && dbProduct) {
-        product = dbProduct;
-      }
-    }
+    const { data: dbProduct, error: productError } = await supabaseAdmin
+      .from('products')
+      .select('id, title, price, sale_price, is_active')
+      .eq('id', productId)
+      .eq('is_active', true)
+      .single<CheckoutProduct>();
+      
+    let product: CheckoutProduct | null = (!productError && dbProduct) ? dbProduct : null;
 
     if (!product) {
       return NextResponse.json({ error: 'Invalid product' }, { status: 400 });

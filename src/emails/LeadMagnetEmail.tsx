@@ -16,7 +16,7 @@ import {
 
 interface LeadMagnetEmailProps {
   userFirstname: string;
-  downloadLink: string;
+  downloadLink?: string;
   emailSubject: string;
   emailBody: string;
   logoUrl?: string;
@@ -29,6 +29,7 @@ export default function LeadMagnetEmail({
   userFirstname,
   downloadLink,
   emailSubject,
+  emailBody,
   logoUrl,
   instagramUrl,
   whatsappUrl,
@@ -55,25 +56,25 @@ export default function LeadMagnetEmail({
 
           <Section style={contentSection}>
             <Heading style={h1}>
-              هديتك الحصرية بانتظارك يا <span style={highlightName}>{userFirstname}</span>
+              {downloadLink ? `هديتك الحصرية بانتظارك يا ` : `مرحباً يا `}
+              <span style={highlightName}>{userFirstname}</span>
             </Heading>
 
             <Hr style={divider} />
 
             <Section style={messageContainer}>
               <Text style={text}>
-                النجاح ليس ضربة حظ، بل هو نتيجة لنظام تسويقي دقيق تبنيه اليوم ليقودك نحو الثراء غداً. لأننا في <strong style={{color: '#fff'}}>BLACK4ME</strong> نؤمن بأن مهاراتك تستحق أن تصل للعالم، جهّزنا لك أداة استثنائية لتبدأ رحلتك في السيطرة على السوق.
-              </Text>
-              <Text style={text}>
-                هذه الهدية ليست مجرد ملف، بل هي المفتاح العملي لتحويل خبرتك إلى أرقام ملموسة.
+                {emailBody || 'النجاح ليس ضربة حظ، بل هو نتيجة لنظام تسويقي دقيق تبنيه اليوم ليقودك نحو الثراء غداً. لأننا في BLACK4ME نؤمن بأن مهاراتك تستحق أن تصل للعالم.'}
               </Text>
             </Section>
 
-            <Section style={btnContainer}>
-              <Link href={downloadLink} style={button}>
-                احصل على هديتك الآن 🚀
-              </Link>
-            </Section>
+            {downloadLink && (
+              <Section style={btnContainer}>
+                <Link href={downloadLink} style={button}>
+                  احصل على هديتك الآن 🚀
+                </Link>
+              </Section>
+            )}
 
             <Section style={trustSection}>
               <Text style={trustText}>

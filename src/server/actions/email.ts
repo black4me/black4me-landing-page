@@ -15,6 +15,14 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
     // Fetch order and product details
     const { data: order } = await supabaseAdmin.from('orders').select('*, product:products(*)').eq('id', orderId).single();
     
+    // Generate access code if it doesn't exist
+    let accessCode = order?.access_code;
+    if (!accessCode) {
+      accessCode = 'B4M-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      // Update order with the new access code
+      await supabaseAdmin.from('orders').update({ access_code: accessCode }).eq('id', orderId);
+    }
+
     const productName = order?.product?.title || 'الحزمة الشاملة';
     const productPrice = order?.amount || '49.00';
     const productImage = order?.product?.file_url || 'https://www.black4me.com/assets/default-product.png'; // Fallback image if any
@@ -45,7 +53,7 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
                   <td style="padding: 40px 30px;">
                     <h2 style="color: #6C3BFF; margin-top: 0; font-size: 24px;">مرحباً ${name || 'صديقي'}! 👋</h2>
                     <p style="color: #dddddd; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
-                      يسعدنا جداً انضمامك إلينا. تم تأكيد طلبك بنجاح، ونحن متحمسون جداً لتبدأ رحلتك معنا. يمكنك الوصول لمنتجك مباشرة من خلال البوابة.
+                      يسعدنا جداً انضمامك إلينا. تم تأكيد طلبك بنجاح، ونحن متحمسون جداً لتبدأ رحلتك معنا. يمكنك الوصول للأكاديمية فوراً من خلال الكود الخاص بك أدناه.
                     </p>
 
                     <!-- Order Details Box -->
@@ -71,6 +79,14 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
                             <p style="margin: 5px 0 0 0; color: #22C55E; font-size: 18px; font-weight: bold;">$${productPrice}</p>
                           </td>
                         </tr>
+                        <tr>
+                          <td style="padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
+                            <p style="margin: 0; color: #888; font-size: 14px;">كود الدخول للأكاديمية</p>
+                            <div style="background: #222; padding: 10px; border-radius: 6px; margin-top: 8px; text-align: center; border: 1px dashed #6C3BFF;">
+                              <p style="margin: 0; color: #F5C542; font-size: 20px; font-weight: bold; letter-spacing: 2px;">${accessCode}</p>
+                            </div>
+                          </td>
+                        </tr>
                       </table>
                     </div>
 
@@ -78,8 +94,8 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td align="center" style="padding: 10px 0 30px 0;">
-                          <a href="${process.env.NEXT_PUBLIC_SITE_URL}/portal" style="display: inline-block; padding: 16px 32px; background-color: #F5C542; color: #000000; text-decoration: none; font-size: 18px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(245, 197, 66, 0.3);">
-                            الدخول للبوابة وبدء الاستخدام
+                          <a href="${process.env.NEXT_PUBLIC_SITE_URL}/academy" style="display: inline-block; padding: 16px 32px; background-color: #F5C542; color: #000000; text-decoration: none; font-size: 18px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(245, 197, 66, 0.3);">
+                            الدخول للأكاديمية وبدء الاستخدام
                           </a>
                         </td>
                       </tr>

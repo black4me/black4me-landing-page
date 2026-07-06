@@ -24,6 +24,7 @@ const StickyMobileCTA = dynamic(() => import('../components/sections/StickyMobil
 const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'), { loading: () => <div className="h-[200px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
 const LeadMagnet = dynamic(() => import('../components/LeadMagnet'));
 const HeroVideo = dynamic(() => import('../components/sections/HeroVideo'), { ssr: false });
+const ProductsSection = dynamic(() => import('../components/sections/ProductsSection'), { loading: () => <div className="h-[600px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
 
 /* ═══════════════════════════════════════════════════════════════
    HERO SECTION — Above the fold, result-oriented
@@ -278,6 +279,7 @@ export default function LandingPage() {
       </div>
 
       <HeroSection />
+      <ProductsSection />
       <BookDetails />
       <ProblemSection />
       <HowItWorksSection />

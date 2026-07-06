@@ -16,7 +16,11 @@ export default function Navbar() {
 
   const isCheckout = pathname === '/checkout';
 
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (id: string, isPage: boolean = false) => {
+    if (isPage) {
+      window.location.href = id;
+      return;
+    }
     if (pathname !== '/') {
       window.location.href = `/#${id}`;
       return;
@@ -27,6 +31,7 @@ export default function Navbar() {
   };
 
   const navLinks = [
+    { label: 'المدونة', id: '/blog' },
     { label: 'مسارات العميل', id: 'funnel-section' },
     { label: 'مؤشر الأداء', id: 'growth-chart-section' },
     { label: 'محتويات الحزمة', id: 'products-section' },
@@ -62,7 +67,7 @@ export default function Navbar() {
           {navLinks.map(link => (
             <button
               key={link.id}
-              onClick={() => scrollToSection(link.id)}
+              onClick={() => scrollToSection(link.id, link.id.startsWith('/'))}
               className="hover:text-brand-gold transition cursor-pointer"
               role="menuitem"
               aria-label={link.label}
@@ -110,7 +115,7 @@ export default function Navbar() {
           {navLinks.map(link => (
             <button
               key={link.id}
-              onClick={() => scrollToSection(link.id)}
+              onClick={() => scrollToSection(link.id, link.id.startsWith('/'))}
               className="block w-full text-right text-sm font-bold text-gray-400 hover:text-brand-gold transition py-2 px-4"
               role="menuitem"
             >

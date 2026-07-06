@@ -42,11 +42,12 @@ export default function Footer() {
               <li><Link href="/#pricing-section" className="hover:text-brand-gold transition">العرض والأسعار</Link></li>
               <li><Link href="/#faq-section" className="hover:text-brand-gold transition">الأسئلة الشائعة</Link></li>
               <li><Link href="/#consultations-section" className="hover:text-brand-gold transition">حجز استشارة</Link></li>
+              <li><Link href="/blog" className="hover:text-brand-gold transition">المدونة</Link></li>
               <li><Link href="/login" className="hover:text-brand-gold transition">دخول العملاء</Link></li>
               <li>
                 <a href="https://marketing-academy-liard.vercel.app/" target="_blank" rel="noopener noreferrer"
                   className="hover:text-brand-gold transition flex items-center gap-1.5">
-                  🎓 أكاديمية التسويق (مجانية)
+                  🎓 أكاديمية التسويق (للمشتركين)
                 </a>
               </li>
             </ul>

@@ -17,7 +17,7 @@ interface Campaign {
 export function EmailCampaignsTab() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [form, setForm] = useState({ subject: '', content: '', scheduled_at: '' });
+  const [form, setForm] = useState({ subject: '', content: '', scheduled_at: '', target_audience: 'all' });
 
   useEffect(() => {
     fetchCampaigns();
@@ -35,10 +35,11 @@ export function EmailCampaignsTab() {
       content: form.content,
       status: form.scheduled_at ? 'scheduled' : 'draft',
       scheduled_at: form.scheduled_at || null,
+      target_audience: form.target_audience
     };
     await supabase.from('email_campaigns').insert([payload]);
     setIsAdding(false);
-    setForm({ subject: '', content: '', scheduled_at: '' });
+    setForm({ subject: '', content: '', scheduled_at: '', target_audience: 'all' });
     fetchCampaigns();
   };
 
@@ -76,6 +77,14 @@ export function EmailCampaignsTab() {
             <textarea required value={form.content} onChange={e => setForm({...form, content: e.target.value})} rows={5} className="w-full bg-black border border-white/10 p-3 text-sm text-white rounded-xl focus:border-brand-purple outline-none" placeholder="محتوى البريد..." />
           </div>
           <div>
+            <label className="text-xs font-bold text-gray-400 block mb-1">الجمهور المستهدف *</label>
+            <select value={form.target_audience} onChange={e => setForm({...form, target_audience: e.target.value})} className="w-full bg-black border border-white/10 p-3 text-sm text-white rounded-xl focus:border-brand-purple outline-none">
+              <option value="all">الجميع (النشرة البريدية + مستلمي الهدية)</option>
+              <option value="newsletter">مشتركي النشرة البريدية فقط</option>
+              <option value="lead_magnets">مستلمي الهدية المجانية فقط</option>
+            </select>
+          </div>
+          <div>
             <label className="text-xs font-bold text-gray-400 block mb-1">وقت الإرسال (اختياري للجدولة)</label>
             <input type="datetime-local" value={form.scheduled_at} onChange={e => setForm({...form, scheduled_at: e.target.value})} className="w-full sm:w-auto bg-black border border-white/10 p-2 text-sm text-white rounded-xl focus:border-brand-purple outline-none" />
             <p className="text-[10px] text-gray-500 mt-1">اتركه فارغاً لحفظه كمسودة.</p>
@@ -93,6 +102,11 @@ export function EmailCampaignsTab() {
                 <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${camp.status === 'sent' ? 'bg-green-500/10 text-green-400' : camp.status === 'scheduled' ? 'bg-blue-500/10 text-blue-400' : 'bg-gray-500/10 text-gray-400'}`}>
                   {camp.status === 'sent' ? 'تم الإرسال' : camp.status === 'scheduled' ? 'مجدول' : 'مسودة'}
                 </span>
+                {(camp as any).target_audience && (
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple">
+                    {(camp as any).target_audience === 'all' ? 'للجميع' : (camp as any).target_audience === 'newsletter' ? 'مشتركي النشرة' : 'مستلمي الهدية'}
+                  </span>
+                )}
               </div>
               <p className="text-xs text-gray-400 line-clamp-1">{camp.content}</p>
             </div>

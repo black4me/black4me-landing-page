@@ -13,6 +13,7 @@ interface Order {
   amount: number;
   payment_gateway: string;
   status: string;
+  access_code?: string;
   receipt_url?: string;
   created_at: string;
 }
@@ -104,6 +105,7 @@ export function OrdersTab() {
                 <th className="px-6 py-4 font-bold">المبلغ / البوابة</th>
                 <th className="px-6 py-4 font-bold">التاريخ</th>
                 <th className="px-6 py-4 font-bold">الحالة</th>
+                <th className="px-6 py-4 font-bold">كود الدخول</th>
                 <th className="px-6 py-4 font-bold">الإيصال</th>
                 <th className="px-6 py-4 font-bold text-center">إجراءات</th>
               </tr>
@@ -147,6 +149,15 @@ export function OrdersTab() {
                        order.status === 'pending_verification' ? 'بانتظار التأكيد' : 
                        order.status === 'failed' ? 'فشل' : 'معلق'}
                     </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {order.access_code ? (
+                      <span className="font-mono text-[#F5C542] bg-[#F5C542]/10 px-2 py-1 rounded text-xs border border-[#F5C542]/20">
+                        {order.access_code}
+                      </span>
+                    ) : (
+                      <span className="text-gray-600 text-xs">-</span>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     {order.receipt_url ? (

@@ -6,20 +6,21 @@ import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 interface TrackingScriptsProps {
+  gtmId?: string;
   gaId?: string;
   metaPixelId?: string;
   tiktokPixelId?: string;
 }
 
-export default function TrackingScripts({ gaId, metaPixelId, tiktokPixelId }: TrackingScriptsProps) {
+export default function TrackingScripts({ gtmId, gaId, metaPixelId, tiktokPixelId }: TrackingScriptsProps) {
   return (
     <Suspense fallback={null}>
-      <TrackingScriptsInner gaId={gaId} metaPixelId={metaPixelId} tiktokPixelId={tiktokPixelId} />
+      <TrackingScriptsInner gtmId={gtmId} gaId={gaId} metaPixelId={metaPixelId} tiktokPixelId={tiktokPixelId} />
     </Suspense>
   );
 }
 
-function TrackingScriptsInner({ gaId, metaPixelId, tiktokPixelId }: TrackingScriptsProps) {
+function TrackingScriptsInner({ gtmId, gaId, metaPixelId, tiktokPixelId }: TrackingScriptsProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -57,6 +58,19 @@ function TrackingScriptsInner({ gaId, metaPixelId, tiktokPixelId }: TrackingScri
 
   return (
     <>
+      {/* Google Tag Manager - deferred until after page load */}
+      {gtmId && (
+        <Script id="gtm" strategy="afterInteractive">
+          {`
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','${gtmId}');
+          `}
+        </Script>
+      )}
+
       {/* Google Analytics 4 - deferred until after page load */}
       {gaId && (
         <>
