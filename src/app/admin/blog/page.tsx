@@ -7,8 +7,9 @@ import Image from 'next/image';
 
 interface Block {
   id: string;
-  type: 'text' | 'product' | 'consultation' | 'video';
+  type: 'text' | 'image' | 'product' | 'consultation' | 'video';
   content?: string;
+  imageUrl?: string;
   productId?: string;
   consultationId?: string;
   videoUrl?: string;
@@ -113,6 +114,21 @@ export default function BlogAdmin() {
       alert('حدث خطأ أثناء الرفع: ' + error.message);
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handleBlockImageUpload = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `blog-block-${Date.now()}.${fileExt}`;
+      const { error } = await supabase.storage.from('products').upload(fileName, file); // using products bucket for now
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(fileName);
+      updateBlock(id, { imageUrl: publicUrl });
+    } catch (error: any) {
+      alert('حدث خطأ أثناء رفع صورة الكتلة: ' + error.message);
     }
   };
 
@@ -236,9 +252,10 @@ export default function BlogAdmin() {
 
         {/* Editor Controls */}
         <div className="bg-[#111] border border-white/10 rounded-2xl p-4 mt-8">
-          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-white/10">
+          <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-white/10">
             <span className="text-sm font-bold text-white ml-4">إضافة محتوى:</span>
             <button onClick={() => addBlock('text')} className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-sm transition"><PenTool className="w-4 h-4"/> نص</button>
+            <button onClick={() => addBlock('image')} className="flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-lg text-sm transition"><ImageIcon className="w-4 h-4"/> صورة</button>
             <button onClick={() => addBlock('product')} className="flex items-center gap-1.5 bg-[#F5C542]/10 hover:bg-[#F5C542]/20 text-[#F5C542] px-3 py-1.5 rounded-lg text-sm transition"><Box className="w-4 h-4"/> منتج</button>
             <button onClick={() => addBlock('consultation')} className="flex items-center gap-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg text-sm transition"><LayoutTemplate className="w-4 h-4"/> استشارة</button>
             <button onClick={() => addBlock('video')} className="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-sm transition"><Video className="w-4 h-4"/> فيديو يوتيوب</button>
@@ -260,6 +277,25 @@ export default function BlogAdmin() {
                     <label className="text-xs text-gray-500 mb-1 block">محتوى نصي (يدعم HTML)</label>
                     <textarea rows={4} value={block.content || ''} onChange={e => updateBlock(block.id, { content: e.target.value })}
                       className="w-full bg-transparent text-white focus:outline-none resize-y" placeholder="اكتب فقرتك هنا..." />
+                  </div>
+                )}
+                
+                {block.type === 'image' && (
+                  <div className="pt-2">
+                    <label className="text-xs text-emerald-400 mb-1 flex items-center gap-1"><ImageIcon className="w-3 h-3"/> صورة فرعية</label>
+                    {block.imageUrl ? (
+                      <div className="mt-2 relative w-full h-40 rounded-xl overflow-hidden group">
+                        <Image src={block.imageUrl} alt="Block image" fill className="object-cover" />
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                          <button onClick={() => updateBlock(block.id, { imageUrl: '' })} className="text-red-400 text-sm font-bold bg-white/10 px-3 py-1 rounded-lg">حذف الصورة</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative border-2 border-dashed border-white/10 bg-black/50 rounded-xl h-24 flex items-center justify-center hover:border-emerald-500/50 transition">
+                        <input type="file" onChange={(e) => handleBlockImageUpload(block.id, e)} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+                        <div className="text-gray-500 text-sm flex items-center gap-2"><ImageIcon className="w-4 h-4" /> اضغط هنا لرفع الصورة</div>
+                      </div>
+                    )}
                   </div>
                 )}
                 

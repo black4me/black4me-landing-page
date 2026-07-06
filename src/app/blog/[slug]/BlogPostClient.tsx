@@ -52,6 +52,14 @@ export default function BlogPostClient({ post, products }: { post: any, products
                 );
               }
               
+              if (block.type === 'image' && block.imageUrl) {
+                return (
+                  <div key={block.id} className="my-10 relative w-full aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden border border-white/5">
+                    <Image src={block.imageUrl} alt="صورة توضيحية" fill className="object-cover" />
+                  </div>
+                );
+              }
+              
               if (block.type === 'product') {
                 const product = products.find(p => p.id === block.productId);
                 if (!product) return null;
