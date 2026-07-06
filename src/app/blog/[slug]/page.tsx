@@ -6,7 +6,9 @@ import BlogPostClient from './BlogPostClient';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> | { slug: string } }) {
+  const resolvedParams = await params;
+  const slug = resolvedParams.slug;
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,7 +25,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
   const { data: post } = await supabase
     .from('blog_posts')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .eq('status', 'published')
     .single();
 
