@@ -90,7 +90,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="px-3 py-0.5 rounded-full bg-[#ceae88]/10 border border-[#ceae88]/20 text-[#ceae88] text-[10px] font-bold uppercase tracking-wider mb-3">
               Super Admin
             </div>
-            <UserCircle2 className="w-10 h-10 text-gray-500" strokeWidth={1} />
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 relative bg-[#1a1a1d]">
+              <img src="/images/avatar-placeholder.png" alt="Profile" className="w-full h-full object-cover" />
+            </div>
           </div>
 
           {/* Navigation Links */}
