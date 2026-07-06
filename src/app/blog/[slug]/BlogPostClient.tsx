@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
+import React from 'react';
 import Link from 'next/link';
 import { Star, User, Calendar, Clock, ArrowLeft, Tag } from 'lucide-react';
 
@@ -20,7 +20,7 @@ export default function BlogPostClient({ post, products }: { post: any, products
         <div className="max-w-4xl mx-auto mb-16">
           {post.featured_image && (
             <div className="aspect-[21/9] bg-[#111] rounded-3xl overflow-hidden relative mb-10 border border-white/5">
-              <Image src={post.featured_image} alt={post.title} fill className="object-cover" />
+              <img src={post.featured_image} alt={post.title} className="w-full h-full object-cover" />
             </div>
           )}
           
@@ -30,7 +30,7 @@ export default function BlogPostClient({ post, products }: { post: any, products
           )}
           
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 font-medium">
-            <span className="flex items-center gap-1.5"><User className="w-4 h-4"/> بواسطة {post.author_name}</span>
+            <span className="flex items-center gap-1.5"><User className="w-4 h-4"/> بواسطة جاسم محمد</span>
             <span>|</span>
             <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4"/> {formattedDate}</span>
             <span>|</span>
@@ -46,7 +46,7 @@ export default function BlogPostClient({ post, products }: { post: any, products
             {post.content_blocks && post.content_blocks.map((block: any) => {
               if (block.type === 'text') {
                 return (
-                  <div key={block.id} className="prose prose-invert prose-lg max-w-none text-gray-300 leading-loose" 
+                  <div key={block.id} className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed whitespace-pre-wrap" 
                     dangerouslySetInnerHTML={{ __html: block.content || '' }} 
                   />
                 );
@@ -55,7 +55,7 @@ export default function BlogPostClient({ post, products }: { post: any, products
               if (block.type === 'image' && block.imageUrl) {
                 return (
                   <div key={block.id} className="my-10 relative w-full aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden border border-white/5">
-                    <Image src={block.imageUrl} alt="صورة توضيحية" fill className="object-cover" />
+                    <img src={block.imageUrl} alt="صورة توضيحية" className="w-full h-full object-cover" />
                   </div>
                 );
               }
@@ -69,7 +69,7 @@ export default function BlogPostClient({ post, products }: { post: any, products
                   <div key={block.id} className="my-10 bg-[#0d0d10] border border-white/5 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-8 hover:border-[#F5C542]/40 transition group">
                     <div className="w-full md:w-48 aspect-video md:aspect-square bg-[#111] rounded-2xl overflow-hidden relative shrink-0">
                       {image ? (
-                        <Image src={image} alt={product.title} fill className="object-cover group-hover:scale-105 transition duration-500" />
+                        <img src={image} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center text-white/20 text-xs">لا صورة</div>
                       )}
@@ -97,7 +97,7 @@ export default function BlogPostClient({ post, products }: { post: any, products
                 return (
                   <div key={block.id} className="my-10 bg-gradient-to-r from-[#0d0d10] to-[#111] border border-white/5 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-8 group">
                      <div className="w-24 h-24 bg-[#1a1a1d] rounded-full overflow-hidden relative shrink-0 border-2 border-[#F5C542]/20">
-                      <Image src="/images/avatar-placeholder.png" alt="استشارة" fill className="object-cover" />
+                      <img src="/images/avatar-placeholder.png" alt="استشارة" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 text-center md:text-right">
                       <h3 className="text-xl font-bold text-white mb-2">استشارة تسويق شخصية</h3>
@@ -128,8 +128,8 @@ export default function BlogPostClient({ post, products }: { post: any, products
                   <div key={block.id} className="my-10 aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 relative shadow-2xl">
                     {videoId ? (
                       <iframe 
-                        src={`https://www.youtube-nocookie.com/embed/${videoId}?controls=1&rel=0&showinfo=0&modestbranding=1&iv_load_policy=3&fs=1`} 
-                        className="w-full h-full border-0"
+                        src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0&showinfo=0&modestbranding=1&iv_load_policy=3&fs=1`} 
+                        className="w-full h-full border-0 absolute inset-0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowFullScreen 
                       />
@@ -163,10 +163,10 @@ export default function BlogPostClient({ post, products }: { post: any, products
             <div className="bg-[#111114] border border-white/5 p-6 rounded-3xl text-center">
               <div className="w-20 h-20 bg-[#1a1a1d] rounded-full mx-auto mb-4 overflow-hidden border border-white/10 relative">
                 {/* Fallback image */}
-                <Image src="/images/avatar-placeholder.png" alt="أحمد خالد" fill className="object-cover" />
+                <img src="/images/avatar-placeholder.png" alt="جاسم محمد" className="w-full h-full object-cover" />
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">أحمد خالد</h3>
-              <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">بواسطة BLACK4ME</p>
+              <h3 className="text-lg font-bold text-white mb-1">جاسم محمد</h3>
+              <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">المؤسس - BLACK4ME</p>
               <button className="w-full bg-white/5 hover:bg-white/10 text-white text-sm font-bold py-2 rounded-xl transition">
                 متابعة
               </button>
