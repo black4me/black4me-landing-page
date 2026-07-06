@@ -3,8 +3,6 @@ import { notFound } from 'next/navigation';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import BlogPostClient from './BlogPostClient';
-import Navbar from '../../../components/Navbar';
-import Footer from '../../../components/Footer';
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> | { slug: string } }) {
   const resolvedParams = await params;
@@ -41,11 +39,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <div className="bg-[#0a0a0c] min-h-screen flex flex-col font-sans" dir="rtl">
-      <Navbar />
       <main className="flex-1">
         <BlogPostClient post={post} products={products || []} />
       </main>
-      <Footer />
     </div>
   );
 }
