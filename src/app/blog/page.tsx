@@ -1,31 +1,40 @@
 import React from 'react';
 import Link from 'next/link';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import Image from 'next/image';
 
 export const metadata = {
   title: 'المدونة | BLACK4ME',
   description: 'مقالات وأدلة حصرية في التسويق الرقمي وبناء المشاريع.',
 };
 
-export default function BlogPage() {
-  // Temporary mock data until CMS is fully connected
-  const articles = [
+export default async function BlogPage() {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      id: 1,
-      title: 'كيف تبني نظام تسويق يعمل بدون تدخل منك؟',
-      excerpt: 'تعرف على الخطوات الأساسية لبناء نظام تسويقي متكامل يجذب العملاء ويزيد من مبيعاتك بشكل آلي...',
-      slug: 'how-to-build-automated-marketing-system',
-      date: '2026-07-07',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=2426&ixlib=rb-4.0.3'
-    },
-    {
-      id: 2,
-      title: '5 أخطاء كارثية في إعلانات فيسبوك تدمر ميزانيتك',
-      excerpt: 'تجنب هذه الأخطاء الشائعة التي يقع فيها أغلب المسوقين المبتدئين والتي تؤدي إلى إهدار الميزانية الإعلانية...',
-      slug: '5-disastrous-facebook-ads-mistakes',
-      date: '2026-07-06',
-      image: 'https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&q=80&w=2000&ixlib=rb-4.0.3'
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+      },
     }
-  ];
+  );
+
+  // Fetch published blog posts
+  const { data: posts, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('status', 'published')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching blog posts:', error);
+  }
+
+  const articles = posts || [];
 
   return (
     <div className="min-h-screen bg-[#050505] pt-32 pb-20">
@@ -35,32 +44,59 @@ export default function BlogPage() {
           <p className="text-xl text-gray-400">مقالات وأدلة حصرية في التسويق الرقمي وبناء المشاريع</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {articles.map((article) => (
-            <Link 
-              key={article.id} 
-              href={`/blog/${article.slug}`}
-              className="bg-[#111114] border border-white/5 rounded-2xl overflow-hidden hover:border-[#ceae88]/30 transition group"
-            >
-              <div className="h-48 overflow-hidden">
-                <img 
-                  src={article.image} 
-                  alt={article.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                />
-              </div>
-              <div className="p-6">
-                <div className="text-[#ceae88] text-xs font-bold mb-3">{new Date(article.date).toLocaleDateString('ar-EG')}</div>
-                <h2 className="text-xl font-bold text-white mb-3 line-clamp-2">{article.title}</h2>
-                <p className="text-gray-400 text-sm line-clamp-3 leading-relaxed">{article.excerpt}</p>
-                <div className="mt-6 flex items-center text-[#ceae88] font-bold text-sm">
-                  اقرأ المزيد 
-                  <span className="mr-2">←</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {articles.length === 0 ? (
+          <div className="text-center text-gray-500 py-20 bg-[#111114] border border-white/5 rounded-3xl">
+            <h2 className="text-2xl font-bold mb-2">لا توجد مقالات حالياً</h2>
+            <p>سيتم إضافة مقالات جديدة قريباً، عد لاحقاً!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {articles.map((article) => {
+              const publishDate = new Date(article.publish_date || article.created_at);
+              const formattedDate = publishDate.toLocaleDateString('ar-EG');
+              
+              // Extract text excerpt from blocks if no explicit excerpt exists
+              let excerpt = article.subtitle || '';
+              if (!excerpt && article.content_blocks) {
+                const textBlock = article.content_blocks.find((b: any) => b.type === 'text');
+                if (textBlock && textBlock.content) {
+                  // simple strip HTML
+                  excerpt = textBlock.content.replace(/<[^>]+>/g, '').substring(0, 100) + '...';
+                }
+              }
+
+              return (
+                <Link 
+                  key={article.id} 
+                  href={`/blog/${article.slug}`}
+                  className="bg-[#111114] border border-white/5 rounded-2xl overflow-hidden hover:border-[#F5C542]/30 transition group flex flex-col"
+                >
+                  <div className="h-48 overflow-hidden relative bg-[#1a1a1d]">
+                    {article.featured_image ? (
+                      <Image 
+                        src={article.featured_image} 
+                        alt={article.title} 
+                        fill
+                        className="object-cover group-hover:scale-105 transition duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white/10 text-sm">لا توجد صورة</div>
+                    )}
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="text-[#F5C542] text-xs font-bold mb-3">{formattedDate}</div>
+                    <h2 className="text-xl font-bold text-white mb-3 line-clamp-2">{article.title}</h2>
+                    <p className="text-gray-400 text-sm line-clamp-3 leading-relaxed flex-1">{excerpt}</p>
+                    <div className="mt-6 flex items-center text-[#F5C542] font-bold text-sm">
+                      اقرأ المزيد 
+                      <span className="mr-2">←</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
