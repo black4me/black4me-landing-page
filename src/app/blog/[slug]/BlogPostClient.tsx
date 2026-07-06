@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import React from 'react';
 import Link from 'next/link';
 import { Star, User, Calendar, Clock, ArrowLeft, Tag } from 'lucide-react';
 
