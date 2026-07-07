@@ -259,3 +259,36 @@ export async function sendPendingEmail(email: string, name: string, orderId: str
     return { success: false, error: err.message };
   }
 }
+
+export async function sendAdminNotificationEmail(orderId: string, customerEmail: string, customerName: string, amount: string | number, productName: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) return { success: true };
+
+    const adminEmail = 'black4mestore@gmail.com';
+    const htmlContent = \
+      <div dir="rtl" style="font-family: sans-serif; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+        <h2 style="color: #22C55E;">?? ØáÈ ÌÏíÏ Êã ÊÃßíÏå!</h2>
+        <p style="font-size: 16px;">áŞÏ ÊáŞíÊ ááÊæ ØáÈÇğ ÌÏíÏÇğ Úáì ãäÕÉ BLACK4ME.</p>
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 15px;">
+          <p><strong>ÇáÚãíá:</strong> \ (\)</p>
+          <p><strong>ÇáãäÊÌ:</strong> \</p>
+          <p><strong>ÇáãÈáÛ:</strong> $\</p>
+          <p><strong>ÑŞã ÇáØáÈ:</strong> #\</p>
+        </div>
+        <p style="margin-top: 20px; font-size: 14px; color: #666;">íãßäß ãÑÇÌÚÉ ÊİÇÕíá ÇáØáÈ ÈÇáßÇãá ãä ÎáÇá áæÍÉ ÊÍßã ÇáÅÏÇÑÉ.</p>
+      </div>
+    \;
+
+    await resend.emails.send({
+      from: 'BLACK4ME System <noreply@black4me.com>',
+      to: adminEmail,
+      subject: '?? ØáÈ ÌÏíÏ: ' + productName,
+      html: htmlContent
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Error sending admin notification email:', err.message);
+    return { success: false, error: err.message };
+  }
+}

@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       order_id: orderId,
       payment_gateway: order.payment_gateway || 'manual',
     });
-    // 5. Send Welcome Email via Resend
+    // 5. Send Welcome Email and Admin Notification via Resend
     if (process.env.RESEND_API_KEY && order.customer_email) {
       try {
         const htmlContent = await render(
@@ -80,8 +80,30 @@ export async function POST(req: Request) {
           subject: 'شكرًا لطلبك من Black4me!',
           html: htmlContent,
         });
+
+        // Admin notification
+        const adminEmail = 'black4mestore@gmail.com';
+        const adminHtmlContent = `
+          <div dir="rtl" style="font-family: sans-serif; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+            <h2 style="color: #22C55E;">🎉 طلب جديد تم تأكيده! (تحويل يدوي)</h2>
+            <p style="font-size: 16px;">لقد قمت للتو باعتماد طلب يدوي على منصة BLACK4ME.</p>
+            <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 15px;">
+              <p><strong>العميل:</strong> ${order.customer_name || ''} (${order.customer_email})</p>
+              <p><strong>المنتج:</strong> ${productTitle}</p>
+              <p><strong>المبلغ:</strong> $${order.amount || 0}</p>
+              <p><strong>رقم الطلب:</strong> #${orderId.slice(-8).toUpperCase()}</p>
+            </div>
+          </div>
+        `;
+
+        await resend.emails.send({
+          from: 'BLACK4ME System <noreply@black4me.com>',
+          to: adminEmail,
+          subject: '🎉 اعتماد طلب يدوي: ' + productTitle,
+          html: adminHtmlContent,
+        });
       } catch (emailError) {
-        console.error('Failed to send welcome email:', emailError);
+        console.error('Failed to send emails:', emailError);
       }
     }
 
