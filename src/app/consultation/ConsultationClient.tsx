@@ -8,11 +8,25 @@ import {
   Clock, Video, Users, ChevronDown, Check, Star 
 } from 'lucide-react';
 
+import Cal, { getCalApi } from "@calcom/embed-react";
+
 export default function ConsultationClient() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    (async function () {
+      const cal = await getCalApi();
+      cal("ui", {
+        "styles": {
+          "branding": {
+            "brandColor": "#f59e0b"
+          }
+        },
+        "hideEventTypeDetails": false,
+        "layout": "month_view"
+      });
+    })();
   }, []);
 
   const fadeIn = {
@@ -188,7 +202,8 @@ export default function ConsultationClient() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">التقويم المباشر</h2>
-            <p className="text-zinc-400 text-lg">اختر الوقت الأنسب لك. سيتم تحويل الأوقات إلى توقيتك المحلي تلقائياً.</p>
+            <p className="text-zinc-400 text-lg mb-2">اختر الوقت الأنسب لك. سيتم تحويل الأوقات إلى توقيتك المحلي تلقائياً.</p>
+            <p className="text-amber-500 text-sm">إذا لم يعمل التقويم، <a href="https://cal.com/black4me" target="_blank" className="underline">اضغط هنا للحجز المباشر</a>.</p>
           </div>
           
           <motion.div 
@@ -196,13 +211,12 @@ export default function ConsultationClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-white rounded-[2rem] p-4 md:p-8 overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)] ring-1 ring-white/10"
+            className="bg-white rounded-[2rem] p-2 md:p-4 overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)] ring-1 ring-white/10"
           >
-            <iframe
-              src="https://cal.com/black4me"
-              width="100%"
-              style={{ minHeight: "750px", border: "none" }}
-              title="Cal.com Booking Calendar"
+            <Cal 
+              calLink="black4me"
+              style={{ width: "100%", height: "100%", overflow: "scroll" }}
+              config={{ layout: 'month_view', theme: 'light' }}
             />
           </motion.div>
         </div>
