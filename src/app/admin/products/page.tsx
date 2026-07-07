@@ -125,14 +125,22 @@ export default function ProductsManager() {
       chapters: (productForm.chapters || '').split('\n').filter(Boolean),
       benefits: (productForm.benefits || '').split('\n').filter(Boolean),
       category_id: productForm.category_id || null,
-      slug: productForm.slug,
-      images: productForm.images
+      slug: productForm.slug || null,
+      images: productForm.images || []
     };
 
     if (editingProduct) {
-      await supabase.from('products').update(pData).eq('id', editingProduct.id);
+      const { error } = await supabase.from('products').update(pData).eq('id', editingProduct.id);
+      if (error) {
+        alert('حدث خطأ أثناء الحفظ: ' + error.message);
+        return;
+      }
     } else {
-      await supabase.from('products').insert([pData]);
+      const { error } = await supabase.from('products').insert([pData]);
+      if (error) {
+        alert('حدث خطأ أثناء الحفظ: ' + error.message);
+        return;
+      }
     }
     
     clearDraft();
