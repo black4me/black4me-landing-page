@@ -31,14 +31,11 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { label: 'المدونة', id: '/blog' },
-    { label: 'مسارات العميل', id: 'funnel-section' },
-    { label: 'مؤشر الأداء', id: 'growth-chart-section' },
-    { label: 'محتويات الحزمة', id: 'products-section' },
-    { label: 'العرض والسعر', id: 'pricing-section' },
-    { label: 'آراء العملاء', id: 'testimonials-section' },
-    { label: 'الأسئلة الشائعة', id: 'faq-section' },
-    { label: 'حجز استشارة', id: 'consultations-section' },
+    { label: 'الرئيسية', href: '/' },
+    { label: 'المنتجات', href: '/#products-section' },
+    { label: 'المدونة', href: '/blog' },
+    { label: 'الاستشارات', href: '/consultation' },
+    { label: 'تواصل معنا', href: '/#faq-section' },
   ];
 
   return (
@@ -63,18 +60,21 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <div className="hidden lg:flex items-center gap-8 text-xs font-bold text-gray-400" role="menubar">
-          {navLinks.map(link => (
-            <button
-              key={link.id}
-              onClick={() => scrollToSection(link.id, link.id.startsWith('/'))}
-              className="hover:text-brand-gold transition cursor-pointer"
-              role="menuitem"
-              aria-label={link.label}
-            >
-              {link.label}
-            </button>
-          ))}
+        <div className="hidden lg:flex items-center gap-8 text-xs font-bold" role="menubar">
+          {navLinks.map((link, index) => {
+            const isActive = pathname === link.href || (pathname?.startsWith(link.href) && link.href !== '/');
+            return (
+              <Link
+                key={index}
+                href={link.href}
+                className={`transition cursor-pointer ${isActive ? 'text-brand-gold shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'text-gray-400 hover:text-brand-gold'}`}
+                role="menuitem"
+                aria-label={link.label}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Actions */}
@@ -112,16 +112,20 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div id="mobile-menu" className="lg:hidden mt-4 pb-4 border-t border-brand-white/5 pt-4 space-y-3" role="menu">
-          {navLinks.map(link => (
-            <button
-              key={link.id}
-              onClick={() => scrollToSection(link.id, link.id.startsWith('/'))}
-              className="block w-full text-right text-sm font-bold text-gray-400 hover:text-brand-gold transition py-2 px-4"
-              role="menuitem"
-            >
-              {link.label}
-            </button>
-          ))}
+          {navLinks.map((link, index) => {
+            const isActive = pathname === link.href || (pathname?.startsWith(link.href) && link.href !== '/');
+            return (
+              <Link
+                key={index}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block w-full text-right text-sm font-bold transition py-2 px-4 ${isActive ? 'text-brand-gold bg-brand-gold/10 border-r-2 border-brand-gold' : 'text-gray-400 hover:text-brand-gold'}`}
+                role="menuitem"
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <Link
             href="/login"
             className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white py-2 px-4"
