@@ -293,3 +293,58 @@ export async function sendAdminNotificationEmail(orderId: string, customerEmail:
   }
 }
 
+export async function sendConsultationEmail(email: string, name: string, startTime: string, title: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) return { success: true };
+
+    const dateStr = new Date(startTime).toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' });
+    
+    // Email to customer
+    const customerHtmlContent = `
+      <div dir="rtl" style="font-family: sans-serif; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+        <h2 style="color: #6C3BFF;">✅ تم تأكيد حجز الاستشارة!</h2>
+        <p style="font-size: 16px;">مرحباً ${name}،</p>
+        <p style="font-size: 16px;">لقد تم تأكيد حجز الاستشارة الخاصة بك بنجاح.</p>
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 15px;">
+          <p><strong>الاستشارة:</strong> ${title}</p>
+          <p><strong>الموعد:</strong> ${dateStr} (بتوقيت السعودية)</p>
+        </div>
+        <p style="margin-top: 20px; font-size: 14px; color: #666;">ستصلك دعوة Google Meet قريباً. شكراً لاختيارك BLACK4ME.</p>
+      </div>
+    `;
+
+    await resend.emails.send({
+      from: 'BLACK4ME <noreply@black4me.com>',
+      to: email,
+      subject: '✅ تأكيد حجز الاستشارة: ' + title,
+      html: customerHtmlContent
+    });
+
+    // Email to Admin
+    const adminEmail = 'black4mestore@gmail.com';
+    const adminHtmlContent = `
+      <div dir="rtl" style="font-family: sans-serif; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+        <h2 style="color: #22C55E;">📅 حجز استشارة جديد!</h2>
+        <p style="font-size: 16px;">لقد تم حجز استشارة جديدة عبر Cal.com.</p>
+        <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 15px;">
+          <p><strong>العميل:</strong> ${name} (${email})</p>
+          <p><strong>الاستشارة:</strong> ${title}</p>
+          <p><strong>الموعد:</strong> ${dateStr} (بتوقيت السعودية)</p>
+        </div>
+      </div>
+    `;
+
+    await resend.emails.send({
+      from: 'BLACK4ME System <noreply@black4me.com>',
+      to: adminEmail,
+      subject: '📅 حجز استشارة جديد: ' + name,
+      html: adminHtmlContent
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Error sending consultation email:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
