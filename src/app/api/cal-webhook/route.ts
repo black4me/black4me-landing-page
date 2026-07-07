@@ -26,6 +26,20 @@ export async function POST(req: NextRequest) {
       if (customerEmail) {
         await sendConsultationEmail(customerEmail, customerName, startTime, title);
       }
+    } else if (triggerEvent === 'BOOKING_CANCELLED') {
+      const { uid } = payload;
+      await supabaseAdmin.from('consultations')
+        .update({ status: 'cancelled' })
+        .eq('booking_uid', uid);
+    } else if (triggerEvent === 'BOOKING_RESCHEDULED') {
+      const { uid, startTime, endTime } = payload;
+      await supabaseAdmin.from('consultations')
+        .update({ 
+          start_time: startTime, 
+          end_time: endTime,
+          status: 'rescheduled'
+        })
+        .eq('booking_uid', uid);
     }
 
     return NextResponse.json({ success: true });
