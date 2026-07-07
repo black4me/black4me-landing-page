@@ -22,9 +22,9 @@ type Stats = {
 };
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  confirmed:   { label: 'مؤكد',    color: 'bg-green-100 text-green-800' },
-  cancelled:   { label: 'ملغي',    color: 'bg-red-100 text-red-800' },
-  rescheduled: { label: 'معاد جدولة', color: 'bg-yellow-100 text-yellow-800' },
+  confirmed:   { label: 'مؤكد',         color: 'bg-emerald-500 text-white' },
+  cancelled:   { label: 'ملغي',         color: 'bg-red-500 text-white'     },
+  rescheduled: { label: 'معادة جدولة',  color: 'bg-amber-500 text-white'   },
 };
 
 export default function ConsultationsClient({
@@ -66,14 +66,17 @@ export default function ConsultationsClient({
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'إجمالي الحجوزات', value: stats.total,       color: 'bg-blue-50   border-blue-200',   text: 'text-blue-700'  },
-          { label: 'مؤكدة',           value: stats.confirmed,   color: 'bg-green-50  border-green-200',  text: 'text-green-700' },
-          { label: 'ملغاة',           value: stats.cancelled,   color: 'bg-red-50    border-red-200',    text: 'text-red-700'   },
-          { label: 'معادة جدولة',     value: stats.rescheduled, color: 'bg-yellow-50 border-yellow-200', text: 'text-yellow-700'},
+          { label: 'إجمالي الحجوزات', value: stats.total,       bg: 'bg-blue-600',   icon: '📋' },
+          { label: 'مؤكدة',           value: stats.confirmed,   bg: 'bg-emerald-600', icon: '✅' },
+          { label: 'ملغاة',           value: stats.cancelled,   bg: 'bg-red-600',    icon: '❌' },
+          { label: 'معادة جدولة',     value: stats.rescheduled, bg: 'bg-amber-500',  icon: '🔄' },
         ].map(card => (
-          <div key={card.label} className={`rounded-xl border p-4 ${card.color}`}>
-            <p className="text-sm text-gray-500">{card.label}</p>
-            <p className={`text-3xl font-bold mt-1 ${card.text}`}>{card.value}</p>
+          <div key={card.label} className={`rounded-xl p-5 ${card.bg} text-white shadow-lg`}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium opacity-90">{card.label}</span>
+              <span className="text-xl">{card.icon}</span>
+            </div>
+            <p className="text-4xl font-bold">{card.value}</p>
           </div>
         ))}
       </div>
@@ -105,18 +108,18 @@ export default function ConsultationsClient({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-gray-700 bg-white shadow-sm">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-800 border-b border-gray-700">
             <tr>
               {['العميل', 'الموعد', 'المدة', 'الحالة', 'إجراءات'].map(h => (
-                <th key={h} className="px-4 py-3 text-right font-medium text-gray-600">
+                <th key={h} className="px-4 py-3 text-right font-medium text-gray-200">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-200 bg-white">
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={5} className="text-center py-12 text-gray-400">
@@ -127,10 +130,10 @@ export default function ConsultationsClient({
               filtered.map(c => (
                 <tr key={c.id} className="hover:bg-gray-50 transition">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900">{c.customer_name ?? '—'}</p>
-                    <p className="text-gray-400 text-xs mt-0.5">{c.customer_email ?? '—'}</p>
+                    <p className="font-semibold text-gray-900">{c.customer_name ?? '—'}</p>
+                    <p className="text-gray-500 text-xs mt-0.5">{c.customer_email ?? '—'}</p>
                   </td>
-                  <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                  <td className="px-4 py-3 text-gray-800 whitespace-nowrap font-medium">
                     {c.start_time ? formatDate(c.start_time) : '—'}
                   </td>
                   <td className="px-4 py-3 text-gray-500">60 د</td>
