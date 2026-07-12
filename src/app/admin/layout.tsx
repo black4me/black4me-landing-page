@@ -65,6 +65,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { id: '/admin/coupons', label: 'إعدادات الكوبونات', icon: Ticket },
     { id: '/admin/pages', label: 'تصميم الصفحات', icon: GitCompare },
     { id: '/admin/blog', label: 'المدونة', icon: BookOpen },
+    { id: '/admin/authors', label: 'الكتّاب', icon: Users },
+    { id: '/admin/moderation', label: 'الإشراف', icon: ShieldCheck },
     { id: '/admin/payment-gateways', label: 'طرق الدفع', icon: DollarSign },
     { id: '/admin/shipping', label: 'طرق الشحن', icon: Tag },
     { id: '/admin/site-settings', label: 'إعدادات النظام', icon: Settings },
@@ -91,7 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Super Admin
             </div>
             <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 relative bg-[#1a1a1d]">
-              <img src="/images/jasim-avatar.png" alt="Profile" className="w-full h-full object-cover" />
+              <img src="/images/author-jasim.jpg" alt="Profile" className="w-full h-full object-cover" />
             </div>
           </div>
 

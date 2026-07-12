@@ -121,8 +121,6 @@ export default function ProductsManager() {
       file_url: productForm.file_url,
       payment_link: productForm.payment_link,
       is_active: productForm.is_active,
-      features: (productForm.features || '').split('\n').filter(Boolean),
-      chapters: (productForm.chapters || '').split('\n').filter(Boolean),
       benefits: (productForm.benefits || '').split('\n').filter(Boolean),
       category_id: productForm.category_id || null,
       slug: productForm.slug || null,

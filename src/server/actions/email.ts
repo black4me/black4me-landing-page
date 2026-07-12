@@ -25,7 +25,7 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
 
     const productName = order?.product?.title || 'ط§ظ„ط­ط²ظ…ط© ط§ظ„ط´ط§ظ…ظ„ط©';
     const productPrice = order?.amount || '49.00';
-    const productImage = order?.product?.file_url || 'https://www.black4me.com/assets/default-product.png'; // Fallback image if any
+    const productFileUrl = order?.product?.file_url || 'https://www.black4me.com/assets/default-product.png'; // Fallback link if any
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -94,8 +94,13 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td align="center" style="padding: 10px 0 30px 0;">
+                          ${productFileUrl && productFileUrl !== 'https://www.black4me.com/assets/default-product.png' ? `
+                          <a href="${productFileUrl}" style="display: inline-block; padding: 16px 32px; background-color: #6C3BFF; color: #ffffff; text-decoration: none; font-size: 18px; font-weight: bold; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(108, 59, 255, 0.3);">
+                            تحميل الملف (الكتاب / المنتج)
+                          </a><br/>
+                          ` : ''}
                           <a href="${process.env.NEXT_PUBLIC_SITE_URL}/academy" style="display: inline-block; padding: 16px 32px; background-color: #F5C542; color: #000000; text-decoration: none; font-size: 18px; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 15px rgba(245, 197, 66, 0.3);">
-                            ط§ظ„ط¯ط®ظˆظ„ ظ„ظ„ط£ظƒط§ط¯ظٹظ…ظٹط© ظˆط¨ط¯ط، ط§ظ„ط§ط³طھط®ط¯ط§ظ…
+                            الدخول للأكاديمية
                           </a>
                         </td>
                       </tr>

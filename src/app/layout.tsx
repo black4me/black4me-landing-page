@@ -72,7 +72,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: settings.hero_subtitle || 'حزمة متكاملة بـ $49 — كتاب + نظام تعليمي + 6 قوالب + استشارة',
       images: [
         {
-          url: 'https://www.black4me.com/images/og-image.jpg',
+          url: 'https://www.black4me.com/images/book-cover.jpg',
           width: 1200,
           height: 630,
           alt: 'كتاب بدون التسويق كارثة تهدد ثروتك المستقبلية — جاسم محمد',
@@ -85,7 +85,7 @@ export async function generateMetadata(): Promise<Metadata> {
       creator: '@black4me',
       title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية | BLACK4ME',
       description: settings.hero_subtitle || 'الحزمة الشاملة لبناء نظام تسويق رقمي متكامل. ابدأ بـ $49 مع ضمان استرداد كامل.',
-      images: ['https://www.black4me.com/images/og-image.jpg'],
+      images: ['https://www.black4me.com/images/book-cover.jpg'],
     },
     robots: {
       index: true,
@@ -107,46 +107,60 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const productSchema = {
-  "@context": "https://schema.org",
-  "@type": "Product",
-  "name": "بدون تسويق كارثة تهدد ثروتك المستقبلية",
-  "description": "حزمة متكاملة: كتاب + نظام تعليمي + 6 قوالب + استشارة فردية",
-  "brand": { "@type": "Brand", "name": "BLACK4ME" },
-  "offers": {
-    "@type": "Offer",
-    "url": "https://www.black4me.com/",
-    "priceCurrency": "USD",
-    "price": "49",
-    "priceValidUntil": "2026-12-31",
-    "availability": "https://schema.org/InStock"
-  },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "reviewCount": "127"
-  }
-};
-
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "BLACK4ME",
-  "url": "https://www.black4me.com/",
-  "logo": "https://www.black4me.com/images/logo.png",
-  "founder": { "@type": "Person", "name": "Jasim Mohammed" },
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "email": "black4mestore@gmail.com",
-    "contactType": "customer service"
-  }
-};
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch real reviews for schema
+  const { count: reviewCount, data: reviews } = await supabaseAdmin
+    .from('testimonials')
+    .select('rating', { count: 'exact' });
+
+  let aggregateRating = undefined;
+  if (reviewCount && reviewCount > 0 && reviews) {
+    const sum = reviews.reduce((acc, row) => acc + (row.rating || 5), 0);
+    aggregateRating = {
+      "@type": "AggregateRating",
+      "ratingValue": (sum / reviewCount).toFixed(1),
+      "reviewCount": reviewCount.toString()
+    };
+  }
+
+  const productSchema: any = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "بدون تسويق كارثة تهدد ثروتك المستقبلية",
+    "description": "حزمة متكاملة: كتاب + نظام تعليمي + 6 قوالب + استشارة فردية",
+    "brand": { "@type": "Brand", "name": "BLACK4ME" },
+    "offers": {
+      "@type": "Offer",
+      "url": "https://www.black4me.com/",
+      "priceCurrency": "USD",
+      "price": "49",
+      "priceValidUntil": "2026-12-31",
+      "availability": "https://schema.org/InStock"
+    }
+  };
+  
+  if (aggregateRating) {
+    productSchema.aggregateRating = aggregateRating;
+  }
+
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "BLACK4ME",
+    "url": "https://www.black4me.com/",
+    "logo": "https://www.black4me.com/images/book-cover.jpg",
+    "founder": { "@type": "Person", "name": "Jasim Mohammed" },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "support@black4me.com",
+      "contactType": "customer service"
+    }
+  };
+
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${ibmPlex.variable}`} suppressHydrationWarning>
       <head>

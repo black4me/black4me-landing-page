@@ -2,17 +2,30 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Star, User, Calendar, Clock, ArrowLeft, Tag } from 'lucide-react';
+import { Star, User, Calendar, Clock, ArrowLeft, Tag, Instagram, Facebook, Link as LinkIcon } from 'lucide-react';
+import { BlogPost, Product, AdSettings } from '@/types';
+import BlogEngagement from '@/components/BlogEngagement';
+import InlineArticleAds from '@/components/ads/InlineArticleAds';
+import AdProviderLoader from '@/components/ads/AdProviderLoader';
 
-export default function BlogPostClient({ post, products }: { post: any, products: any[] }) {
+export default function BlogPostClient({ post, products, adSettings }: { post: BlogPost, products: Product[], adSettings?: AdSettings | null }) {
   
   // Format dates
   const publishDate = new Date(post.publish_date || post.created_at);
   const formattedDate = publishDate.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
   const formattedTime = publishDate.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
 
+  // Get author data
+  const author = post.authors || {
+    name: post.author_name || 'فريق BLACK4ME',
+    title: 'مستشار تسويق',
+    bio: '',
+    avatar_url: '/images/author-jasim.jpg',
+    social_links: {}
+  };
+
   return (
-    <div className="pt-24 pb-20">
+    <div className="pt-24 pb-20 font-sans" dir="rtl">
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         
         {/* Header (Featured Image & Title) */}
@@ -23,13 +36,18 @@ export default function BlogPostClient({ post, products }: { post: any, products
             </div>
           )}
           
-          <h1 className="text-3xl md:text-5xl font-black text-white leading-tight mb-4">{post.title}</h1>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.3] mb-6">{post.title}</h1>
           {post.subtitle && (
-            <h2 className="text-xl md:text-2xl text-gray-400 mb-6">{post.subtitle}</h2>
+            <h2 className="text-xl md:text-2xl text-gray-400 leading-relaxed mb-8">{post.subtitle}</h2>
           )}
           
           <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 font-medium">
-            <span className="flex items-center gap-1.5"><User className="w-4 h-4"/> بواسطة جاسم محمد</span>
+            <span className="flex items-center gap-1.5 text-white/90">
+              <div className="w-6 h-6 rounded-full overflow-hidden border border-white/10">
+                 <img src={author.avatar_url || '/images/author-jasim.jpg'} alt={author.name} className="w-full h-full object-cover" />
+              </div>
+              {author.name}
+            </span>
             <span>|</span>
             <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4"/> {formattedDate}</span>
             <span>|</span>
@@ -41,32 +59,43 @@ export default function BlogPostClient({ post, products }: { post: any, products
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
           
           {/* Main Article Body */}
-          <div className="flex-1 space-y-8">
-            {post.content_blocks && post.content_blocks.map((block: any) => {
-              if (block.type === 'text') {
+          <div className="flex-1 space-y-12">
+            <InlineArticleAds
+              blocks={post.content_blocks || []}
+              settings={adSettings || null}
+              renderBlock={(block: any, index: number) => {
+                if (block.type === 'text') {
                 return (
-                  <div key={block.id} className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed whitespace-pre-wrap" 
+                  <div key={block.id} className="prose prose-invert prose-lg md:prose-xl max-w-none text-gray-300 leading-[2.2] whitespace-pre-wrap" 
                     dangerouslySetInnerHTML={{ __html: block.content || '' }} 
                   />
                 );
               }
               
+              if (block.type === 'heading') {
+                return (
+                   <h2 key={block.id} className="text-3xl md:text-4xl font-black text-white leading-tight mt-16 mb-8 border-b border-white/5 pb-4">
+                     {block.content}
+                   </h2>
+                );
+              }
+              
               if (block.type === 'image' && block.imageUrl) {
                 return (
-                  <div key={block.id} className="my-10 relative w-full aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden border border-white/5">
-                    <img src={block.imageUrl} alt="صورة توضيحية" className="w-full h-full object-cover" />
+                  <div key={block.id} className="my-14 relative w-full aspect-video md:aspect-[21/9] rounded-3xl overflow-hidden border border-white/5 bg-[#0a0a0c]">
+                    <img src={block.imageUrl} alt="صورة توضيحية" className="w-full h-full object-contain" />
                   </div>
                 );
               }
               
               if (block.type === 'product') {
-                const product = products.find(p => p.id === block.productId);
+                const product: any = products.find(p => p.id === block.productId);
                 if (!product) return null;
-                const image = product.images?.[0] || product.file_url;
+                const image = product.coverUrl || product.cover_url || product.fileUrl || product.file_url || (product.images && product.images.length > 0 ? product.images[0] : null);
                 
                 return (
-                  <div key={block.id} className="my-10 bg-[#0d0d10] border border-white/5 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-8 hover:border-[#F5C542]/40 transition group">
-                    <div className="w-full md:w-48 aspect-video md:aspect-square bg-[#111] rounded-2xl overflow-hidden relative shrink-0">
+                  <div key={block.id} className="my-14 bg-[#0d0d10] border border-white/5 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 hover:border-[#F5C542]/40 transition group shadow-xl">
+                    <div className="w-full md:w-56 h-56 bg-[#111] rounded-2xl overflow-hidden shrink-0 relative border border-white/5">
                       {image ? (
                         <img src={image} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                       ) : (
@@ -74,16 +103,16 @@ export default function BlogPostClient({ post, products }: { post: any, products
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-white mb-2">{product.title}</h3>
-                      <div className="flex items-center gap-1 mb-3">
-                        <span className="text-[#F5C542] font-bold ml-1">4.5</span>
-                        {[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < 4 ? 'text-[#F5C542] fill-[#F5C542]' : 'text-[#F5C542]/30 fill-[#F5C542]/30'}`} />)}
+                      <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">{product.title}</h3>
+                      <div className="flex items-center gap-1 mb-4">
+                        <span className="text-[#F5C542] font-bold ml-1">4.9</span>
+                        {[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 text-[#F5C542] fill-[#F5C542]`} />)}
                       </div>
-                      <p className="text-gray-400 text-sm mb-4 line-clamp-2 leading-relaxed">{product.description}</p>
+                      <p className="text-gray-400 text-base mb-6 line-clamp-3 leading-relaxed">{product.description}</p>
                       <div className="flex items-center justify-between mt-4">
-                        <span className="text-2xl font-black text-white font-mono">${product.sale_price || product.price}</span>
-                        <Link href={`/product/${product.slug || product.id}`} className="bg-white/5 hover:bg-white/10 text-white font-bold px-6 py-2 rounded-xl transition text-sm">
-                          عرض التفاصيل
+                        <span className="text-3xl font-black text-white font-mono">${product.salePrice || product.sale_price || product.price}</span>
+                        <Link href={`/product/${product.id}`} className="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold px-8 py-3 rounded-xl transition text-base flex items-center gap-2">
+                          عرض التفاصيل <ArrowLeft className="w-4 h-4" />
                         </Link>
                       </div>
                     </div>
@@ -92,23 +121,23 @@ export default function BlogPostClient({ post, products }: { post: any, products
               }
               
               if (block.type === 'consultation') {
-                // Mock consultation card as requested in design
                 return (
-                  <div key={block.id} className="my-10 bg-gradient-to-r from-[#0d0d10] to-[#111] border border-white/5 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-8 group">
-                    <div className="w-24 h-24 bg-[#1a1a1d] rounded-full overflow-hidden relative shrink-0 border-2 border-[#F5C542]/20">
+                  <div key={block.id} className="my-14 bg-gradient-to-r from-[#111] to-[#1a1a1d] border border-[#F5C542]/20 rounded-3xl p-8 flex flex-col md:flex-row items-center gap-8 group relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[#F5C542]/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                    <div className="w-28 h-28 bg-[#1a1a1d] rounded-full overflow-hidden relative shrink-0 border-2 border-[#F5C542]/40 shadow-[0_0_30px_rgba(245,197,66,0.15)] z-10">
                       <img src="/images/jasim-avatar.png" alt="استشارة" className="w-full h-full object-cover" />
                     </div>
-                    <div className="flex-1 text-center md:text-right">
-                      <h3 className="text-xl font-bold text-white mb-2">استشارة تسويق شخصية</h3>
-                      <div className="flex items-center justify-center md:justify-start gap-1 mb-2">
-                        <span className="text-[#F5C542] font-bold ml-1 text-sm">4.5</span>
-                        {[...Array(5)].map((_, i) => <Star key={i} className={`w-3 h-3 ${i < 4 ? 'text-[#F5C542] fill-[#F5C542]' : 'text-[#F5C542]/30 fill-[#F5C542]/30'}`} />)}
+                    <div className="flex-1 text-center md:text-right z-10">
+                      <h3 className="text-2xl md:text-3xl font-black text-white mb-3">استشارة تسويقية مع الأستاذ جاسم</h3>
+                      <div className="flex items-center justify-center md:justify-start gap-1 mb-3">
+                        <span className="text-[#F5C542] font-bold ml-1 text-base">5.0</span>
+                        {[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 text-[#F5C542] fill-[#F5C542]`} />)}
                       </div>
-                      <p className="text-gray-500 text-xs uppercase tracking-widest font-bold">العمل اللصيق - مدة مفتوحة</p>
+                      <p className="text-gray-400 text-sm leading-relaxed max-w-lg mx-auto md:mx-0">ضع خطة تسويقية محكمة لمشروعك مع تحليل شامل لنقاط القوة والضعف والمنافسين في جلسة خاصة.</p>
                     </div>
-                    <div className="shrink-0 text-center w-full md:w-auto">
-                      <Link href="/checkout" className="bg-transparent border border-[#F5C542]/50 text-[#F5C542] hover:bg-[#F5C542]/10 font-bold px-8 py-2.5 rounded-xl transition text-sm w-full md:w-auto inline-block">
-                        حجز الآن
+                    <div className="shrink-0 text-center w-full md:w-auto z-10">
+                      <Link href="/consultation" className="bg-[#F5C542] text-[#111] hover:bg-[#e0b53c] font-black px-10 py-4 rounded-xl transition text-base w-full md:w-auto inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                        احجز موعدك الآن <ArrowLeft className="w-5 h-5" />
                       </Link>
                     </div>
                   </div>
@@ -116,22 +145,28 @@ export default function BlogPostClient({ post, products }: { post: any, products
               }
 
               if (block.type === 'video') {
-                // Parse YouTube ID to render custom player without controls
                 const getYouTubeId = (url: string) => {
                   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?]+)/);
                   return match ? match[1] : null;
                 };
-                const videoId = block.videoUrl ? getYouTubeId(block.videoUrl) : null;
+                const videoUrl = block.videoUrl || '';
+                const videoId = getYouTubeId(videoUrl);
+                const isMp4 = videoUrl.toLowerCase().includes('.mp4');
                 
                 return (
-                  <div key={block.id} className="my-10 aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 relative shadow-2xl">
+                  <div key={block.id} className="my-14 aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 relative shadow-2xl">
                     {videoId ? (
                       <iframe 
-                        src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0&showinfo=0&modestbranding=1&iv_load_policy=3&fs=1`} 
-                        className="w-full h-full border-0 absolute inset-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0`} 
+                        title="YouTube video player"
+                        frameBorder="0"
+                        className="w-full h-full absolute inset-0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        referrerPolicy="strict-origin-when-cross-origin"
                         allowFullScreen 
                       />
+                    ) : isMp4 ? (
+                      <video src={videoUrl} controls className="w-full h-full object-contain absolute inset-0" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-500">رابط الفيديو غير صالح</div>
                     )}
@@ -140,84 +175,94 @@ export default function BlogPostClient({ post, products }: { post: any, products
               }
 
               return null;
-            })}
+            }} />
             
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-12 pt-8 border-t border-white/5">
-                <Tag className="w-5 h-5 text-gray-500 mt-1" />
+              <div className="flex flex-wrap items-center gap-3 mt-16 pt-8 border-t border-white/5">
+                <Tag className="w-5 h-5 text-gray-500" />
                 {post.tags.map((tag: string, i: number) => (
-                  <span key={i} className="bg-white/5 text-gray-400 px-4 py-1.5 rounded-full text-sm font-medium hover:text-white hover:bg-white/10 transition cursor-pointer">
+                  <Link href={`/blog?tag=${tag}`} key={i} className="bg-white/5 text-gray-300 px-5 py-2 rounded-full text-sm font-medium hover:text-[#F5C542] hover:bg-[#F5C542]/10 transition cursor-pointer border border-white/5">
                     {tag}
-                  </span>
+                  </Link>
                 ))}
               </div>
             )}
+
+            {/* Engagement Widget */}
+            <BlogEngagement 
+              postId={post.id} 
+              viewsCount={post.views_count || 0} 
+              commentsCount={post.comments_count || 0} 
+              averageRating={post.average_rating || 0} 
+            />
           </div>
 
           {/* Sidebar */}
-          <aside className="w-full lg:w-[320px] shrink-0 space-y-8">
+          <aside className="w-full lg:w-[360px] shrink-0 space-y-8 sticky top-32 self-start">
             
-            {/* Author Profile */}
-            <div className="bg-[#111114] border border-white/5 p-6 rounded-3xl text-center">
-              <div className="w-20 h-20 bg-[#1a1a1d] rounded-full mx-auto mb-4 overflow-hidden border border-white/10 relative">
-                {/* User image */}
-                <img src="/images/jasim-avatar.png" alt="جاسم محمد" className="w-full h-full object-cover" />
+            {/* Dynamic Author Profile */}
+            <div className="bg-[#111114] border border-white/5 p-8 rounded-3xl text-center shadow-lg">
+              <div className="w-28 h-28 bg-[#1a1a1d] rounded-full mx-auto mb-5 overflow-hidden border-2 border-white/10 relative shadow-inner">
+                <img src={author.avatar_url || '/images/author-jasim.jpg'} alt={author.name} className="w-full h-full object-cover" />
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">جاسم محمد</h3>
-              <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">المؤسس - BLACK4ME</p>
-              <button className="w-full bg-white/5 hover:bg-white/10 text-white text-sm font-bold py-2 rounded-xl transition">
-                متابعة
-              </button>
-            </div>
+              <h3 className="text-xl font-black text-white mb-2">{author.name}</h3>
+              {author.title && <p className="text-[#F5C542] text-sm font-bold uppercase tracking-widest mb-4">{author.title}</p>}
+              
+              {author.bio && (
+                <p className="text-gray-400 text-sm leading-[1.8] mb-6">{author.bio}</p>
+              )}
+              
+              <div className="flex items-center justify-center gap-3 mb-6">
+                {author.social_links?.instagram && (
+                  <a href={author.social_links.instagram.startsWith('http') ? author.social_links.instagram : `https://${author.social_links.instagram}`} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-[#E1306C] hover:bg-white/10 transition">
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                )}
+                {author.social_links?.facebook && (
+                  <a href={author.social_links.facebook.startsWith('http') ? author.social_links.facebook : `https://${author.social_links.facebook}`} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-[#1877F2] hover:bg-white/10 transition">
+                    <Facebook className="w-5 h-5" />
+                  </a>
+                )}
+                {author.social_links?.website && (
+                  <a href={author.social_links.website} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition">
+                    <LinkIcon className="w-5 h-5" />
+                  </a>
+                )}
+              </div>
 
-            {/* Recommended Consultations Sidebar Block */}
-            <div className="bg-[#111114] border border-white/5 p-6 rounded-3xl">
-              <h3 className="text-sm font-bold text-white mb-1">استشارات شخصية</h3>
-              <p className="text-xs text-gray-500 mb-6">احجز الآن جلسة عمل معي</p>
-              
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 bg-[#1a1a1d] rounded-full overflow-hidden shrink-0 border border-white/10"></div>
-                   <div>
-                     <h4 className="text-sm font-bold text-white">استشارة تسويق شخصية</h4>
-                     <p className="text-xs text-[#F5C542]">4.5 ⭐⭐⭐⭐⭐</p>
-                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 bg-[#1a1a1d] rounded-full overflow-hidden shrink-0 border border-white/10"></div>
-                   <div>
-                     <h4 className="text-sm font-bold text-white">استشارة تسويق متقدمة</h4>
-                     <p className="text-xs text-[#F5C542]">4.8 ⭐⭐⭐⭐⭐</p>
-                   </div>
-                </div>
-              </div>
-              
-              <Link href="/checkout" className="w-full bg-transparent border border-[#F5C542]/30 hover:bg-[#F5C542]/10 text-[#F5C542] font-bold py-3 rounded-xl transition text-sm flex items-center justify-center">
-                حجز الآن
+              <Link href={author.social_links?.whatsapp ? (author.social_links.whatsapp.includes('wa.me') && !author.social_links.whatsapp.startsWith('http') ? `https://${author.social_links.whatsapp}` : author.social_links.whatsapp) : '/consultation'} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 text-sm font-bold py-3 rounded-xl transition flex items-center justify-center gap-2">
+                تواصل مع الكاتب
               </Link>
             </div>
 
-            {/* Latest Offers Ad */}
-            <div className="bg-[#111114] border border-white/5 rounded-3xl overflow-hidden group cursor-pointer relative aspect-square flex flex-col items-center justify-center text-center p-6 hover:border-[#F5C542]/30 transition">
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#111] z-10" />
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#F5C542]/10 rounded-full blur-3xl group-hover:bg-[#F5C542]/20 transition" />
+            {/* Recommended Consultations Sidebar Block */}
+            <div className="bg-gradient-to-br from-[#111114] to-[#0d0d10] border border-white/5 p-8 rounded-3xl shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-32 h-32 bg-[#F5C542]/5 rounded-full blur-3xl" />
+              <h3 className="text-lg font-black text-white mb-2 relative z-10">استشارات شخصية</h3>
+              <p className="text-sm text-gray-400 mb-6 leading-relaxed relative z-10">احجز الآن جلسة عمل معي لمناقشة مشروعك</p>
               
-              <div className="relative z-20">
-                <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#F5C542]/50 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl text-[#F5C542] font-black">%</span>
+              <div className="space-y-4 mb-8 relative z-10">
+                <div className="flex items-center gap-4 bg-white/5 p-3 rounded-2xl border border-white/5 hover:border-white/10 transition">
+                   <div className="w-12 h-12 bg-[#1a1a1d] rounded-full overflow-hidden shrink-0 border border-white/10">
+                     <img src="/images/author-jasim.jpg" alt="استشارة" className="w-full h-full object-cover" />
+                   </div>
+                   <div>
+                     <h4 className="text-sm font-bold text-white mb-1">استشارة تسويق شخصية</h4>
+                     <p className="text-xs text-[#F5C542] flex items-center gap-1 font-bold">5.0 <Star className="w-3 h-3 fill-[#F5C542]" /></p>
+                   </div>
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">أحدث العروض</h3>
-                <p className="text-gray-400 text-xs leading-relaxed mb-4">احصل على خصومات حصرية للمشتركين فقط على منتجاتنا المتميزة.</p>
-                <Link href="/checkout" className="bg-[#F5C542] hover:bg-[#e0b53c] text-[#111] font-bold py-2 px-6 rounded-xl transition text-sm">
-                  تصفح العروض
-                </Link>
               </div>
+              
+              <Link href="/consultation" className="w-full bg-transparent border-2 border-[#F5C542]/50 hover:bg-[#F5C542]/10 text-[#F5C542] font-black py-3.5 rounded-xl transition text-base flex items-center justify-center relative z-10">
+                حجز موعد
+              </Link>
             </div>
-
+            
           </aside>
         </div>
       </div>
+      {adSettings && <AdProviderLoader settings={adSettings} />}
     </div>
   );
 }

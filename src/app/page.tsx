@@ -10,14 +10,25 @@ export const metadata: Metadata = {
 };
 
 import CountdownTimer from '../components/CountdownTimer';
+import { supabaseAdmin } from '../lib/supabase-admin';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { count: reviewCount, data: reviews } = await supabaseAdmin
+    .from('testimonials')
+    .select('rating', { count: 'exact' });
+
+  let aggregateRating = '5.0';
+  if (reviewCount && reviewCount > 0 && reviews) {
+    const sum = reviews.reduce((acc, row) => acc + (row.rating || 5), 0);
+    aggregateRating = (sum / reviewCount).toFixed(1);
+  }
+
   return (
     <>
       <div className="sticky top-0 z-50">
         <CountdownTimer hours={24} label="العرض ينتهي خلال" />
       </div>
-      <LandingPage />
+      <LandingPage reviewCount={reviewCount || 0} aggregateRating={aggregateRating} />
     </>
   );
 }

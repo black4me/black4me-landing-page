@@ -19,6 +19,10 @@ export interface Product {
   paymentLink?: string; // External checkout URL like Stripe Payment Link
   features: string[];
   chapters?: string[];
+  images?: string[];
+  benefits?: string[];
+  categoryId?: string | null;
+  slug?: string | null;
   isActive: boolean;
   createdAt: string;
 }
@@ -111,3 +115,92 @@ export interface ValueStackItem {
   notes: string;
   orderIndex: number;
 }
+
+export interface Author {
+  id: string;
+  name: string;
+  title?: string;
+  bio?: string;
+  avatar_url?: string;
+  social_links?: any;
+  created_at?: string;
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  subtitle?: string;
+  slug: string;
+  featured_image?: string;
+  author_id?: string;
+  author_name?: string;
+  authors?: Author;
+  meta_title?: string;
+  meta_description?: string;
+  canonical_url?: string;
+  og_image?: string;
+  publish_date?: string;
+  content_blocks?: any;
+  tags?: string[];
+  status: 'draft' | 'published';
+  ads_enabled?: boolean;
+  ad_density?: string;
+  views_count?: number;
+  comments_count?: number;
+  average_rating?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdSettings {
+  id: string;
+  provider: 'disabled' | 'adsterra' | 'adsense' | string;
+  enabled: boolean;
+  article_only: boolean;
+  script_url?: string;
+  script_inline?: string;
+  publisher_id?: string;
+  placement_config: {
+    after_intro: boolean;
+    mid_content: boolean;
+    end_content: boolean;
+  };
+  style_config: {
+    label: string;
+    containerVariant: string;
+  };
+}
+
+export interface BlogComment {
+  id: string;
+  post_id: string;
+  user_name: string;
+  user_email: string;
+  content: string;
+  status: 'pending' | 'approved' | 'rejected' | 'hidden';
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface BlogReview {
+  id: string;
+  post_id: string;
+  user_name: string;
+  user_email: string;
+  rating: number; // 1-5
+  content?: string;
+  status: 'pending' | 'approved' | 'rejected' | 'hidden';
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface ModerationLog {
+  id: string;
+  target_type: 'comment' | 'review';
+  target_id: string;
+  action: 'approve' | 'reject' | 'hide';
+  admin_id?: string;
+  reason?: string;
+  created_at: string;
+}
+

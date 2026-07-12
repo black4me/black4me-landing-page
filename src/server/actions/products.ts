@@ -32,6 +32,10 @@ export async function getProducts(): Promise<Product[]> {
       paymentLink: row.payment_link || undefined,
       features: row.features || [],
       chapters: row.chapters || [],
+      images: row.images || [],
+      benefits: row.benefits || [],
+      categoryId: row.category_id || undefined,
+      slug: row.slug || undefined,
       isActive: row.is_active ?? true,
       createdAt: row.created_at,
     }));

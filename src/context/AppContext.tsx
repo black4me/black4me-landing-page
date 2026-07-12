@@ -422,8 +422,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       sale_price: prodData.salePrice || null,
       file_url: prodData.fileUrl || null,
       payment_link: prodData.paymentLink || null,
-      features: prodData.features || [],
-      chapters: prodData.chapters || [],
+      images: prodData.images || [],
+      category_id: prodData.categoryId || null,
+      slug: prodData.slug || null,
+      benefits: prodData.benefits || [],
       is_active: prodData.isActive ?? true,
     }]).select();
 
@@ -445,8 +447,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (prodData.isActive !== undefined) payload.is_active = prodData.isActive;
     if (prodData.fileUrl !== undefined) payload.file_url = prodData.fileUrl;
     if (prodData.paymentLink !== undefined) payload.payment_link = prodData.paymentLink;
-    if (prodData.features !== undefined) payload.features = prodData.features;
-    if (prodData.chapters !== undefined) payload.chapters = prodData.chapters;
+    if (prodData.images !== undefined) payload.images = prodData.images;
+    if (prodData.categoryId !== undefined) payload.category_id = prodData.categoryId;
+    if (prodData.slug !== undefined) payload.slug = prodData.slug;
+    if (prodData.benefits !== undefined) payload.benefits = prodData.benefits;
 
     await supabase.from('products').update(payload).eq('id', id);
     setProducts(prev => prev.map(p => p.id === id ? { ...p, ...prodData } : p));

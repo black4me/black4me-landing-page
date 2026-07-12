@@ -122,9 +122,10 @@ export default function ProductDetailsClient({ product, initialReviews }: { prod
                   <span>شراء الآن بـ ${product.sale_price || product.price}</span>
                 </Link>
               ) : (
-                <button disabled className="w-full bg-white/5 text-gray-500 font-bold py-4 rounded-2xl cursor-not-allowed">
-                  رابط الشراء غير متوفر
-                </button>
+                <Link href={`/checkout?productId=${product.id}`} className="cta-glow w-full flex items-center justify-center gap-3 bg-brand-gold hover:bg-yellow-400 text-black font-black py-4 rounded-2xl transition text-lg">
+                  <ShoppingCart className="w-5 h-5" />
+                  <span>شراء الآن بـ ${product.sale_price || product.price}</span>
+                </Link>
               )}
             </div>
           </div>

@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
-import { Plus, Edit2, Trash2, Save, X, Image as ImageIcon, Video, Box, PenTool, LayoutTemplate, Tag } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Image as ImageIcon, Video, Box, PenTool, LayoutTemplate, Tag, Heading, Settings } from 'lucide-react';
 import Image from 'next/image';
+import { Author, Product } from '@/types';
 
 interface Block {
   id: string;
-  type: 'text' | 'image' | 'product' | 'consultation' | 'video';
+  type: 'text' | 'heading' | 'image' | 'product' | 'consultation' | 'video';
   content?: string;
   imageUrl?: string;
   productId?: string;
@@ -24,36 +25,50 @@ export default function BlogAdmin() {
   const [posts, setPosts] = useState<any[]>([]);
   const [showEditor, setShowEditor] = useState(false);
   const [editingPost, setEditingPost] = useState<any | null>(null);
+  const [showSeo, setShowSeo] = useState(false);
 
   // Form State
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [slug, setSlug] = useState('');
   const [featuredImage, setFeaturedImage] = useState('');
-  const [authorName, setAuthorName] = useState('فريق BLACK4ME');
+  const [authorId, setAuthorId] = useState('');
   const [publishDate, setPublishDate] = useState('');
   const [publishTime, setPublishTime] = useState('');
   const [tags, setTags] = useState('');
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [status, setStatus] = useState('draft');
   const [uploadingImage, setUploadingImage] = useState(false);
+  
+  // SEO State
+  const [metaTitle, setMetaTitle] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [canonicalUrl, setCanonicalUrl] = useState('');
+  const [ogImage, setOgImage] = useState('');
 
-  // References for products and consultations
-  const [products, setProducts] = useState<any[]>([]);
+  // References
+  const [products, setProducts] = useState<Product[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
 
   useEffect(() => {
     fetchPosts();
     fetchProducts();
+    fetchAuthors();
   }, []);
 
   const fetchPosts = async () => {
-    const { data } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
+    const { data } = await supabase.from('blog_posts').select('*, authors(*)').order('created_at', { ascending: false });
     if (data) setPosts(data);
   };
 
   const fetchProducts = async () => {
     const { data } = await supabase.from('products').select('*').eq('is_active', true);
     if (data) setProducts(data);
+  };
+
+  const fetchAuthors = async () => {
+    const { data } = await supabase.from('authors').select('*').order('name');
+    if (data) setAuthors(data);
   };
 
   const generateSlug = (text: string) => {
@@ -71,13 +86,21 @@ export default function BlogAdmin() {
     setSubtitle('');
     setSlug('');
     setFeaturedImage('');
-    setAuthorName('فريق BLACK4ME');
+    setAuthorId(authors.length > 0 ? authors[0].id : '');
     const now = new Date();
     setPublishDate(now.toISOString().split('T')[0]);
     setPublishTime(now.toTimeString().substring(0,5));
     setTags('');
     setBlocks([{ id: Date.now().toString(), type: 'text', content: '' }]);
     setStatus('draft');
+    
+    // SEO
+    setMetaTitle('');
+    setMetaDescription('');
+    setCanonicalUrl('');
+    setOgImage('');
+    setShowSeo(false);
+    
     setShowEditor(true);
   };
 
@@ -87,7 +110,7 @@ export default function BlogAdmin() {
     setSubtitle(post.subtitle || '');
     setSlug(post.slug);
     setFeaturedImage(post.featured_image || '');
-    setAuthorName(post.author_name || 'فريق BLACK4ME');
+    setAuthorId(post.author_id || '');
     if (post.publish_date) {
       const d = new Date(post.publish_date);
       setPublishDate(d.toISOString().split('T')[0]);
@@ -96,20 +119,28 @@ export default function BlogAdmin() {
     setTags((post.tags || []).join(', '));
     setBlocks(post.content_blocks && post.content_blocks.length > 0 ? post.content_blocks : [{ id: Date.now().toString(), type: 'text', content: '' }]);
     setStatus(post.status);
+    
+    // SEO
+    setMetaTitle(post.meta_title || '');
+    setMetaDescription(post.meta_description || '');
+    setCanonicalUrl(post.canonical_url || '');
+    setOgImage(post.og_image || '');
+    setShowSeo(false);
+
     setShowEditor(true);
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     try {
       setUploadingImage(true);
       const fileExt = file.name.split('.').pop();
       const fileName = `blog-${Date.now()}.${fileExt}`;
-      const { error } = await supabase.storage.from('products').upload(fileName, file); // using products bucket for now
+      const { error } = await supabase.storage.from('products').upload(fileName, file); 
       if (error) throw error;
       const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(fileName);
-      setFeaturedImage(publicUrl);
+      setter(publicUrl);
     } catch (error: any) {
       alert('حدث خطأ أثناء الرفع: ' + error.message);
     } finally {
@@ -123,7 +154,7 @@ export default function BlogAdmin() {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `blog-block-${Date.now()}.${fileExt}`;
-      const { error } = await supabase.storage.from('products').upload(fileName, file); // using products bucket for now
+      const { error } = await supabase.storage.from('products').upload(fileName, file);
       if (error) throw error;
       const { data: { publicUrl } } = supabase.storage.from('products').getPublicUrl(fileName);
       updateBlock(id, { imageUrl: publicUrl });
@@ -142,9 +173,11 @@ export default function BlogAdmin() {
 
     const payload = {
       title, subtitle, slug, featured_image: featuredImage,
-      author_name: authorName, publish_date: combinedDate,
+      author_id: authorId || null, publish_date: combinedDate,
       tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-      content_blocks: blocks, status: newStatus
+      content_blocks: blocks, status: newStatus,
+      meta_title: metaTitle, meta_description: metaDescription,
+      canonical_url: canonicalUrl, og_image: ogImage
     };
 
     if (editingPost) {
@@ -214,7 +247,7 @@ export default function BlogAdmin() {
                   <span className="text-sm font-bold text-gray-400 group-hover:text-[#F5C542] transition">Featured Image</span>
                 </>
               )}
-              <input type="file" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+              <input type="file" onChange={(e) => handleImageUpload(e, setFeaturedImage)} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
             </div>
             {uploadingImage && <p className="text-xs text-[#F5C542] mt-2">جاري الرفع...</p>}
           </div>
@@ -232,9 +265,12 @@ export default function BlogAdmin() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-gray-400 mb-1.5">اسم الناشر (التوقيع)</label>
-                <input type="text" value={authorName} onChange={e => setAuthorName(e.target.value)}
-                  className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#F5C542]" />
+                <label className="block text-xs font-bold text-gray-400 mb-1.5">الكاتب</label>
+                <select value={authorId} onChange={e => setAuthorId(e.target.value)}
+                  className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#F5C542]">
+                  <option value="">اختر الكاتب...</option>
+                  {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-1.5">تاريخ النشر</label>
@@ -254,7 +290,8 @@ export default function BlogAdmin() {
         <div className="bg-[#111] border border-white/10 rounded-2xl p-4 mt-8">
           <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b border-white/10">
             <span className="text-sm font-bold text-white ml-4">إضافة محتوى:</span>
-            <button onClick={() => addBlock('text')} className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-sm transition"><PenTool className="w-4 h-4"/> نص</button>
+            <button onClick={() => addBlock('text')} className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-sm transition"><PenTool className="w-4 h-4"/> فقرة</button>
+            <button onClick={() => addBlock('heading')} className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-sm transition"><Heading className="w-4 h-4"/> عنوان (H2)</button>
             <button onClick={() => addBlock('image')} className="flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-lg text-sm transition"><ImageIcon className="w-4 h-4"/> صورة</button>
             <button onClick={() => addBlock('product')} className="flex items-center gap-1.5 bg-[#F5C542]/10 hover:bg-[#F5C542]/20 text-[#F5C542] px-3 py-1.5 rounded-lg text-sm transition"><Box className="w-4 h-4"/> منتج</button>
             <button onClick={() => addBlock('consultation')} className="flex items-center gap-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg text-sm transition"><LayoutTemplate className="w-4 h-4"/> استشارة</button>
@@ -274,9 +311,17 @@ export default function BlogAdmin() {
                 {/* Block Content */}
                 {block.type === 'text' && (
                   <div className="pt-2">
-                    <label className="text-xs text-gray-500 mb-1 block">محتوى نصي (يدعم HTML)</label>
+                    <label className="text-xs text-gray-500 mb-1 block">محتوى نصي (يدعم HTML الأساسي)</label>
                     <textarea rows={4} value={block.content || ''} onChange={e => updateBlock(block.id, { content: e.target.value })}
                       className="w-full bg-transparent text-white focus:outline-none resize-y" placeholder="اكتب فقرتك هنا..." />
+                  </div>
+                )}
+                
+                {block.type === 'heading' && (
+                  <div className="pt-2">
+                    <label className="text-xs text-gray-500 mb-1 block">عنوان رئيسي (H2)</label>
+                    <input type="text" value={block.content || ''} onChange={e => updateBlock(block.id, { content: e.target.value })}
+                      className="w-full bg-[#111] border border-white/10 rounded-lg px-3 py-2 text-white text-xl font-bold focus:outline-none" placeholder="اكتب العنوان هنا..." />
                   </div>
                 )}
                 
@@ -313,42 +358,89 @@ export default function BlogAdmin() {
                 {block.type === 'consultation' && (
                   <div className="pt-2">
                     <label className="text-xs text-blue-400 mb-1 flex items-center gap-1"><LayoutTemplate className="w-3 h-3"/> بطاقة استشارة</label>
-                    {/* For demo, using same products dropdown or specific id. Ideally you have a consultations table */}
                     <input type="text" value={block.consultationId || ''} onChange={e => updateBlock(block.id, { consultationId: e.target.value })}
-                      className="w-full bg-[#111] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none" placeholder="معرف الاستشارة (ID)" />
+                      className="w-full bg-[#111] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none" placeholder="معرف الاستشارة (ID) - اختياري" />
                     <p className="text-[10px] text-gray-500 mt-1">عند النقر في واجهة الزائر: سيظهر التقييم والسعر والتفاصيل للاستشارة الشخصية.</p>
                   </div>
                 )}
 
                 {block.type === 'video' && (
                   <div className="pt-2">
-                    <label className="text-xs text-red-400 mb-1 flex items-center gap-1"><Video className="w-3 h-3"/> فيديو يوتيوب מخصص</label>
+                    <label className="text-xs text-red-400 mb-1 flex items-center gap-1"><Video className="w-3 h-3"/> فيديو يوتيوب أو رابط MP4 مباشر</label>
                     <input type="text" value={block.videoUrl || ''} onChange={e => updateBlock(block.id, { videoUrl: e.target.value })}
-                      className="w-full bg-[#111] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none" dir="ltr" placeholder="https://www.youtube.com/watch?v=..." />
-                    <p className="text-[10px] text-gray-500 mt-1">سيتم عرض الفيديو بأدوات تحكم أساسية وبدون هوية القناة لضمان احترافية المحتوى.</p>
+                      className="w-full bg-[#111] border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none" dir="ltr" placeholder="https://www.youtube.com/watch?v=... أو رابط ينتهي بـ .mp4" />
+                    <p className="text-[10px] text-gray-500 mt-1">سيتم عرض الفيديو بأدوات تحكم أساسية. يدعم يوتيوب أو أي رابط فيديو مباشر بصيغة MP4 مرفوع في لوحة التحكم (التخزين).</p>
                   </div>
                 )}
               </div>
             ))}
-            {blocks.length === 0 && <p className="text-center text-gray-500 text-sm py-4">لا توجد محتويات. أضف نصاً أو منتجاً للبدء.</p>}
+            {blocks.length === 0 && <p className="text-center text-gray-500 text-sm py-4">لا توجد محتويات. أضف فقرة نصية أو منتجاً للبدء.</p>}
           </div>
         </div>
 
         {/* Footer Settings */}
         <div className="bg-[#111] border border-white/10 rounded-2xl p-6 mt-6">
+          <div className="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
+             <h3 className="text-white font-bold flex items-center gap-2"><Settings className="w-5 h-5 text-gray-400"/> إعدادات إضافية</h3>
+             <button onClick={() => setShowSeo(!showSeo)} className="text-xs text-[#F5C542] hover:text-white transition font-bold">
+               {showSeo ? 'إخفاء إعدادات SEO' : 'إظهار إعدادات SEO'}
+             </button>
+          </div>
+
+          {showSeo && (
+             <div className="space-y-4 mb-8 bg-[#0a0a0a] border border-white/5 p-4 rounded-xl">
+               <div>
+                 <label className="block text-xs font-bold text-gray-400 mb-1.5">Meta Title (SEO)</label>
+                 <input type="text" value={metaTitle} onChange={e => setMetaTitle(e.target.value)} placeholder={title || 'عنوان الصفحة في محركات البحث'}
+                   className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#F5C542]" />
+               </div>
+               <div>
+                 <label className="block text-xs font-bold text-gray-400 mb-1.5">Meta Description (SEO)</label>
+                 <textarea rows={3} value={metaDescription} onChange={e => setMetaDescription(e.target.value)} placeholder={subtitle || 'وصف المقال الذي يظهر في نتائج البحث...'}
+                   className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#F5C542] resize-y" />
+               </div>
+               <div className="grid md:grid-cols-2 gap-4">
+                 <div>
+                   <label className="block text-xs font-bold text-gray-400 mb-1.5">Canonical URL (لتفادي تكرار المحتوى)</label>
+                   <input type="text" value={canonicalUrl} onChange={e => setCanonicalUrl(e.target.value)} placeholder={`https://black4me.com/blog/${slug}`} dir="ltr"
+                     className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#F5C542] text-left" />
+                 </div>
+                 <div>
+                   <label className="block text-xs font-bold text-gray-400 mb-1.5">OG Image (صورة المشاركة على السوشال ميديا)</label>
+                   <div className="flex gap-2">
+                      <input type="text" value={ogImage} onChange={e => setOgImage(e.target.value)} placeholder={featuredImage || 'رابط الصورة...'} dir="ltr"
+                        className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#F5C542] text-left" />
+                      <label className="bg-[#222] hover:bg-[#333] border border-white/10 text-white px-3 rounded-xl flex items-center justify-center cursor-pointer transition shrink-0">
+                        <ImageIcon className="w-4 h-4"/>
+                        <input type="file" onChange={(e) => handleImageUpload(e, setOgImage)} className="hidden" accept="image/*" />
+                      </label>
+                   </div>
+                 </div>
+               </div>
+             </div>
+          )}
+
           <div className="mb-4">
             <label className="flex items-center gap-2 text-sm font-bold text-gray-400 mb-2"><Tag className="w-4 h-4"/> الكلمات المفتاحية (Tags)</label>
             <input type="text" value={tags} onChange={e => setTags(e.target.value)} placeholder="التسويق الإلكتروني, زيادة المبيعات, BLACK4ME (مفصول بفاصلة)"
               className="w-full bg-[#0a0a0a] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#F5C542]" />
           </div>
 
-          <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-            <button onClick={() => savePost('draft')} className="bg-transparent border border-white/20 hover:border-white/40 text-white font-bold px-6 py-3 rounded-xl transition">
-              حفظ مسودة
-            </button>
-            <button onClick={() => savePost('published')} className="bg-[#F5C542] hover:bg-yellow-400 text-black font-black px-8 py-3 rounded-xl transition">
-              نشر التدوينة
-            </button>
+          <div className="flex items-center justify-between pt-4 border-t border-white/10">
+            <div className="flex items-center gap-4">
+              <button onClick={() => savePost('draft')} className="bg-transparent border border-white/20 hover:border-white/40 text-white font-bold px-6 py-3 rounded-xl transition">
+                حفظ مسودة
+              </button>
+              <button onClick={() => savePost('published')} className="bg-[#F5C542] hover:bg-yellow-400 text-black font-black px-8 py-3 rounded-xl transition">
+                نشر التدوينة
+              </button>
+            </div>
+            
+            <div>
+               <label className="text-xs font-bold text-gray-500 block mb-1">الرابط المخصص (Slug)</label>
+               <input type="text" value={slug} onChange={e => setSlug(e.target.value)} dir="ltr"
+                  className="bg-[#111] border border-white/10 rounded-lg px-3 py-1.5 text-gray-400 text-xs focus:outline-none focus:border-[#F5C542] text-left min-w-[200px]" />
+            </div>
           </div>
         </div>
 
@@ -386,7 +478,7 @@ export default function BlogAdmin() {
                   {post.title}
                   <span className="block text-xs font-normal text-gray-500 mt-1" dir="ltr">/{post.slug}</span>
                 </td>
-                <td className="p-4 text-gray-400">{post.author_name}</td>
+                <td className="p-4 text-gray-400">{post.authors?.name || post.author_name}</td>
                 <td className="p-4 text-center">
                   <span className={`px-2.5 py-1 text-[10px] font-bold rounded-md uppercase tracking-wide ${post.status === 'published' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}`}>
                     {post.status === 'published' ? 'منشور' : 'مسودة'}

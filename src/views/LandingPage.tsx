@@ -30,7 +30,7 @@ const ProductsSection = dynamic(() => import('../components/sections/ProductsSec
    HERO SECTION — Above the fold, result-oriented
    ═══════════════════════════════════════════════════════════════ */
 
-function HeroSection() {
+function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; aggregateRating: string }) {
   const { siteSettings } = useApp();
 
   const handleHeroCheckoutClick = () => {
@@ -88,7 +88,7 @@ function HeroSection() {
             {/* Value Bullets */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
               {[
-                { icon: Target, text: 'نتيجة مضمونة: 20 عميل أو استرداد' },
+                { icon: Target, text: 'استرداد 100% خلال 7 أيام — بدون أسئلة' },
                 { icon: Clock, text: 'تطبيق عملي خلال 60 يوم فقط' },
                 { icon: ShieldCheck, text: 'ضمان استرداد كامل 7 أيام' },
                 { icon: Headphones, text: 'دعم مباشر من المؤسس جاسم محمد' },
@@ -103,20 +103,20 @@ function HeroSection() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+            <div className="flex flex-col items-center sm:items-start gap-3 mb-6">
               <Link
                 href="/checkout"
                 onClick={handleHeroCheckoutClick}
-                className="cta-glow bg-brand-gold hover:bg-yellow-400 text-brand-black text-base font-black py-4 px-8 rounded-2xl transition-all duration-300 text-center flex items-center justify-center gap-2"
+                className="cta-glow bg-brand-gold hover:bg-yellow-400 text-brand-black text-base font-black py-4 px-8 rounded-2xl transition-all duration-300 text-center flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <span>احصل على الحزمة الشاملة $49 — ابدأ الآن</span>
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <button
                 onClick={handleHeroExploreClick}
-                className="bg-transparent border border-brand-white/15 hover:border-brand-purple/40 text-white text-sm font-bold py-4 px-6 rounded-2xl transition-all text-center hover:bg-brand-white/5"
+                className="text-xs font-medium text-gray-400 hover:text-white underline underline-offset-4 transition-colors px-2 py-1 mx-auto sm:mx-0"
               >
-                اطّلع على القوالب مجاناً
+                أو اطّلع على القوالب مجاناً
               </button>
             </div>
 
@@ -160,16 +160,18 @@ function HeroSection() {
               </div>
 
               {/* Floating Badge */}
-              <div className="absolute -bottom-4 -right-4 glass-gold rounded-2xl px-4 py-3 animate-fadeIn">
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-1 rtl:space-x-reverse">
-                    {[1,2,3,4,5].map(i => (
-                      <Star key={i} className="w-3.5 h-3.5 text-brand-gold fill-brand-gold" />
-                    ))}
+              {reviewCount > 0 && (
+                <div className="absolute -bottom-4 -right-4 glass-gold rounded-2xl px-4 py-3 animate-fadeIn">
+                  <div className="flex items-center gap-2">
+                    <div className="flex -space-x-1 rtl:space-x-reverse">
+                      {[1,2,3,4,5].map(i => (
+                        <Star key={i} className="w-3.5 h-3.5 text-brand-gold fill-brand-gold" />
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-400">{aggregateRating}/5 — {reviewCount} تقييم</p>
                   </div>
-                  <p className="text-xs text-gray-400">4.9/5 — 127 تقييم</p>
                 </div>
-              </div>
+              )}
 
               {/* Price Badge */}
               <div className="absolute -top-4 -left-4 bg-brand-green/90 text-white rounded-xl px-3 py-2 text-center">
@@ -206,7 +208,7 @@ function HeroSection() {
    LANDING PAGE — Main Export
    ═══════════════════════════════════════════════════════════════ */
 
-export default function LandingPage() {
+export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }: { reviewCount?: number; aggregateRating?: string }) {
   React.useEffect(() => {
     trackAllPixels('view_hero', {
       location: 'landing_page',
@@ -214,83 +216,23 @@ export default function LandingPage() {
     });
   }, []);
 
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'BLACK4ME',
-    url: 'https://www.black4me.com',
-    logo: 'https://www.black4me.com/images/book-cover.png',
-    founder: {
-      '@type': 'Person',
-      name: 'جاسم محمد',
-    },
-    contactPoint: {
-      '@type': 'ContactPoint',
-      contactType: 'customer support',
-      email: 'support@black4me.com',
-      availableLanguage: ['ar', 'en'],
-    },
-  };
-
-  const websiteSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'BLACK4ME',
-    url: 'https://www.black4me.com',
-    inLanguage: 'ar',
-    publisher: {
-      '@type': 'Organization',
-      name: 'BLACK4ME',
-    },
-  };
-
-  const productSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: 'الحزمة الشاملة — كتاب + نظام + قوالب',
-    image: ['https://www.black4me.com/images/book-cover.png'],
-    description: 'حزمة تسويق رقمي متكاملة تشمل كتاباً عملياً ونظاماً تعليمياً وقوالب جاهزة لمساعدتك على جذب العملاء وتحويل مهاراتك إلى دخل مستقر.',
-    brand: {
-      '@type': 'Brand',
-      name: 'BLACK4ME',
-    },
-    sku: 'black4me-main-package',
-    category: 'Digital Marketing Package',
-    offers: {
-      '@type': 'Offer',
-      url: 'https://www.black4me.com/checkout',
-      priceCurrency: 'USD',
-      price: '49.00',
-      availability: 'https://schema.org/InStock',
-      itemCondition: 'https://schema.org/NewCondition',
-    },
-  };
-
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
-      
-      {/* Trust Banner */}
-      <div className="bg-gradient-to-l from-brand-purple to-brand-purple/90 text-white text-center py-2.5 text-xs font-bold sticky top-[64px] z-40 flex items-center justify-center gap-1.5 px-4" dir="rtl">
-        <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
-        <span>🔥 عرض محدود: الحزمة الشاملة بـ $49 بدلاً من $199 — وفّر 75% اليوم!</span>
-      </div>
-
-      <HeroSection />
-      <ProductsSection />
-      <BookDetails />
+      <HeroSection reviewCount={reviewCount} aggregateRating={aggregateRating} />
       <ProblemSection />
+      <BookDetails />
+      <ProductsSection />
       <HowItWorksSection />
       <BookPreviewSection />
       <PricingSection />
       <TestimonialsSection />
       <GuaranteeSection />
       <FAQSection />
-      <ConsultationSection />
-      <LeadMagnet />
       <FinalCTA />
+      
+      {/* Exit Intent / Secondary options pushed to the bottom */}
+      <LeadMagnet />
+      <ConsultationSection />
       <NewsletterSection />
       <StickyMobileCTA />
     </>

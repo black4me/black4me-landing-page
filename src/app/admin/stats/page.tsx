@@ -1,10 +1,10 @@
-import React from 'react';
-import { StatsTab } from '@/views/admin/StatsTab';
+import React from "react";
 
 export default function Page() {
   return (
     <div className="p-6">
-      <StatsTab />
+      <h1 className="text-2xl font-bold mb-4">نظرة عامة</h1>
+      <p className="text-gray-400">جاري نقل هذه الصفحة إلى النظام الجديد. ستتوفر قريباً.</p>
     </div>
   );
 }
