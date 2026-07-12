@@ -318,7 +318,7 @@ function CheckoutContent() {
                   <Star key={i} className="w-3.5 h-3.5 text-brand-gold fill-brand-gold" />
                 ))}
               </div>
-              <p className="text-center text-[10px] text-gray-400">4.9/5 من 127 تقييم</p>
+              <p className="text-center text-[10px] text-gray-400">تقييمات ممتازة من عملائنا</p>
             </div>
           </div>
         </div>

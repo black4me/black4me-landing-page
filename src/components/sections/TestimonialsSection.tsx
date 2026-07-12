@@ -165,7 +165,7 @@ export default function TestimonialsSection({ reviewCount = 0, aggregateRating =
           <p className="text-gray-400 text-sm max-w-xl mx-auto">
             {reviewCount > 0 
               ? `أكثر من ${reviewCount} عميل حققوا نتائج ملموسة — قطاعات متعددة، أسواق مختلفة، نتائج موثقة`
-              : `أكثر من 127 عميل حققوا نتائج ملموسة — قطاعات متعددة، أسواق مختلفة، نتائج موثقة`
+              : `عملاء حققوا نتائج ملموسة — قطاعات متعددة، أسواق مختلفة، نتائج موثقة`
             }
           </p>
         </div>
@@ -242,20 +242,6 @@ export default function TestimonialsSection({ reviewCount = 0, aggregateRating =
           </div>
         )}
 
-        {/* Summary Bar */}
-        <div className="mt-12 flex flex-wrap justify-center gap-8 text-center">
-          {[
-            { value: reviewCount > 0 ? `${reviewCount}` : '127+', label: 'عميل راضٍ' },
-            { value: reviewCount > 0 ? `${aggregateRating}/5` : '4.9/5', label: 'متوسط التقييم' },
-            { value: '8+', label: 'دول عربية' },
-            { value: '100%', label: 'ضمان استرداد 7 أيام' },
-          ].map((stat, i) => (
-            <div key={i}>
-              <div className="text-brand-gold text-2xl font-black">{stat.value}</div>
-              <div className="text-gray-400 text-xs mt-1">{stat.label}</div>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );

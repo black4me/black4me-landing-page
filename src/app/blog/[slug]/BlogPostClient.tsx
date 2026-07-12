@@ -105,7 +105,7 @@ export default function BlogPostClient({ post, products, adSettings }: { post: B
                     <div className="flex-1">
                       <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">{product.title}</h3>
                       <div className="flex items-center gap-1 mb-4">
-                        <span className="text-[#F5C542] font-bold ml-1">4.9</span>
+                        {/* Removed hardcoded rating */}
                         {[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 text-[#F5C542] fill-[#F5C542]`} />)}
                       </div>
                       <p className="text-gray-400 text-base mb-6 line-clamp-3 leading-relaxed">{product.description}</p>
