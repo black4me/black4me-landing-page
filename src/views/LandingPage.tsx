@@ -225,7 +225,7 @@ export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }
       <HowItWorksSection />
       <BookPreviewSection />
       <PricingSection />
-      <TestimonialsSection />
+      <TestimonialsSection reviewCount={reviewCount} aggregateRating={aggregateRating} />
       <GuaranteeSection />
       <FAQSection />
       <FinalCTA />

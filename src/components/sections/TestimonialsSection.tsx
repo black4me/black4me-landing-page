@@ -148,7 +148,7 @@ const fallbackTestimonials = [
   },
 ];
 
-export default function TestimonialsSection() {
+export default function TestimonialsSection({ reviewCount = 0, aggregateRating = "5.0" }: { reviewCount?: number; aggregateRating?: string }) {
   const { testimonials } = useApp();
 
   // Use DB testimonials if available, otherwise use detailed fallback list
@@ -163,7 +163,10 @@ export default function TestimonialsSection() {
             نتائج حقيقية من عملاء حقيقيين
           </h2>
           <p className="text-gray-400 text-sm max-w-xl mx-auto">
-            أكثر من 127 عميل حققوا نتائج ملموسة — قطاعات متعددة، أسواق مختلفة، نتائج موثقة
+            {reviewCount > 0 
+              ? `أكثر من ${reviewCount} عميل حققوا نتائج ملموسة — قطاعات متعددة، أسواق مختلفة، نتائج موثقة`
+              : `أكثر من 127 عميل حققوا نتائج ملموسة — قطاعات متعددة، أسواق مختلفة، نتائج موثقة`
+            }
           </p>
         </div>
 
@@ -242,8 +245,8 @@ export default function TestimonialsSection() {
         {/* Summary Bar */}
         <div className="mt-12 flex flex-wrap justify-center gap-8 text-center">
           {[
-            { value: '127+', label: 'عميل راضٍ' },
-            { value: '4.9/5', label: 'متوسط التقييم' },
+            { value: reviewCount > 0 ? `${reviewCount}` : '127+', label: 'عميل راضٍ' },
+            { value: reviewCount > 0 ? `${aggregateRating}/5` : '4.9/5', label: 'متوسط التقييم' },
             { value: '8+', label: 'دول عربية' },
             { value: '100%', label: 'ضمان استرداد 7 أيام' },
           ].map((stat, i) => (
