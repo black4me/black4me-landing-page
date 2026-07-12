@@ -92,7 +92,7 @@ export default function ProductsSection() {
                     <Link href={`/product/${product.slug}`} key={product.id} className="group bg-[#0a0a0a] border border-white/5 hover:border-brand-purple/40 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col">
                       {product.images && product.images.length > 0 ? (
                         <div className="aspect-video relative overflow-hidden bg-white/5">
-                          <Image src={product.images[0]} alt={product.title} fill className="object-cover group-hover:scale-105 transition duration-500" />
+                          <Image src={product.images[0]} alt={product.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition duration-500" />
                         </div>
                       ) : (
                         <div className="aspect-video bg-white/5 flex items-center justify-center text-white/20">
@@ -131,7 +131,7 @@ export default function ProductsSection() {
                     <Link href={`/product/${product.slug}`} key={product.id} className="group bg-[#0a0a0a] border border-white/5 hover:border-brand-purple/40 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col">
                       {product.images && product.images.length > 0 ? (
                         <div className="aspect-video relative overflow-hidden bg-white/5">
-                          <Image src={product.images[0]} alt={product.title} fill className="object-cover group-hover:scale-105 transition duration-500" />
+                          <Image src={product.images[0]} alt={product.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition duration-500" />
                         </div>
                       ) : (
                         <div className="aspect-video bg-white/5 flex items-center justify-center text-white/20">

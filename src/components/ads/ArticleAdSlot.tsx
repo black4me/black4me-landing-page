@@ -4,46 +4,49 @@ import React from 'react';
 import { AdSettings } from '@/types';
 import { useEffect, useRef } from 'react';
 
-// Adsterra Banner component to safely inject scripts in Next.js
 function AdsterraBanner({ placement }: { placement: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
+  const adKey = '4b117f2ed043d3943326e51f8fd5e653'; 
+  const adWidth = isDesktop && placement !== 'mid_content' ? 728 : 300;
+  const adHeight = isDesktop && placement !== 'mid_content' ? 90 : 250;
 
-  useEffect(() => {
-    // Only run on client side and if not already injected
-    if (typeof window === 'undefined' || !containerRef.current) return;
-    if (containerRef.current.querySelector('script')) return;
+  const iframeContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { margin: 0; padding: 0; background: transparent; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        </style>
+      </head>
+      <body>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '${adKey}',
+            'format' : 'iframe',
+            'height' : ${adHeight},
+            'width' : ${adWidth},
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://www.topcreativeformat.com/${adKey}/invoke.js"></script>
+      </body>
+    </html>
+  `;
 
-    // Use the token provided by the user (or a different one depending on placement)
-    // You can customize the key based on the placement if you have multiple units
-    const isDesktop = window.innerWidth > 768;
-    
-    // For this example, we use the token provided: 6a721ecdfe1189bf36689214bbb03a3e
-    // In production, we can pull these from env or db settings
-    const adKey = '6a721ecdfe1189bf36689214bbb03a3e'; 
-    const adWidth = isDesktop && placement !== 'mid_content' ? 728 : 300;
-    const adHeight = isDesktop && placement !== 'mid_content' ? 90 : 250;
-
-    const conf = document.createElement('script');
-    conf.type = 'text/javascript';
-    conf.innerHTML = `atOptions = {
-      'key' : '${adKey}',
-      'format' : 'iframe',
-      'height' : ${adHeight},
-      'width' : ${adWidth},
-      'params' : {}
-    };`;
-
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    // Note: Adsterra often changes this domain. If the ads don't show, update this URL
-    // based on what "GET CODE" gives you in the dashboard.
-    script.src = `//www.highperformanceformat.com/${adKey}/invoke.js`;
-
-    containerRef.current.appendChild(conf);
-    containerRef.current.appendChild(script);
-  }, [placement]);
-
-  return <div ref={containerRef} className="flex justify-center w-full min-h-[250px] items-center" />;
+  return (
+    <div className="flex justify-center w-full min-h-[250px] items-center">
+      <iframe
+        srcDoc={iframeContent}
+        width={adWidth}
+        height={adHeight}
+        frameBorder="0"
+        scrolling="no"
+        sandbox="allow-scripts allow-same-origin allow-popups"
+        style={{ border: 'none', overflow: 'hidden' }}
+      />
+    </div>
+  );
 }
 
 interface ArticleAdSlotProps {
