@@ -25,6 +25,7 @@
     "framer-motion": "^12.42.2",
     "lucide-react": "^0.546.0",
     "next": "^16.2.9",
+    "pg": "^8.22.0",
     "postgres": "^3.4.9",
     "react": "^19.2.7",
     "react-countup": "^6.5.3",

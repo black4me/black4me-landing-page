@@ -6,9 +6,7 @@ import { redirect } from 'next/navigation';
 
 const ADMIN_EMAILS = [
   'info@black4me.com',
-  'admin@black4me.com',
-  'black4mestore@gmail.com',
-  'admin@admin.com',
+  'black4mestore@gmail.com'
 ];
 
 export async function loginAction(formData: FormData) {
