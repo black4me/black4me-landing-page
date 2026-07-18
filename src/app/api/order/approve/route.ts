@@ -76,7 +76,7 @@ export async function POST(req: Request) {
             productTitle,
             blogUrl: 'https://black4me.com/blog',
             newsletterUrl: 'https://black4me.com/#free-gift',
-            instagramUrl: 'https://instagram.com/black4me.hq',
+            instagramUrl: 'https://www.instagram.com/black4mee/',
           } as any)
         );
 

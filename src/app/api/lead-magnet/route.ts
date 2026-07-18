@@ -49,7 +49,7 @@ export async function POST(req: Request) {
             'https://drive.google.com/drive/folders/14-SIzFYoOu7uIqs4qDNbQF-IrRlG8ker?usp=sharing',
           blogUrl: 'https://black4me.com/blog',
           newsletterUrl: 'https://black4me.com/#free-gift',
-          instagramUrl: settings.social_instagram_url || 'https://instagram.com/black4me.hq',
+          instagramUrl: settings.social_instagram_url || 'https://www.instagram.com/black4mee/',
           logoUrl: settings.site_logo,
         })
       );

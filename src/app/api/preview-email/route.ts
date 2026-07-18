@@ -10,7 +10,7 @@ export async function GET() {
       emailSubject: '🎁 هديتك المجانية جاهزة',
       emailBody: 'شكراً لاهتمامك! لقد قمنا بتجهيز الهدية المجانية خصيصاً لك.',
       logoUrl: 'https://www.black4me.com/logo.png',
-      instagramUrl: 'https://instagram.com/black4me',
+      instagramUrl: 'https://www.instagram.com/black4mee/',
       whatsappUrl: 'https://wa.me/123456789',
       supportEmail: 'hello@black4me.com'
     })

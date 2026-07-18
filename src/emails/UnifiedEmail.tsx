@@ -32,7 +32,7 @@ export default function UnifiedEmail({
   productTitle,
   blogUrl = 'https://black4me.com/blog',
   newsletterUrl = 'https://black4me.com/#free-gift',
-  instagramUrl = 'https://instagram.com/black4me.hq',
+  instagramUrl = 'https://www.instagram.com/black4mee/',
   logoUrl,
 }: UnifiedEmailProps) {
   const isPurchase = type === 'purchase';
@@ -123,7 +123,7 @@ export default function UnifiedEmail({
                 تابعني يومياً على انستغرام للاستراتيجيات الحصرية والقصص المحفزة.
               </Text>
               <Link href={instagramUrl} style={igBtn}>
-                📸 تابع @black4me.hq على انستغرام
+                📸 تابع @black4mee على انستغرام
               </Link>
             </Section>
 
