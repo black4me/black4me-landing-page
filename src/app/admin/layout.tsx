@@ -17,6 +17,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(1);
 
   useEffect(() => {
     const supabase = createBrowserClient(
@@ -155,16 +157,51 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
 
             {/* Quick Actions */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 relative">
               <button className="text-gray-400 hover:text-white transition">
                 <Grid className="w-5 h-5" />
               </button>
-              <button className="text-gray-400 hover:text-white transition relative">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="text-gray-400 hover:text-white transition relative"
+              >
                 <Bell className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-[#111114]">
-                  1
-                </span>
+                {notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-[#111114]">
+                    {notificationCount}
+                  </span>
+                )}
               </button>
+
+              {/* Notifications Dropdown */}
+              {showNotifications && (
+                <div className="absolute left-0 top-10 w-80 bg-[#161b22] border border-gray-800 rounded-2xl shadow-2xl p-4 space-y-3 z-50 text-right animate-fadeIn" dir="rtl">
+                  <div className="flex justify-between items-center pb-2 border-b border-gray-800">
+                    <span className="text-xs font-bold text-white">التنبيهات الأخيرة</span>
+                    {notificationCount > 0 && (
+                      <button 
+                        onClick={() => setNotificationCount(0)}
+                        className="text-[10px] text-brand-gold hover:underline"
+                      >
+                        تحديد كقروء
+                      </button>
+                    )}
+                  </div>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {notificationCount > 0 ? (
+                      <div className="flex items-start gap-3 p-2 bg-[#1f242c] rounded-lg">
+                        <div className="w-2.5 h-2.5 rounded-full bg-brand-gold mt-1.5 shrink-0 animate-pulse" />
+                        <div>
+                          <p className="text-xs text-white font-bold">تفعيل مسارات الأتمتة</p>
+                          <p className="text-[10px] text-gray-400 mt-1 leading-relaxed">تم ربط أتمتة مراجعة الكتب وجلسات Cal.com بنجاح بالمتجر.</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-500 text-center py-4">لا توجد تنبيهات جديدة</p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </header>
 
@@ -185,10 +222,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           
           <div className="bg-[#1a1a1d] rounded-2xl p-5 border border-white/5 relative overflow-hidden group hover:border-white/10 transition cursor-pointer">
             <div className="absolute top-0 right-0 w-24 h-24 bg-[#ceae88]/5 rounded-full blur-2xl group-hover:bg-[#ceae88]/10 transition" />
-            <h3 className="text-sm font-bold text-white mb-2 relative z-10">الامتدادية</h3>
-            <p className="text-xs text-gray-500 leading-relaxed relative z-10">
-              تشاركنا الوسيلة مدى الحملات المستتبعات الربط والعمل المتميزة
-            </p>
+            <h3 className="text-sm font-bold text-white mb-2 relative z-10">أنظمة الأتمتة والـ CRM</h3>
+            <div className="text-xs text-gray-400 space-y-2 relative z-10 text-right" dir="rtl">
+              <div className="flex items-center gap-1.5 text-green-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                <span>أتمتة مراجعة الكتب: نشطة ✅</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-green-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                <span>أتمتة الاستشارات: نشطة ✅</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-green-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                <span>أتمتة انستقرام ManyChat: نشطة ✅</span>
+              </div>
+              <p className="text-[10px] text-gray-500 pt-1.5 border-t border-white/5 leading-relaxed">
+                تكاملات Resend و Supabase تعمل بالكامل في الوضع الحي.
+              </p>
+            </div>
           </div>
         </aside>
 
