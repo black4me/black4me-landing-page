@@ -51,6 +51,8 @@ export async function POST(req: Request) {
           newsletterUrl: 'https://black4me.com/#free-gift',
           instagramUrl: settings.social_instagram_url || 'https://www.instagram.com/black4mee/',
           logoUrl: settings.site_logo,
+          authorPhotoUrl: settings.author_photo_url,
+          authorName: settings.author_name || 'جاسم محمد',
         })
       );
 

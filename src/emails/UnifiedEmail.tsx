@@ -23,6 +23,8 @@ interface UnifiedEmailProps {
   newsletterUrl?: string;
   instagramUrl?: string;
   logoUrl?: string;
+  authorPhotoUrl?: string;  // Profile photo of the sender (like Khalid's email)
+  authorName?: string;       // Display name of the sender
 }
 
 export default function UnifiedEmail({
@@ -34,13 +36,14 @@ export default function UnifiedEmail({
   newsletterUrl = 'https://black4me.com/#free-gift',
   instagramUrl = 'https://www.instagram.com/black4mee/',
   logoUrl,
+  authorPhotoUrl,
+  authorName = 'جاسم محمد',
 }: UnifiedEmailProps) {
   const isPurchase = type === 'purchase';
 
-  const heroEmoji = isPurchase ? '🎉' : '🎁';
   const heroTitle = isPurchase
     ? `طلبك تم بنجاح يا ${userFirstname} 🔥`
-    : `هديتك الحصرية جاهزة يا ${userFirstname} 🎁`;
+    : `هديتك جاهزة يا ${userFirstname} 🎁`;
   const heroPara = isPurchase
     ? `ما وصلتلك هذي الرسالة إلا لأن عندك عقلية مختلفة. قررت تستثمر في نفسك — وهذا القرار راح يغير مسارك.`
     : `أنت الآن جزء من مجتمع يبني ثروته بالتسويق الذكي. الهدية في انتظارك — خطوة واحدة وتكون في المقدمة.`;
@@ -52,26 +55,38 @@ export default function UnifiedEmail({
         <div style={wrapper}>
           <Container style={container}>
 
-            {/* Header */}
-            <Section style={header}>
-              <Img
-                src={logoUrl || 'https://black4me.com/logo.png'}
-                alt="BLACK4ME"
-                height="36"
-                style={logo}
-              />
+            {/* ── Author Profile Header (like Khalid's email) ── */}
+            <Section style={profileHeader}>
+              {authorPhotoUrl ? (
+                <Img
+                  src={authorPhotoUrl}
+                  alt={authorName}
+                  width="72"
+                  height="72"
+                  style={profileImg}
+                />
+              ) : (
+                <div style={profilePlaceholder}>
+                  <Text style={profileInitial}>
+                    {authorName ? authorName.charAt(0) : 'ج'}
+                  </Text>
+                </div>
+              )}
+              <Text style={profileName}>{authorName}</Text>
+              <Text style={profileHandle}>BLACK4ME — نظام التسويق الذكي</Text>
             </Section>
 
-            {/* Hero */}
+            <Hr style={divider} />
+
+            {/* ── Hero Section ── */}
             <Section style={heroSection}>
-              <Text style={heroIconStyle}>{heroEmoji}</Text>
               <Heading style={h1}>{heroTitle}</Heading>
               <Text style={heroParagraph}>{heroPara}</Text>
             </Section>
 
             <Hr style={divider} />
 
-            {/* Download Button */}
+            {/* ── Download Button ── */}
             {downloadLink && (
               <Section style={btnSection}>
                 <Link href={downloadLink} style={primaryBtn}>
@@ -82,13 +97,13 @@ export default function UnifiedEmail({
 
             <Hr style={divider} />
 
-            {/* Newsletter CTA — The core of the request */}
+            {/* ── Newsletter CTA ── */}
             <Section style={ctaBox}>
               <Text style={ctaIcon}>✉️</Text>
               <Heading style={ctaTitle}>اشترك في نشرتي البريدية اليومية</Heading>
               <Text style={ctaBody}>
                 كل يوم أشاركك إستراتيجية تسويقية عملية، قصة نجاح، أو نظام مجرّب يساعدك على بناء برند يدفع لك — حتى وأنت نايم.
-                نشرة خاصة، مجانية، لمشتركين الـ BLACK4ME فقط.
+                نشرة خاصة، مجانية، لمجتمع BLACK4ME فقط.
               </Text>
               <Section style={btnSection}>
                 <Link href={newsletterUrl} style={secondaryBtn}>
@@ -99,7 +114,7 @@ export default function UnifiedEmail({
 
             <Hr style={divider} />
 
-            {/* Blog CTA */}
+            {/* ── Blog CTA ── */}
             <Section style={blogBox}>
               <Row>
                 <Column style={{ paddingLeft: '20px' }}>
@@ -117,7 +132,7 @@ export default function UnifiedEmail({
 
             <Hr style={divider} />
 
-            {/* Instagram Follow CTA */}
+            {/* ── Instagram Follow CTA ── */}
             <Section style={igSection}>
               <Text style={igText}>
                 تابعني يومياً على انستغرام للاستراتيجيات الحصرية والقصص المحفزة.
@@ -127,7 +142,7 @@ export default function UnifiedEmail({
               </Link>
             </Section>
 
-            {/* Footer */}
+            {/* ── Footer ── */}
             <Section style={footerSection}>
               <Text style={footerText}>
                 © {new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
@@ -169,32 +184,63 @@ const container = {
   overflow: 'hidden',
 };
 
-const header = {
+// ── Profile header (sender photo like Khalid) ──
+const profileHeader = {
   backgroundColor: '#050505',
-  padding: '28px 32px',
-  borderBottom: '1px solid #1c1c1f',
+  padding: '32px 32px 24px',
   textAlign: 'center' as const,
 };
 
-const logo = {
+const profileImg = {
   display: 'block',
-  margin: '0 auto',
+  margin: '0 auto 12px',
+  borderRadius: '50%',
+  border: '2px solid #ff8c00',
+  objectFit: 'cover' as const,
+};
+
+const profilePlaceholder = {
+  width: '72px',
+  height: '72px',
+  borderRadius: '50%',
+  backgroundColor: '#ff8c00',
+  margin: '0 auto 12px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+const profileInitial = {
+  fontSize: '28px',
+  fontWeight: '800',
+  color: '#000',
+  margin: '0',
+  lineHeight: '72px',
+};
+
+const profileName = {
+  color: '#ffffff',
+  fontSize: '16px',
+  fontWeight: '700',
+  margin: '0 0 4px',
+  textAlign: 'center' as const,
+};
+
+const profileHandle = {
+  color: '#71717a',
+  fontSize: '12px',
+  margin: '0',
+  textAlign: 'center' as const,
 };
 
 const heroSection = {
-  padding: '40px 40px 20px',
+  padding: '32px 40px 20px',
   textAlign: 'center' as const,
-};
-
-const heroIconStyle = {
-  fontSize: '48px',
-  lineHeight: '1',
-  margin: '0 0 16px',
 };
 
 const h1 = {
   color: '#ffffff',
-  fontSize: '24px',
+  fontSize: '22px',
   fontWeight: '800',
   textAlign: 'center' as const,
   margin: '0 0 16px',
@@ -203,7 +249,7 @@ const h1 = {
 
 const heroParagraph = {
   color: '#a1a1aa',
-  fontSize: '16px',
+  fontSize: '15px',
   lineHeight: '28px',
   textAlign: 'center' as const,
   margin: '0',
@@ -216,7 +262,7 @@ const divider = {
 
 const btnSection = {
   textAlign: 'center' as const,
-  padding: '28px 40px',
+  padding: '24px 40px',
 };
 
 const primaryBtn = {
@@ -230,7 +276,6 @@ const primaryBtn = {
   borderRadius: '4px',
 };
 
-// Newsletter CTA box
 const ctaBox = {
   padding: '32px 40px',
   backgroundColor: '#0f0f12',
@@ -238,13 +283,13 @@ const ctaBox = {
 };
 
 const ctaIcon = {
-  fontSize: '32px',
+  fontSize: '28px',
   margin: '0 0 8px',
 };
 
 const ctaTitle = {
   color: '#ffffff',
-  fontSize: '20px',
+  fontSize: '18px',
   fontWeight: '800',
   margin: '0 0 12px',
 };
@@ -268,7 +313,6 @@ const secondaryBtn = {
   borderRadius: '4px',
 };
 
-// Blog section
 const blogBox = {
   padding: '28px 40px',
   textAlign: 'right' as const,
@@ -276,14 +320,14 @@ const blogBox = {
 
 const blogLabel = {
   color: '#ffffff',
-  fontSize: '16px',
+  fontSize: '15px',
   fontWeight: '700',
   margin: '0 0 8px',
 };
 
 const blogDesc = {
   color: '#71717a',
-  fontSize: '14px',
+  fontSize: '13px',
   lineHeight: '22px',
   margin: '0 0 12px',
 };
@@ -295,7 +339,6 @@ const blogLink = {
   textDecoration: 'none',
 };
 
-// Instagram section
 const igSection = {
   padding: '24px 40px',
   textAlign: 'center' as const,
@@ -319,7 +362,6 @@ const igBtn = {
   display: 'inline-block',
 };
 
-// Footer
 const footerSection = {
   backgroundColor: '#050505',
   padding: '20px 40px 28px',

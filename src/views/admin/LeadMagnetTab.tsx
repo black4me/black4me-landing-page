@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { uploadImageAdmin, getSignedUploadUrlAdmin } from '../../server/actions/admin';
-import { Save, Upload, Link as LinkIcon, MessageSquare, Instagram, Mail, FileText } from 'lucide-react';
+import { Save, Upload, Link as LinkIcon, MessageSquare, Instagram, Mail, FileText, UserCircle, Camera } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export function LeadMagnetTab() {
@@ -15,7 +15,11 @@ export function LeadMagnetTab() {
     social_instagram_url: siteSettings.social_instagram_url || '',
     social_whatsapp_url: siteSettings.social_whatsapp_url || '',
     social_support_email: siteSettings.social_support_email || '',
+    author_photo_url: siteSettings.author_photo_url || '',
+    author_name: siteSettings.author_name || 'جاسم محمد',
   });
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const [uploadingFile, setUploadingFile] = useState(false);
 
@@ -27,6 +31,8 @@ export function LeadMagnetTab() {
       social_instagram_url: siteSettings.social_instagram_url || '',
       social_whatsapp_url: siteSettings.social_whatsapp_url || '',
       social_support_email: siteSettings.social_support_email || '',
+      author_photo_url: siteSettings.author_photo_url || '',
+      author_name: siteSettings.author_name || 'جاسم محمد',
     });
   }, [siteSettings]);
 
@@ -80,11 +86,127 @@ export function LeadMagnetTab() {
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (!e.target.files || e.target.files.length === 0) return;
+      setUploadingPhoto(true);
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `author_photo_${Date.now()}.${fileExt}`;
+
+      const { signedUrl, path, token, error: signError } = await getSignedUploadUrlAdmin(fileName);
+      if (signError || !path || !token) throw new Error(signError || 'Failed to get upload signature');
+
+      const { error: uploadError } = await supabase.storage
+        .from('products')
+        .uploadToSignedUrl(path, token, file);
+      if (uploadError) throw new Error(uploadError.message);
+
+      const { data: urlData } = supabase.storage.from('products').getPublicUrl(path);
+      const url = urlData.publicUrl;
+
+      setFormData(prev => ({ ...prev, author_photo_url: url }));
+      updateSiteSetting('author_photo_url', url);
+      alert('تم رفع الصورة الشخصية بنجاح! ✅');
+    } catch (error: any) {
+      alert('خطأ أثناء رفع الصورة: ' + error.message);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-bold text-white">إعدادات الهدية المجانية (Lead Magnet)</h3>
         <p className="text-xs text-gray-500">قم برفع ملف الهدية وتخصيص محتوى البريد الإلكتروني الذي يصل للعملاء.</p>
+      </div>
+
+      {/* ── Author Profile Section (appears at top of every email) ── */}
+      <div className="bg-brand-darkgray p-6 rounded-2xl border border-brand-gold/20 space-y-5">
+        <h4 className="text-sm text-brand-gold font-bold flex items-center gap-2">
+          <UserCircle className="w-4 h-4" /> صورة المرسِل الشخصية (تظهر في كل إيميل)
+        </h4>
+        <p className="text-xs text-gray-400 -mt-2">الصورة التي تظهر في أعلى كل إيميل يصل للعملاء — مثل نموذج إيميلات المقربين.</p>
+
+        <div className="flex flex-col md:flex-row items-center gap-6">
+          {/* Photo Preview */}
+          <div className="relative shrink-0">
+            {formData.author_photo_url ? (
+              <img
+                src={formData.author_photo_url}
+                alt="صورة المرسل"
+                className="w-24 h-24 rounded-full object-cover border-2 border-brand-gold"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-brand-gold/20 border-2 border-brand-gold/30 flex items-center justify-center">
+                <UserCircle className="w-10 h-10 text-brand-gold/50" />
+              </div>
+            )}
+            {/* Upload overlay button */}
+            <label
+              htmlFor="author-photo-upload"
+              className="absolute bottom-0 right-0 w-8 h-8 bg-brand-gold rounded-full flex items-center justify-center cursor-pointer hover:bg-yellow-400 transition shadow-lg"
+              title="تغيير الصورة"
+            >
+              <Camera className="w-4 h-4 text-black" />
+            </label>
+            <input
+              id="author-photo-upload"
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              className="hidden"
+              disabled={uploadingPhoto}
+            />
+          </div>
+
+          {/* Name + Upload area */}
+          <div className="flex-1 space-y-3 w-full">
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">اسم المرسِل (يظهر أسفل الصورة)</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="author_name"
+                  value={formData.author_name}
+                  onChange={handleChange}
+                  placeholder="جاسم محمد"
+                  className="flex-1 bg-brand-black border border-brand-white/10 p-3 rounded-lg text-white text-xs"
+                />
+                <button
+                  onClick={() => handleSave('author_name')}
+                  className="bg-brand-purple/20 text-brand-purple hover:bg-brand-purple hover:text-white font-bold px-4 py-2 text-xs rounded-lg transition whitespace-nowrap"
+                >
+                  حفظ الاسم
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">أو أدخل رابط الصورة مباشرة</label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  name="author_photo_url"
+                  value={formData.author_photo_url}
+                  onChange={handleChange}
+                  placeholder="https://..."
+                  className="flex-1 bg-brand-black border border-brand-white/10 p-3 rounded-lg text-white text-xs"
+                  dir="ltr"
+                />
+                <button
+                  onClick={() => handleSave('author_photo_url')}
+                  className="bg-brand-purple/20 text-brand-purple hover:bg-brand-purple hover:text-white font-bold px-4 py-2 text-xs rounded-lg transition whitespace-nowrap"
+                >
+                  حفظ الرابط
+                </button>
+              </div>
+            </div>
+            {uploadingPhoto && (
+              <p className="text-xs text-brand-gold animate-pulse">جاري رفع الصورة...</p>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

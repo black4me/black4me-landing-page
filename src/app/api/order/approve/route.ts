@@ -67,6 +67,13 @@ export async function POST(req: Request) {
 
     // 5. Send Unified Welcome Email (newsletter + blog CTAs included)
     if (process.env.RESEND_API_KEY && order.customer_email) {
+      // Fetch site_settings for author photo + name
+      const { data: settingsData } = await supabaseAdmin.from('site_settings').select('*');
+      const settings = (settingsData || []).reduce((acc: any, row: any) => {
+        acc[row.key] = row.value;
+        return acc;
+      }, {} as Record<string, string>);
+
       try {
         const htmlContent = await render(
           React.createElement(UnifiedEmail, {
@@ -77,6 +84,8 @@ export async function POST(req: Request) {
             blogUrl: 'https://black4me.com/blog',
             newsletterUrl: 'https://black4me.com/#free-gift',
             instagramUrl: 'https://www.instagram.com/black4mee/',
+            authorPhotoUrl: settings?.author_photo_url,
+            authorName: settings?.author_name || 'جاسم محمد',
           } as any)
         );
 
