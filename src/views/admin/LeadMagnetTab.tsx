@@ -51,33 +51,25 @@ export function LeadMagnetTab() {
       if (!e.target.files || e.target.files.length === 0) return;
       setUploadingFile(true);
       const file = e.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `lead_magnet_${Date.now()}.${fileExt}`;
 
-      // Use signed URL to bypass Vercel's 4.5MB server action limit
-      const { signedUrl, path, token, error: signError } = await getSignedUploadUrlAdmin(fileName);
+      // Use API route — avoids Server Action 4.5MB Vercel limit
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('folder', 'lead_magnet');
 
-      if (signError || !path || !token) {
-        throw new Error(signError || 'Failed to get upload signature');
+      const res = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: fd,
+      });
+
+      const result = await res.json();
+
+      if (!res.ok || result.error) {
+        throw new Error(result.error || 'فشل رفع الملف');
       }
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('products')
-        .uploadToSignedUrl(path, token, file);
-
-      if (uploadError) {
-        throw new Error(uploadError.message || 'Failed to upload file to storage');
-      }
-
-      const { data: urlData } = supabase.storage.from('products').getPublicUrl(path);
-      const url = urlData.publicUrl;
-
-      if (!url) {
-        throw new Error('Failed to get public URL');
-      }
-
-      setFormData(prev => ({ ...prev, lead_magnet_file_url: url }));
-      updateSiteSetting('lead_magnet_file_url', url);
+      setFormData(prev => ({ ...prev, lead_magnet_file_url: result.url }));
+      updateSiteSetting('lead_magnet_file_url', result.url);
       alert('تم رفع وتحديث ملف الهدية بنجاح!');
     } catch (error: any) {
       alert('خطأ أثناء رفع الملف: ' + error.message);
@@ -91,22 +83,25 @@ export function LeadMagnetTab() {
       if (!e.target.files || e.target.files.length === 0) return;
       setUploadingPhoto(true);
       const file = e.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `author_photo_${Date.now()}.${fileExt}`;
 
-      const { signedUrl, path, token, error: signError } = await getSignedUploadUrlAdmin(fileName);
-      if (signError || !path || !token) throw new Error(signError || 'Failed to get upload signature');
+      // Use API route directly — avoids Next.js Server Action 4.5MB limit and "Failed to fetch"
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('folder', 'author_photo');
 
-      const { error: uploadError } = await supabase.storage
-        .from('products')
-        .uploadToSignedUrl(path, token, file);
-      if (uploadError) throw new Error(uploadError.message);
+      const res = await fetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: fd,
+      });
 
-      const { data: urlData } = supabase.storage.from('products').getPublicUrl(path);
-      const url = urlData.publicUrl;
+      const result = await res.json();
 
-      setFormData(prev => ({ ...prev, author_photo_url: url }));
-      updateSiteSetting('author_photo_url', url);
+      if (!res.ok || result.error) {
+        throw new Error(result.error || 'فشل رفع الصورة');
+      }
+
+      setFormData(prev => ({ ...prev, author_photo_url: result.url }));
+      updateSiteSetting('author_photo_url', result.url);
       alert('تم رفع الصورة الشخصية بنجاح! ✅');
     } catch (error: any) {
       alert('خطأ أثناء رفع الصورة: ' + error.message);
