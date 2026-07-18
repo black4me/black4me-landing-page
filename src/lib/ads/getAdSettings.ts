@@ -46,7 +46,10 @@ export async function getAdSettings(): Promise<AdSettings> {
       .single();
 
     if (error) {
-      console.error('Error fetching ad settings:', error);
+      // PGRST205 means the table doesn't exist yet
+      if (error.code !== 'PGRST205') {
+        console.warn('Warning fetching ad settings:', error.message);
+      }
       return defaultSettings;
     }
 

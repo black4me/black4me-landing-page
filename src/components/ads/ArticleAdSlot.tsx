@@ -1,49 +1,36 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdSettings } from '@/types';
-import { useEffect, useRef } from 'react';
 
 function AdsterraBanner({ placement }: { placement: string }) {
-  const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
-  const adKey = '4b117f2ed043d3943326e51f8fd5e653'; 
-  const adWidth = isDesktop && placement !== 'mid_content' ? 728 : 300;
-  const adHeight = isDesktop && placement !== 'mid_content' ? 90 : 250;
+  const [mounted, setMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
-  const iframeContent = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body { margin: 0; padding: 0; background: transparent; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        </style>
-      </head>
-      <body>
-        <script type="text/javascript">
-          atOptions = {
-            'key' : '${adKey}',
-            'format' : 'iframe',
-            'height' : ${adHeight},
-            'width' : ${adWidth},
-            'params' : {}
-          };
-        </script>
-        <script type="text/javascript" src="https://www.topcreativeformat.com/${adKey}/invoke.js"></script>
-      </body>
-    </html>
-  `;
+  useEffect(() => {
+    setMounted(true);
+    setIsDesktop(window.innerWidth >= 768);
+  }, []);
+
+  if (!mounted) {
+    return <div className="min-h-[250px] w-full bg-transparent" />;
+  }
+
+  const iframeSrc = isDesktop ? '/ad-728x90.html' : '/ad-300x250.html';
+  const adWidth = isDesktop ? 728 : 300;
+  const adHeight = isDesktop ? 90 : 250;
 
   return (
-    <div className="flex justify-center w-full min-h-[250px] items-center">
+    <div className={`flex justify-center w-full items-center ${isDesktop ? 'min-h-[90px]' : 'min-h-[250px]'}`}>
       <iframe
-        srcDoc={iframeContent}
+        src={iframeSrc}
         width={adWidth}
         height={adHeight}
         frameBorder="0"
         scrolling="no"
-        sandbox="allow-scripts allow-same-origin allow-popups"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         style={{ border: 'none', overflow: 'hidden' }}
+        title={`adsterra-banner-${placement}`}
       />
     </div>
   );
