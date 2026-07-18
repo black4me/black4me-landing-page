@@ -67,22 +67,21 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
             {/* Trust Badge */}
             <div className="inline-flex items-center gap-2 bg-brand-purple/10 border border-brand-purple/20 rounded-full px-4 py-1.5 mb-6">
               <Sparkles className="w-3.5 h-3.5 text-brand-gold" />
-              <span className="text-xs font-bold text-brand-purple-light">+300 مشترك في النظام التسويقي</span>
+              <span className="text-xs font-bold text-brand-purple-light">{siteSettings?.hero_badge || "+300 مشترك في النظام التسويقي"}</span>
             </div>
 
             {/* H1 — Result-oriented headline */}
             <h1 className="text-4xl md:text-6xl font-bold mt-6 leading-tight mb-4">
-              بدون تسويق كارثة تهدد ثروتك المستقبلية
+              {siteSettings?.hero_title || "بدون تسويق كارثة تهدد ثروتك المستقبلية"}
             </h1>
 
             <h2 className="text-xl md:text-2xl mt-4 text-gray-300 font-bold mb-6">
-              الكتاب العملي + النظام التعليمي + 6 قوالب جاهزة
+              {siteSettings?.hero_subtitle || "الكتاب العملي + النظام التعليمي + 6 قوالب جاهزة"}
             </h2>
 
             {/* Description paragraph */}
             <p className="text-base md:text-lg text-gray-400 leading-relaxed mb-8 max-w-2xl">
-              دليل بناء العروض التي لا ترفض وتحويل المهارات إلى أرباح طائلة.
-              من تأليف جاسم محمد — مستشار التسويق الرقمي في BLACK4ME.
+              {siteSettings?.hero_support_text || "دليل بناء العروض التي لا ترفض وتحويل المهارات إلى أرباح طائلة. من تأليف جاسم محمد — مستشار التسويق الرقمي في BLACK4ME."}
             </p>
 
             {/* Value Bullets */}

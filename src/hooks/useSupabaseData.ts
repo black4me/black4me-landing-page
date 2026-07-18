@@ -255,5 +255,5 @@ export async function submitTestimonial(
 // ─── Subscribe to newsletter ──────────────────────────────────────────────────
 
 export async function subscribeNewsletter(name: string, email: string, country: string) {
-  return supabase.from('newsletter').upsert([{ name, email, country }], { onConflict: 'email', ignoreDuplicates: true });
+  return supabase.from('subscribers').upsert([{ name, email, country }], { onConflict: 'email', ignoreDuplicates: true });
 }
