@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../../lib/supabase-admin';
 import { Resend } from 'resend';
 import { render } from '@react-email/render';
-import WelcomeEmail from '../../../../emails/WelcomeEmail';
+import UnifiedEmail from '../../../../emails/UnifiedEmail';
 import React from 'react';
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
@@ -64,43 +64,44 @@ export async function POST(req: Request) {
       order_id: orderId,
       payment_gateway: order.payment_gateway || 'manual',
     });
-    // 5. Send Welcome Email and Admin Notification via Resend
+
+    // 5. Send Unified Welcome Email (newsletter + blog CTAs included)
     if (process.env.RESEND_API_KEY && order.customer_email) {
       try {
         const htmlContent = await render(
-          React.createElement(WelcomeEmail, {
-            userFirstname: order.customer_email.split('@')[0],
-            downloadLink: fileUrl
+          React.createElement(UnifiedEmail, {
+            userFirstname: order.customer_name || order.customer_email.split('@')[0],
+            type: 'purchase',
+            downloadLink: fileUrl || 'https://black4me.com/portal',
+            productTitle,
+            blogUrl: 'https://black4me.com/blog',
+            newsletterUrl: 'https://black4me.com/#free-gift',
+            instagramUrl: 'https://instagram.com/black4me.hq',
           } as any)
         );
 
         await resend.emails.send({
-          from: 'BLACK4ME <noreply@black4me.com>',
+          from: 'جاسم محمد — BLACK4ME <noreply@black4me.com>',
           to: order.customer_email,
-          subject: 'شكرًا لطلبك من Black4me!',
+          subject: `🎉 طلبك جاهز يا ${order.customer_name || 'صديقي'} — ابدأ الآن`,
           html: htmlContent,
         });
 
         // Admin notification
-        const adminEmail = 'black4mestore@gmail.com';
-        const adminHtmlContent = `
-          <div dir="rtl" style="font-family: sans-serif; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
-            <h2 style="color: #22C55E;">🎉 طلب جديد تم تأكيده! (تحويل يدوي)</h2>
-            <p style="font-size: 16px;">لقد قمت للتو باعتماد طلب يدوي على منصة BLACK4ME.</p>
-            <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-top: 15px;">
-              <p><strong>العميل:</strong> ${order.customer_name || ''} (${order.customer_email})</p>
-              <p><strong>المنتج:</strong> ${productTitle}</p>
-              <p><strong>المبلغ:</strong> $${order.amount || 0}</p>
-              <p><strong>رقم الطلب:</strong> #${orderId.slice(-8).toUpperCase()}</p>
-            </div>
+        const adminHtml = `
+          <div dir="rtl" style="font-family:sans-serif;padding:20px;background:#f9f9f9;border-radius:8px">
+            <h2 style="color:#22C55E">🎉 طلب جديد تم تأكيده!</h2>
+            <p>العميل: ${order.customer_name || ''} (${order.customer_email})</p>
+            <p>المنتج: ${productTitle}</p>
+            <p>المبلغ: $${order.amount || 0}</p>
+            <p>رقم الطلب: #${orderId.slice(-8).toUpperCase()}</p>
           </div>
         `;
-
         await resend.emails.send({
           from: 'BLACK4ME System <noreply@black4me.com>',
-          to: adminEmail,
-          subject: '🎉 اعتماد طلب يدوي: ' + productTitle,
-          html: adminHtmlContent,
+          to: 'black4mestore@gmail.com',
+          subject: '🎉 طلب مؤكد: ' + productTitle,
+          html: adminHtml,
         });
       } catch (emailError) {
         console.error('Failed to send emails:', emailError);

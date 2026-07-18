@@ -39,18 +39,18 @@ export async function POST(req: Request) {
     // Attempt to send email via Resend if key exists
     if (process.env.RESEND_API_KEY) {
       const { render } = await import('@react-email/render');
-      const LeadMagnetEmail = (await import('../../../emails/LeadMagnetEmail')).default;
+      const UnifiedEmail = (await import('../../../emails/UnifiedEmail')).default;
 
       const htmlContent = await render(
-        LeadMagnetEmail({
+        UnifiedEmail({
           userFirstname: name,
-          downloadLink: settings.lead_magnet_file_url || 'https://www.black4me.com',
-          emailSubject: settings.lead_magnet_email_subject || '🎁 هديتك المجانية جاهزة',
-          emailBody: settings.lead_magnet_email_body || 'شكراً لاهتمامك! لقد قمنا بتجهيز الهدية المجانية خصيصاً لك.',
+          type: 'gift',
+          downloadLink: settings.lead_magnet_file_url ||
+            'https://drive.google.com/drive/folders/14-SIzFYoOu7uIqs4qDNbQF-IrRlG8ker?usp=sharing',
+          blogUrl: 'https://black4me.com/blog',
+          newsletterUrl: 'https://black4me.com/#free-gift',
+          instagramUrl: settings.social_instagram_url || 'https://instagram.com/black4me.hq',
           logoUrl: settings.site_logo,
-          instagramUrl: settings.social_instagram_url,
-          whatsappUrl: settings.social_whatsapp_url,
-          supportEmail: settings.social_support_email,
         })
       );
 
@@ -61,9 +61,9 @@ export async function POST(req: Request) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: 'BLACK4ME <hello@black4me.com>',
+          from: 'جاسم محمد — BLACK4ME <noreply@black4me.com>',
           to: email,
-          subject: settings.lead_magnet_email_subject || '🎁 هديتك المجانية جاهزة',
+          subject: `🎁 هديتك جاهزة يا ${name} — تحمّل الآن`,
           html: htmlContent
         })
       }).catch(err => console.error('Email send failed:', err));
