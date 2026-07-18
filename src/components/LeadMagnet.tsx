@@ -24,7 +24,7 @@ export default function LeadMagnet() {
   };
   
   return (
-    <section className="py-16 px-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-black">
+    <section id="free-gift" className="py-16 px-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-black scroll-mt-20">
       <div className="max-w-3xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
           هدية مجانية قبل الشراء 🎁
