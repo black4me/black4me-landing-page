@@ -63,24 +63,6 @@ export default function BookPreviewSection() {
                   />
                 </div>
 
-                {/* Platform Preview with overlay */}
-                <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-brand-white/10">
-                  <Image
-                    src={siteSettings?.platform_preview_image || "/images/platform-preview.webp"}
-                    alt="معاينة أكاديمية التسويق الرقمية"
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      // TODO: استبدل الصورة بلقطة شاشة حقيقية للمنصة
-                      (e.currentTarget as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-center pb-6 rounded-2xl">
-                    <p className="text-white text-lg font-bold text-center px-4">
-                      🎓 أكثر من 27 درساً و 6 قوالب جاهزة
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
