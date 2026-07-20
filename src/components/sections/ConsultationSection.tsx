@@ -65,14 +65,13 @@ export default function ConsultationSection() {
           {/* Left Side - Portrait & Booking Box */}
           <div className="lg:col-span-5 relative">
             <div className="bg-[#111111] border border-white/10 rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
-               <div className="relative h-[400px] md:h-[500px] w-full bg-[#1a1a1a]">
+               <div className="relative h-[400px] md:h-[500px] w-full">
                  <Image 
                    src={siteSettings?.author_image || "/images/jassim-author.jpg"} 
                    alt="استشارة جاسم محمد" 
                    fill
                    className="object-cover object-top" 
                  />
-                 <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/20 to-transparent"></div>
                </div>
                
                <button 
