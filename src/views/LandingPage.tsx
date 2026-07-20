@@ -155,20 +155,6 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
                   className="rounded-lg shadow-2xl relative z-10"
                 />
 
-                <div className="platform-preview mt-8 relative z-10">
-                  <Image
-                    src="/images/platform-preview.webp"
-                    alt="معاينة أكاديمية التسويق الرقمية"
-                    width={800}
-                    height={600}
-                    className="rounded-lg"
-                  />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-lg">
-                    <p className="text-white text-xl font-bold">
-                      أكثر من 27 درساً و 6 قوالب جاهزة
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* Floating Badge */}
@@ -194,11 +180,6 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Hero Video — below the fold split */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pb-12 relative z-10">
-        <HeroVideo />
       </div>
 
       {/* Scroll Indicator */}
