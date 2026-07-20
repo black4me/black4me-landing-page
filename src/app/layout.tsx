@@ -8,6 +8,8 @@ import { Providers } from './providers';
 import React from 'react';
 import Tracker from '../components/Tracker';
 
+export const revalidate = 0;
+
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
   weight: ['400', '600', '700'],

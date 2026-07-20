@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 import CountdownTimer from '../components/CountdownTimer';
 import { supabaseAdmin } from '../lib/supabase-admin';
 
+export const revalidate = 0;
+
 export default async function HomePage() {
   const { count: reviewCount, data: reviews } = await supabaseAdmin
     .from('testimonials')
