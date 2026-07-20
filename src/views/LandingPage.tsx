@@ -144,18 +144,31 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
               {/* Glow behind book */}
               <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/20 to-brand-gold/10 blur-[60px] rounded-full scale-110" />
               
-              {/* Book Image - no animation to prevent CLS */}
-              <div className="relative flex justify-center w-full mx-auto">
+              {/* Book Image & Platform Preview */}
+              <div className="product-preview relative w-full mx-auto">
                 <Image
-                  src={siteSettings?.hero_image || "/images/book-cover.jpg"}
-                  priority={true}
-                  fetchPriority="high"
-                  loading="eager"
-                  alt="غلاف كتاب بدون تسويق كارثة تهدد ثروتك المستقبلية - جاسم محمد"
-                  width={420}
-                  height={580}
-                  className="drop-shadow-2xl"
+                  src="/images/book-cover.webp"
+                  alt="كتاب بدون تسويق كارثة — الحزمة الشاملة"
+                  width={600}
+                  height={400}
+                  priority
+                  className="rounded-lg shadow-2xl relative z-10"
                 />
+
+                <div className="platform-preview mt-8 relative z-10">
+                  <Image
+                    src="/images/platform-preview.webp"
+                    alt="معاينة أكاديمية التسويق الرقمية"
+                    width={800}
+                    height={600}
+                    className="rounded-lg"
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-lg">
+                    <p className="text-white text-xl font-bold">
+                      أكثر من 27 درساً و 6 قوالب جاهزة
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Floating Badge */}

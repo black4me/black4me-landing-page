@@ -40,10 +40,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL('https://www.black4me.com'),
     title: {
-      default: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية | BLACK4ME',
+      default: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية — كتاب + نظام تعليمي | BLACK4ME',
       template: '%s | BLACK4ME',
     },
-    description: settings.hero_subtitle || 'الكتاب العملي + النظام التعليمي + 6 قوالب جاهزة. دليل بناء العروض التي لا ترفض وتحويل المهارات إلى أرباح. $49 فقط مع ضمان 7 أيام.',
+    description: settings.hero_subtitle || 'كتاب عملي + نظام تعليمي + 6 قوالب تسويقية جاهزة. دليل بناء العروض التي لا ترفض. من تأليف جاسم محمد.',
     icons: {
       icon: settings.site_favicon || '/favicon.ico',
       apple: settings.site_favicon || '/favicon.ico',
@@ -68,8 +68,8 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: 'ar_SA',
       url: 'https://www.black4me.com',
       siteName: 'BLACK4ME',
-      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية',
-      description: settings.hero_subtitle || 'حزمة متكاملة بـ $49 — كتاب + نظام تعليمي + 6 قوالب + استشارة',
+      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية — كتاب + نظام تعليمي | BLACK4ME',
+      description: settings.hero_subtitle || 'كتاب عملي + نظام تعليمي + 6 قوالب تسويقية جاهزة. دليل بناء العروض التي لا ترفض. من تأليف جاسم محمد.',
       images: [
         {
           url: 'https://www.black4me.com/images/book-cover.jpg',
@@ -83,8 +83,8 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       site: '@black4me',
       creator: '@black4me',
-      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية | BLACK4ME',
-      description: settings.hero_subtitle || 'الحزمة الشاملة لبناء نظام تسويق رقمي متكامل. ابدأ بـ $49 مع ضمان استرداد كامل.',
+      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية — كتاب + نظام تعليمي | BLACK4ME',
+      description: settings.hero_subtitle || 'كتاب عملي + نظام تعليمي + 6 قوالب تسويقية جاهزة. دليل بناء العروض التي لا ترفض. من تأليف جاسم محمد.',
       images: ['https://www.black4me.com/images/book-cover.jpg'],
     },
     robots: {

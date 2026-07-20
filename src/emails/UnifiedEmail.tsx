@@ -25,6 +25,8 @@ interface UnifiedEmailProps {
   logoUrl?: string;
   authorPhotoUrl?: string;  // Profile photo of the sender (like Khalid's email)
   authorName?: string;       // Display name of the sender
+  customerEmail?: string;
+  tempPassword?: string;
 }
 
 export default function UnifiedEmail({
@@ -38,6 +40,8 @@ export default function UnifiedEmail({
   logoUrl,
   authorPhotoUrl,
   authorName = 'جاسم محمد',
+  customerEmail,
+  tempPassword = '12345678', // Default temp password if not provided
 }: UnifiedEmailProps) {
   const isPurchase = type === 'purchase';
 
@@ -92,6 +96,26 @@ export default function UnifiedEmail({
                 <Link href={downloadLink} style={primaryBtn}>
                   {isPurchase ? '📚 الوصول الفوري للمنتج' : '⬇️ تحميل هديتك الآن'}
                 </Link>
+              </Section>
+            )}
+
+            {isPurchase && (
+              <Section style={academySection}>
+                <Heading style={academyTitle}>🎓 حسابك في المنصة التعليمية:</Heading>
+                <Text style={academyText}>
+                  تم إنشاء حساب لك للوصول إلى كافة المواد التعليمية المرفقة مع الكتاب.
+                </Text>
+                <Link href="https://marketing-academy-liard.vercel.app/login" style={academyLink}>
+                  دخول الأكاديمية
+                </Link>
+                <div style={credentialsBox}>
+                  <Text style={credentialItem}>
+                    <strong>البريد:</strong> {customerEmail || '[إيميل العميل]'}
+                  </Text>
+                  <Text style={credentialItem}>
+                    <strong>كلمة المرور:</strong> {tempPassword || '[كلمة المرور المؤقتة]'}
+                  </Text>
+                </div>
               </Section>
             )}
 
@@ -379,4 +403,52 @@ const footerSmall = {
   color: '#3f3f46',
   fontSize: '11px',
   margin: '0',
+};
+
+const academySection = {
+  padding: '24px 40px',
+  backgroundColor: '#0a0a0a',
+  textAlign: 'right' as const,
+  borderTop: '1px solid #1c1c1f',
+};
+
+const academyTitle = {
+  color: '#ff8c00',
+  fontSize: '18px',
+  fontWeight: '800',
+  margin: '0 0 12px',
+};
+
+const academyText = {
+  color: '#a1a1aa',
+  fontSize: '14px',
+  lineHeight: '24px',
+  margin: '0 0 16px',
+};
+
+const academyLink = {
+  color: '#fff',
+  fontSize: '14px',
+  fontWeight: 'bold',
+  textDecoration: 'none',
+  backgroundColor: '#1f1f22',
+  padding: '10px 20px',
+  borderRadius: '4px',
+  display: 'inline-block',
+  border: '1px solid #3f3f46',
+  margin: '0 0 16px',
+};
+
+const credentialsBox = {
+  backgroundColor: '#111',
+  padding: '16px',
+  borderRadius: '6px',
+  border: '1px dashed #3f3f46',
+};
+
+const credentialItem = {
+  color: '#e1e1e1',
+  fontSize: '14px',
+  margin: '0 0 8px',
+  fontFamily: 'monospace',
 };

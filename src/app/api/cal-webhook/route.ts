@@ -4,7 +4,7 @@ import { sendConsultationEmail } from '../../../server/actions/email';
 
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
 
 export async function GET() {
   return NextResponse.json({ status: 'ok', message: 'Cal.com webhook ready' }, { status: 200 });
