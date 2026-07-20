@@ -108,7 +108,7 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
                 onClick={handleHeroCheckoutClick}
                 className="cta-glow bg-brand-gold hover:bg-yellow-400 text-brand-black text-base font-black py-4 px-8 rounded-2xl transition-all duration-300 text-center flex items-center justify-center gap-2 w-full sm:w-auto"
               >
-                <span>احصل على الحزمة الشاملة $49 — ابدأ الآن</span>
+                <span>{siteSettings?.hero_cta_text || "احصل على الحزمة الشاملة $49 — ابدأ الآن"}</span>
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <button
@@ -173,9 +173,9 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
 
               {/* Price Badge */}
               <div className="absolute -top-4 -left-4 bg-brand-green/90 text-white rounded-xl px-3 py-2 text-center z-20 shadow-xl">
-                <span className="text-[10px] font-medium block line-through text-white/60">$199</span>
-                <span className="text-lg font-black block leading-none">$49</span>
-                <span className="text-[9px] font-bold">خصم 75%</span>
+                <span className="text-[10px] font-medium block line-through text-white/60">{siteSettings?.hero_price_original || "$199"}</span>
+                <span className="text-lg font-black block leading-none">{siteSettings?.hero_price_discounted || "$49"}</span>
+                <span className="text-[9px] font-bold">{siteSettings?.hero_price_discount_percent || "خصم 75%"}</span>
               </div>
             </div>
           </div>

@@ -11,6 +11,15 @@ export function SiteSettingsTab() {
   const [formData, setFormData] = useState({
     hero_title: siteSettings.hero_title || '',
     hero_subtitle: siteSettings.hero_subtitle || '',
+    hero_badge: siteSettings.hero_badge || '',
+    hero_support_text: siteSettings.hero_support_text || '',
+    hero_price_original: siteSettings.hero_price_original || '',
+    hero_price_discounted: siteSettings.hero_price_discounted || '',
+    hero_price_discount_percent: siteSettings.hero_price_discount_percent || '',
+    hero_cta_text: siteSettings.hero_cta_text || '',
+    enable_top_banner: siteSettings.enable_top_banner === 'true',
+    top_banner_text: siteSettings.top_banner_text || '',
+    countdown_end_date: siteSettings.countdown_end_date || '',
     hero_video_url: siteSettings.hero_video_url || '',
     funnel_title: siteSettings.funnel_title || '',
     funnel_subtitle: siteSettings.funnel_subtitle || '',
@@ -34,6 +43,15 @@ export function SiteSettingsTab() {
     setFormData({
       hero_title: siteSettings.hero_title || '',
       hero_subtitle: siteSettings.hero_subtitle || '',
+      hero_badge: siteSettings.hero_badge || '',
+      hero_support_text: siteSettings.hero_support_text || '',
+      hero_price_original: siteSettings.hero_price_original || '',
+      hero_price_discounted: siteSettings.hero_price_discounted || '',
+      hero_price_discount_percent: siteSettings.hero_price_discount_percent || '',
+      hero_cta_text: siteSettings.hero_cta_text || '',
+      enable_top_banner: siteSettings.enable_top_banner === 'true',
+      top_banner_text: siteSettings.top_banner_text || '',
+      countdown_end_date: siteSettings.countdown_end_date || '',
       hero_video_url: siteSettings.hero_video_url || '',
       funnel_title: siteSettings.funnel_title || '',
       funnel_subtitle: siteSettings.funnel_subtitle || '',
@@ -143,6 +161,14 @@ export function SiteSettingsTab() {
                   />
                   <span className="text-white text-xs">تفعيل الميزة</span>
                 </div>
+              ) : key === 'countdown_end_date' ? (
+                <input
+                  type="datetime-local"
+                  name={key}
+                  value={val as string}
+                  onChange={handleChange}
+                  className="w-full bg-brand-black border border-brand-white/10 p-3 rounded-lg text-white text-xs"
+                />
               ) : (
                 <textarea
                   name={key}

@@ -17,17 +17,31 @@ export default async function HomePage() {
     .from('testimonials')
     .select('rating', { count: 'exact' });
 
+  const { data: settingsData } = await supabaseAdmin.from('site_settings').select('key, value');
+  const settings = (settingsData || []).reduce((acc, row) => {
+    acc[row.key] = row.value;
+    return acc;
+  }, {} as Record<string, string>);
+
   let aggregateRating = '5.0';
   if (reviewCount && reviewCount > 0 && reviews) {
     const sum = reviews.reduce((acc, row) => acc + (row.rating || 5), 0);
     aggregateRating = (sum / reviewCount).toFixed(1);
   }
 
+  const showBanner = settings.enable_top_banner === 'true';
+
   return (
     <>
-      <div className="sticky top-0 z-50">
-        <CountdownTimer hours={24} label="العرض ينتهي خلال" />
-      </div>
+      {showBanner && (
+        <div className="sticky top-0 z-50">
+          <CountdownTimer 
+            hours={24} 
+            label={settings.top_banner_text || "العرض ينتهي خلال"} 
+            targetDate={settings.countdown_end_date} 
+          />
+        </div>
+      )}
       <LandingPage reviewCount={reviewCount || 0} aggregateRating={aggregateRating} />
     </>
   );
