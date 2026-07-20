@@ -51,13 +51,13 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
   };
 
   return (
-    <section id="hero" className="relative bg-brand-black text-brand-white pt-8 pb-0 overflow-hidden" dir="rtl">
+    <section id="hero" className="relative bg-brand-black text-brand-white pt-8 pb-12 overflow-x-clip overflow-y-visible" dir="rtl">
       {/* Background Effects */}
       <div className="absolute inset-0 opacity-15 pointer-events-none">
         <div className="h-full w-full" style={{ backgroundImage: 'radial-gradient(#6C3BFF 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }} />
       </div>
-      <div className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-brand-purple/15 blur-[140px] rounded-full pointer-events-none" aria-hidden="true" style={{ contain: 'strict' }} />
-      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-brand-gold/8 blur-[120px] rounded-full pointer-events-none" aria-hidden="true" style={{ contain: 'strict' }} />
+      <div className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-brand-purple/15 blur-[140px] rounded-full pointer-events-none z-0" aria-hidden="true" style={{ contain: 'strict' }} />
+      <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-brand-gold/8 blur-[120px] rounded-full pointer-events-none z-0" aria-hidden="true" style={{ contain: 'strict' }} />
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -147,7 +147,7 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
               {/* Book Image & Platform Preview */}
               <div className="product-preview relative w-full mx-auto">
                 <Image
-                  src="/images/book-cover.webp"
+                  src={siteSettings?.hero_image || "/images/book-cover.jpg"}
                   alt="كتاب بدون تسويق كارثة — الحزمة الشاملة"
                   width={600}
                   height={400}
@@ -159,7 +159,7 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
 
               {/* Floating Badge */}
               {reviewCount > 0 && (
-                <div className="absolute -bottom-4 -right-4 glass-gold rounded-2xl px-4 py-3 animate-fadeIn">
+                <div className="absolute -bottom-4 -right-4 glass-gold rounded-2xl px-4 py-3 animate-fadeIn z-20 shadow-xl">
                   <div className="flex items-center gap-2">
                     <div className="flex -space-x-1 rtl:space-x-reverse">
                       {[1,2,3,4,5].map(i => (
@@ -172,7 +172,7 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
               )}
 
               {/* Price Badge */}
-              <div className="absolute -top-4 -left-4 bg-brand-green/90 text-white rounded-xl px-3 py-2 text-center">
+              <div className="absolute -top-4 -left-4 bg-brand-green/90 text-white rounded-xl px-3 py-2 text-center z-20 shadow-xl">
                 <span className="text-[10px] font-medium block line-through text-white/60">$199</span>
                 <span className="text-lg font-black block leading-none">$49</span>
                 <span className="text-[9px] font-bold">خصم 75%</span>
