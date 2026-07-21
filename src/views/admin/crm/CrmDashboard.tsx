@@ -129,7 +129,7 @@ export default function CrmDashboard() {
           <div className="space-y-4">
             {/* Realtime events feed mockup */}
             {[1,2,3,4,5].map((i) => (
-              <div key={i} className="flex items-start gap-3 p-3 bg-[#1a1a1d] rounded-xl border border-white/5">
+              <div key={i} className="flex items-start gap-3 p-3 bg-[#1a1a1d] rounded-xl border border-white/5 hover:border-white/10 transition-colors">
                 <div className="w-2 h-2 rounded-full bg-green-400 mt-2 shrink-0 animate-pulse" />
                 <div>
                   <p className="text-sm font-bold text-white">زائر جديد من السعودية</p>
@@ -139,6 +139,59 @@ export default function CrmDashboard() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Leads Table & Profile Section */}
+      <div className="bg-[#111114] border border-white/5 rounded-2xl overflow-hidden">
+        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#1a1a1d]">
+          <h2 className="text-lg font-bold text-white">جدول العملاء (Leads)</h2>
+          <div className="flex gap-2">
+            <input type="text" placeholder="البحث في العملاء..." className="bg-[#111114] border border-white/10 text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-[#ceae88]" />
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-right">
+            <thead className="bg-[#161619] text-gray-400 text-xs uppercase tracking-wider">
+              <tr>
+                <th className="px-6 py-4 font-medium">العميل</th>
+                <th className="px-6 py-4 font-medium">التقييم (Score)</th>
+                <th className="px-6 py-4 font-medium">الحالة</th>
+                <th className="px-6 py-4 font-medium">تاريخ الانضمام</th>
+                <th className="px-6 py-4 font-medium text-left">إجراءات</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-sm">
+              {[
+                { name: 'أحمد محمد', email: 'ahmed@example.com', score: 125, status: 'Hot', date: '2026-07-21' },
+                { name: 'مريم علي', email: 'maryam@example.com', score: 45, status: 'Warm', date: '2026-07-20' },
+                { name: 'زائر مجهول', email: '-', score: 12, status: 'Cold', date: '2026-07-21' },
+              ].map((lead, idx) => (
+                <tr key={idx} className="hover:bg-white/5 transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="font-bold text-white">{lead.name}</div>
+                    <div className="text-gray-500 text-xs mt-1">{lead.email}</div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="bg-[#ceae88]/20 text-[#ceae88] px-2 py-1 rounded font-bold text-xs">
+                      {lead.score}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${lead.status === 'Hot' ? 'bg-red-500/20 text-red-400' : lead.status === 'Warm' ? 'bg-orange-500/20 text-orange-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                      {lead.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-gray-400">{lead.date}</td>
+                  <td className="px-6 py-4 text-left">
+                    <button className="text-gray-400 hover:text-white transition-colors bg-[#1a1a1d] px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20 text-xs font-bold">
+                      عرض الملف (Timeline)
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
