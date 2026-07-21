@@ -82,9 +82,23 @@ export async function POST(req: Request) {
       }
     ]);
 
-    // 5. Optionally, we can immediately push to Activepieces if delay is 0,
-    // or rely on a cron-based automation engine to pick up scheduled enrollments.
-    // For robust CRM, we let the automation engine pick it up.
+    // 5. Integration Event: Sequence Enrollment Push
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      await fetch(`${baseUrl}/api/crm/integrations/events/log`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          integration_name: 'activepieces', 
+          event_type: 'sequence_enrollment_push', 
+          direction: 'outbound', 
+          payload: { lead_id, sequence_id, channel: firstStep.channel },
+          status: 'pending' 
+        })
+      });
+    } catch (e) {
+      console.error('Sequence Integration Trigger Error:', e);
+    }
 
     return NextResponse.json({ success: true, enrollment });
   } catch (error: any) {

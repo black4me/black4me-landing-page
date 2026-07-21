@@ -78,6 +78,19 @@ export async function POST(req: Request) {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ lead_id, offer_id, order_id: metadata?.order_id })
             });
+
+            // 5a. Integration Event: Payment Sync (Stripe / Activepieces)
+            await fetch(`${baseUrl}/api/crm/integrations/events/log`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                integration_name: 'activepieces', 
+                event_type: 'payment_success_sync', 
+                direction: 'outbound', 
+                payload: { lead_id, offer_id, order_id: metadata?.order_id },
+                status: 'pending' 
+              })
+            });
           } else {
             await fetch(`${baseUrl}/api/crm/offers/assign`, {
               method: 'POST',
@@ -87,8 +100,23 @@ export async function POST(req: Request) {
           }
         }
 
+        // 5b. Integration Event: Lead Created Sync
+        if (event_name === 'lead_created' || event_name === 'lead_magnet_download') {
+           await fetch(`${baseUrl}/api/crm/integrations/events/log`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              integration_name: 'google_sheets', 
+              event_type: 'lead_created_exported', 
+              direction: 'outbound', 
+              payload: { lead_id, source },
+              status: 'pending' 
+            })
+          });
+        }
+
       } catch (e) {
-        console.error('Funnel/Offer Trigger Error:', e);
+        console.error('CRM Engines Trigger Error:', e);
       }
     }
 
