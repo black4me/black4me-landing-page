@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import { Providers } from './providers';
 import React from 'react';
 import Tracker from '../components/Tracker';
+import TopBanner from '../components/TopBanner';
 
 export const revalidate = 0;
 
@@ -178,6 +179,7 @@ export default async function RootLayout({
           <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:bg-brand-gold focus:text-brand-black focus:p-2 focus:rounded">
             انتقل للمحتوى الرئيسي
           </a>
+          <TopBanner />
           <Navbar />
           <main id="main-content" className="min-h-[calc(100vh-80px)]">
             {children}

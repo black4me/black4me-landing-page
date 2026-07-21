@@ -167,6 +167,8 @@ export function SiteSettingsTab() {
                   name={key}
                   value={val as string}
                   onChange={handleChange}
+                  dir="ltr"
+                  lang="en"
                   className="w-full bg-brand-black border border-brand-white/10 p-3 rounded-lg text-white text-xs"
                 />
               ) : (

@@ -52,10 +52,6 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
 
   return (
     <section id="hero" className="relative bg-brand-black text-brand-white pt-8 pb-12 overflow-x-clip overflow-y-visible" dir="rtl">
-      {/* Background Effects */}
-      <div className="absolute inset-0 opacity-15 pointer-events-none">
-        <div className="h-full w-full" style={{ backgroundImage: 'radial-gradient(#6C3BFF 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }} />
-      </div>
       <div className="absolute -top-20 -left-20 w-[500px] h-[500px] bg-brand-purple/15 blur-[140px] rounded-full pointer-events-none z-0" aria-hidden="true" style={{ contain: 'strict' }} />
       <div className="absolute top-1/4 right-0 w-[400px] h-[400px] bg-brand-gold/8 blur-[120px] rounded-full pointer-events-none z-0" aria-hidden="true" style={{ contain: 'strict' }} />
 
@@ -159,23 +155,29 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
 
               {/* Floating Badge */}
               {reviewCount > 0 && (
-                <div className="absolute -bottom-4 -right-4 glass-gold rounded-2xl px-4 py-3 animate-fadeIn z-20 shadow-xl">
+                <div className="absolute -bottom-4 -right-4 bg-brand-darkgray/90 backdrop-blur-md rounded-2xl p-3 shadow-2xl animate-float border border-brand-white/10 z-20" style={{ animationDelay: '1s' }}>
                   <div className="flex items-center gap-2">
-                    <div className="flex -space-x-1 rtl:space-x-reverse">
-                      {[1,2,3,4,5].map(i => (
-                        <Star key={i} className="w-3.5 h-3.5 text-brand-gold fill-brand-gold" />
+                    <div className="flex -space-x-2 rtl:space-x-reverse">
+                      {[1,2,3].map(i => (
+                        <div key={i} className="w-8 h-8 rounded-full border-2 border-brand-darkgray bg-brand-gray overflow-hidden">
+                          <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="مستخدم" className="w-full h-full object-cover" />
+                        </div>
                       ))}
                     </div>
-                    <p className="text-xs text-gray-400">{aggregateRating}/5 — {reviewCount} تقييم</p>
+                    <div>
+                      <div className="flex items-center text-yellow-400">
+                        {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-current" />)}
+                      </div>
+                      <p className="text-[10px] text-gray-300 font-bold mt-0.5">+{reviewCount} مراجعة ممتازة</p>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Price Badge */}
-              <div className="absolute -top-4 -left-4 bg-brand-green/90 text-white rounded-xl px-3 py-2 text-center z-20 shadow-xl">
-                <span className="text-[10px] font-medium block line-through text-white/60">{siteSettings?.hero_price_original || "$199"}</span>
-                <span className="text-lg font-black block leading-none">{siteSettings?.hero_price_discounted || "$49"}</span>
-                <span className="text-[9px] font-bold">{siteSettings?.hero_price_discount_percent || "خصم 75%"}</span>
+              <div className="absolute -top-4 -left-4 bg-green-500 text-brand-black p-3 rounded-2xl shadow-2xl animate-float font-black transform rotate-6 border-4 border-brand-black z-20">
+                <span className="text-sm line-through opacity-70 mb-1 block leading-none">{siteSettings?.hero_price_original || "$200"}</span>
+                <span className="text-2xl leading-none block">{siteSettings?.hero_price_discounted || "$49"}</span>
               </div>
             </div>
           </div>

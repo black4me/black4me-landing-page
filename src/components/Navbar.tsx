@@ -50,7 +50,6 @@ export default function Navbar() {
             <>
               <div className="text-right flex flex-col justify-center">
                 <span className="font-mono text-lg font-black tracking-widest leading-none block text-white">BLACK4ME</span>
-                <span className="text-[9px] text-brand-gold font-medium block mt-0.5">JASIM MOHAMMED</span>
               </div>
             </>
           )}
