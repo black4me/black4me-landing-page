@@ -9,8 +9,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
   db: { schema: 'crm' },
 });
 
-export async function GET(req: Request, { params }: { params: { lead_id: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ lead_id: string }> }) {
   try {
+    const params = await props.params;
     const { lead_id } = params;
 
     if (!lead_id) {

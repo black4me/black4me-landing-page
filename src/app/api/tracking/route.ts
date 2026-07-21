@@ -109,7 +109,7 @@ export async function POST(req: Request) {
               integration_name: 'google_sheets', 
               event_type: 'lead_created_exported', 
               direction: 'outbound', 
-              payload: { lead_id, source },
+              payload: { lead_id, source: metadata?.source || 'tracking' },
               status: 'pending' 
             })
           });

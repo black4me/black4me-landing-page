@@ -34,7 +34,8 @@ export async function POST(req: Request) {
 
     // 2. Process each event
     for (const event of pendingEvents) {
-      const config = event.integration_accounts?.config || {};
+      const accounts: any = event.integration_accounts;
+      const config = (Array.isArray(accounts) ? accounts[0]?.config : accounts?.config) || {};
       const webhookUrl = config.webhook_url;
       const startTime = Date.now();
       
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
             body: JSON.stringify({
               event_id: event.id,
               event_type: event.event_type,
-              integration_name: event.integrations?.name,
+              integration_name: Array.isArray(event.integrations) ? (event.integrations as any)[0]?.name : (event.integrations as any)?.name,
               payload: event.payload,
               timestamp: event.created_at
             })
