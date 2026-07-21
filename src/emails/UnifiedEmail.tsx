@@ -27,6 +27,7 @@ interface UnifiedEmailProps {
   authorName?: string;       // Display name of the sender
   customerEmail?: string;
   tempPassword?: string;
+  discountCode?: string;
 }
 
 export default function UnifiedEmail({
@@ -42,6 +43,7 @@ export default function UnifiedEmail({
   authorName = 'جاسم محمد',
   customerEmail,
   tempPassword = '12345678', // Default temp password if not provided
+  discountCode,
 }: UnifiedEmailProps) {
   const isPurchase = type === 'purchase';
 
@@ -90,12 +92,24 @@ export default function UnifiedEmail({
 
             <Hr style={divider} />
 
-            {/* ── Download Button ── */}
+            {/* 🎁 Download Button 🎁 */}
             {downloadLink && (
               <Section style={btnSection}>
                 <Link href={downloadLink} style={primaryBtn}>
-                  {isPurchase ? '📚 الوصول الفوري للمنتج' : '⬇️ تحميل هديتك الآن'}
+                  {isPurchase ? '📥 تحميل الكتاب الآن' : '🎁 تنزيل الهدية المجانية'}
                 </Link>
+              </Section>
+            )}
+
+            {discountCode && (
+              <Section style={{ textAlign: 'center', margin: '20px 0', backgroundColor: '#fffbe6', padding: '15px', borderRadius: '8px', border: '1px dashed #f59e0b' }}>
+                <Heading style={{ color: '#d97706', fontSize: '18px', margin: '0 0 10px' }}>كود خصم خاص بك!</Heading>
+                <Text style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 5px' }}>
+                  استخدم هذا الكود عند الدفع للحصول على خصم 10%:
+                </Text>
+                <Text style={{ fontSize: '24px', fontWeight: 'bold', color: '#b45309', margin: '0' }}>
+                  {discountCode}
+                </Text>
               </Section>
             )}
 

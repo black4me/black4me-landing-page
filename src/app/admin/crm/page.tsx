@@ -67,7 +67,7 @@ export default function CRMDashboard() {
               <LineChart data={data?.overview?.daily_trends?.revenue?.slice().reverse() || []}>
                 <XAxis dataKey="metric_date" stroke="#888" fontSize={12} tickFormatter={(value) => new Date(value).toLocaleDateString('ar-EG', {month: 'short', day: 'numeric'})} />
                 <YAxis stroke="#888" fontSize={12} />
-                <Tooltip labelFormatter={(label) => new Date(label).toLocaleDateString('ar-EG')} />
+                <Tooltip labelFormatter={(label) => new Date(label as string).toLocaleDateString('ar-EG')} />
                 <Line type="monotone" dataKey="total_revenue" name="إجمالي الإيرادات" stroke="#dc2626" strokeWidth={2} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
