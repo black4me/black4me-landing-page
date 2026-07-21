@@ -64,12 +64,31 @@ export async function POST(req: Request) {
           body: JSON.stringify({
             lead_id,
             event_name,
-            event_id: null, // Note: To be precise, we'd return the event ID from the insert above, but we omitted returning it for speed.
+            event_id: null,
             source: 'tracking_engine'
           })
         });
+
+        // 4. Offer Engine Integration
+        const offer_id = metadata?.offer_id;
+        if (offer_id) {
+          if (event_name === 'payment_success') {
+            await fetch(`${baseUrl}/api/crm/offers/mark-purchased`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ lead_id, offer_id, order_id: metadata?.order_id })
+            });
+          } else {
+            await fetch(`${baseUrl}/api/crm/offers/assign`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ lead_id, offer_id, status: 'viewed', source: 'tracking' })
+            });
+          }
+        }
+
       } catch (e) {
-        console.error('Funnel Trigger Error:', e);
+        console.error('Funnel/Offer Trigger Error:', e);
       }
     }
 
