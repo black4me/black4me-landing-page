@@ -230,7 +230,7 @@ export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }
       <LeadMagnet />
       <ConsultationSection />
       {/* Sticky Mobile CTA */}
-      <StickyMobileCTA buttonText={siteSettings?.sticky_cta_text} />
+      <StickyMobileCTA />
       <LeadMagnetPopup />
     </>
   );
