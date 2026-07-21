@@ -169,7 +169,8 @@ export function SiteSettingsTab() {
                   onChange={handleChange}
                   dir="ltr"
                   lang="en"
-                  className="w-full bg-brand-black border border-brand-white/10 p-3 rounded-lg text-white text-xs"
+                  style={{ direction: 'ltr', textAlign: 'left' }}
+                  className="w-full bg-brand-black border border-brand-white/10 p-3 rounded-lg text-white text-xs font-mono"
                 />
               ) : (
                 <textarea
