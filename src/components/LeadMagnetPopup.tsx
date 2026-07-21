@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import * as tracking from '@/lib/tracking';
 
 export default function LeadMagnetPopup() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +10,7 @@ export default function LeadMagnetPopup() {
   const [name, setName] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const startedTracking = useRef(false);
 
   useEffect(() => {
     // Show popup after 5 seconds on the home page
@@ -16,6 +18,10 @@ export default function LeadMagnetPopup() {
       const hasSeenPopup = localStorage.getItem('hasSeenLeadMagnetPopup');
       if (!hasSeenPopup) {
         setIsOpen(true);
+        tracking.trackEvent('LeadMagnetViewed', { 
+          offer_name: 'WELCOME10', 
+          offer_type: 'Discount' 
+        });
       }
     }, 5000);
 
@@ -25,6 +31,13 @@ export default function LeadMagnetPopup() {
   const closePopup = () => {
     setIsOpen(false);
     localStorage.setItem('hasSeenLeadMagnetPopup', 'true');
+  };
+
+  const handleStartTyping = () => {
+    if (!startedTracking.current) {
+      startedTracking.current = true;
+      tracking.trackEvent('LeadMagnetStarted', { offer_name: 'WELCOME10' });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,6 +53,16 @@ export default function LeadMagnetPopup() {
       if (res.ok) {
         setSuccess(true);
         localStorage.setItem('hasSeenLeadMagnetPopup', 'true');
+        
+        tracking.trackEvent('LeadMagnetClaimed', {
+          email,
+          customer_name: name,
+          offer_name: 'WELCOME10',
+          offer_type: 'Discount',
+          discount_code: 'WELCOME10'
+        });
+        tracking.trackEvent('Lead', { email, customer_name: name });
+
         setTimeout(() => {
           setIsOpen(false);
           window.location.href = '/success?gift=true';
@@ -82,7 +105,10 @@ export default function LeadMagnetPopup() {
                   type="text"
                   placeholder="أدخل اسمك"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    handleStartTyping();
+                  }}
                   className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:border-brand-gold transition"
                   required
                   disabled={submitting}
@@ -94,7 +120,10 @@ export default function LeadMagnetPopup() {
                   type="email"
                   placeholder="أدخل بريدك الإلكتروني"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    handleStartTyping();
+                  }}
                   className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 outline-none focus:border-brand-gold transition text-left"
                   dir="ltr"
                   required

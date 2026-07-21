@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { Sparkles, ArrowLeft, ArrowDown, Star, Lock, CreditCard, RefreshCw, Target, ShieldCheck, Headphones, Clock } from 'lucide-react';
-import { trackAllPixels } from '../lib/tracking';
+import * as tracking from '../lib/tracking';
 import { useApp } from '../context/AppContext';
 
 import BookPreviewSection from '../components/sections/BookPreviewSection';
@@ -35,17 +35,17 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
   const { siteSettings } = useApp();
 
   const handleHeroCheckoutClick = () => {
-    trackAllPixels('click_cta', {
-      location: 'hero_primary',
+    tracking.trackEvent('CTAButtonClicked', {
+      button_name: 'Hero_Primary_Checkout',
       destination: '/checkout',
-      value: 49,
+      cart_value: 49,
       currency: 'USD',
     });
   };
 
   const handleHeroExploreClick = () => {
-    trackAllPixels('view_hero', {
-      location: 'hero_secondary',
+    tracking.trackEvent('CTAButtonClicked', {
+      button_name: 'Hero_Secondary_Explore',
       target: 'products-section',
     });
     document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
@@ -206,9 +206,13 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
 
 export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }: { reviewCount?: number; aggregateRating?: string }) {
   React.useEffect(() => {
-    trackAllPixels('view_hero', {
-      location: 'landing_page',
-      page: '/',
+    // PageView is already handled by MetaPixel globally on route change,
+    // but we can track a custom OfferViewed here for the main product
+    tracking.trackEvent('OfferViewed', {
+      offer_name: 'Main Book Bundle',
+      offer_type: 'Core Offer',
+      cart_value: 49,
+      currency: 'USD'
     });
   }, []);
 

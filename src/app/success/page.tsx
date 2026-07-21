@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
 import { CheckCircle2, Download, Mail, ArrowLeft } from 'lucide-react';
+import * as tracking from '@/lib/tracking';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -12,6 +13,14 @@ function SuccessContent() {
   const { siteSettings } = useApp();
 
   const downloadUrl = siteSettings?.lead_magnet_file_url || 'https://drive.google.com/drive/folders/14-SIzFYoOu7uIqs4qDNbQF-IrRlG8ker?usp=sharing';
+
+  React.useEffect(() => {
+    if (isGift) {
+      tracking.trackEvent('CompleteRegistration', { content_name: 'Lead Magnet Registration' });
+    } else {
+      tracking.trackEvent('Purchase', { cart_value: 49, currency: 'USD' });
+    }
+  }, [isGift]);
 
   if (isGift) {
     return (

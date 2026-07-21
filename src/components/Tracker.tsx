@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams, usePathname } from 'next/navigation';
 import { trackEvent } from '../server/actions/tracking';
+import * as clientTracking from '../lib/tracking';
 
 export default function Tracker() {
   const searchParams = useSearchParams();
@@ -38,6 +39,18 @@ export default function Tracker() {
       utmCampaign: utmCampaign || localStorage.getItem('utm_campaign'),
       parameters: { path: pathname }
     });
+
+    // Custom behavioral events
+    if (utmSource === 'email') {
+      clientTracking.trackEvent('EmailLinkClicked', { utm_campaign: utmCampaign, utm_medium: utmMedium });
+    }
+
+    const hasVisited = localStorage.getItem('hasVisitedBefore');
+    if (hasVisited) {
+      clientTracking.trackEvent('ReturningVisitor', { last_visit: hasVisited });
+    } else {
+      localStorage.setItem('hasVisitedBefore', new Date().toISOString());
+    }
 
   }, [searchParams, pathname]);
 

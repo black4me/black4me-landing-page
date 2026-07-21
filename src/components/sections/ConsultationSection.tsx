@@ -6,10 +6,20 @@ import Image from 'next/image';
 import { ArrowLeft, TrendingUp, Radio, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
+import * as tracking from '@/lib/tracking';
 
 export default function ConsultationSection() {
   const router = useRouter();
   const { siteSettings } = useApp();
+
+  React.useEffect(() => {
+    tracking.trackEvent('ServiceViewed', {
+      content_name: 'Consultation',
+      content_type: 'service',
+      value: 49,
+      currency: 'USD'
+    });
+  }, []);
 
   return (
     <section id="consultations-section" className="section-padding bg-[#050505] border-y border-white/5" dir="rtl" aria-labelledby="consultation-heading">
@@ -75,7 +85,10 @@ export default function ConsultationSection() {
                </div>
                
                <button 
-                 onClick={() => router.push('/checkout?mode=consultation')}
+                 onClick={() => {
+                   tracking.trackEvent('CTAButtonClicked', { button_name: 'Consultation_Checkout', destination: '/checkout' });
+                   router.push('/checkout?mode=consultation');
+                 }}
                  className="bg-[#ceae88] hover:bg-[#b89b78] p-6 flex items-center justify-between transition-colors group w-full text-right"
                  aria-label="احجز موعد استشارتك الآن"
                >

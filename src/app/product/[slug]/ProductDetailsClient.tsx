@@ -18,6 +18,18 @@ export default function ProductDetailsClient({ product, initialReviews }: { prod
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
+  React.useEffect(() => {
+    import('@/lib/tracking').then(tracking => {
+      tracking.trackEvent('ProductViewed', {
+        content_name: product.title,
+        content_ids: [product.id],
+        content_type: 'product',
+        value: product.sale_price || product.price,
+        currency: 'USD'
+      });
+    });
+  }, [product.id, product.title, product.sale_price, product.price]);
+
   const submitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittingReview(true);

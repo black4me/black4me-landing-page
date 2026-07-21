@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Providers } from './providers';
 import React from 'react';
-import Tracker from '../components/Tracker';
+import MetaPixel from '../components/MetaPixel';
 import TopBanner from '../components/TopBanner';
 
 export const revalidate = 0;
@@ -193,7 +193,7 @@ export default async function RootLayout({
           tiktokPixelId={process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID}
         />
         <React.Suspense fallback={null}>
-          <Tracker />
+          <MetaPixel />
         </React.Suspense>
       </body>
     </html>

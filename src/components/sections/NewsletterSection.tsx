@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 
+import * as tracking from '@/lib/tracking';
+
 export default function NewsletterSection() {
   const { subscribeNewsletter } = useApp();
   const [name, setName] = useState('');
@@ -14,7 +16,12 @@ export default function NewsletterSection() {
     if (!name || !email) return;
     const result = await subscribeNewsletter(name, email, '');
     setStatus({ type: result.success ? 'success' : 'error', message: result.message });
-    if (result.success) { setName(''); setEmail(''); }
+    if (result.success) { 
+      tracking.trackEvent('NewsletterSignup', { email, customer_name: name });
+      tracking.trackEvent('Lead', { email, customer_name: name });
+      setName(''); 
+      setEmail(''); 
+    }
   };
 
   return (
