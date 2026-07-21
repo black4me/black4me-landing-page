@@ -14,7 +14,7 @@ async function runMigration() {
     await client.connect();
     console.log('Connected to DB');
 
-    const sqlPath = path.join(__dirname, 'supabase', 'migrations', '20260721005901_crm_schema_initialization.sql');
+    const sqlPath = path.join(__dirname, 'supabase', 'migrations', '20260721052300_crm_funnel_engine.sql');
     const sql = fs.readFileSync(sqlPath, 'utf8');
 
     console.log('Executing migration...');

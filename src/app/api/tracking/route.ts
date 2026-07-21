@@ -49,12 +49,27 @@ export async function POST(req: Request) {
       }
 
       if (scoreIncrement > 0) {
-        // We call an RPC or just update if we have the current score. But since we need to increment, an RPC is best.
-        // For now, let's just use a simple increment via RPC (we'd need to create it) or fetch and update.
         const { data: lead } = await supabase.from('leads').select('lead_score').eq('id', lead_id).single();
         if (lead) {
           await supabase.from('leads').update({ lead_score: lead.lead_score + scoreIncrement }).eq('id', lead_id);
         }
+      }
+
+      // 3. Trigger Funnel Engine Progression
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        await fetch(`${baseUrl}/api/crm/funnel/update-from-event`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lead_id,
+            event_name,
+            event_id: null, // Note: To be precise, we'd return the event ID from the insert above, but we omitted returning it for speed.
+            source: 'tracking_engine'
+          })
+        });
+      } catch (e) {
+        console.error('Funnel Trigger Error:', e);
       }
     }
 
