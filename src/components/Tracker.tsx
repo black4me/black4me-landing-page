@@ -42,7 +42,7 @@ export default function Tracker() {
 
     // Custom behavioral events
     if (utmSource === 'email') {
-      clientTracking.trackEvent('EmailLinkClicked', { utm_campaign: utmCampaign, utm_medium: utmMedium });
+      clientTracking.trackEvent('EmailLinkClicked', { utm_campaign: utmCampaign || undefined, utm_medium: utmMedium || undefined });
     }
 
     const hasVisited = localStorage.getItem('hasVisitedBefore');

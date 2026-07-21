@@ -63,7 +63,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { id: '/admin/orders', label: 'الطلبات', icon: ShoppingBag },
     { id: '/admin/consultations', label: 'الاستشارات', icon: Calendar },
     { id: '/admin/subscribers', label: 'المشتركون', icon: Users },
-    { id: '/admin/lead-magnet', label: 'الهدية المجانية', icon: Gift },
+    { id: '/admin/crm/offers', label: 'العروض والهدايا', icon: Gift },
     { id: '/admin/testimonials', label: 'المراجعات', icon: MessageSquare },
     { id: '/admin/content', label: 'المحتوى', icon: BookOpen },
     { id: '/admin/campaigns', label: 'إعدادات التسويق', icon: Mail },

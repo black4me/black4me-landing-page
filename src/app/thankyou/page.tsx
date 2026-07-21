@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, AlertCircle, Loader2, ArrowLeft, Download, Calendar } from 'lucide-react';
-import { trackPurchase } from '../../lib/tracking';
+import { trackEvent } from '../../lib/tracking';
 
 function ThankYouContent() {
   const searchParams = useSearchParams();
@@ -66,12 +66,12 @@ function ThankYouContent() {
       return;
     }
 
-    trackPurchase({
+    trackEvent('Purchase', {
       currency: 'USD',
-      value: product.file_url ? 49 : 149,
+      cart_value: product.file_url ? 49 : 149,
       transaction_id: sessionId || token || product.title,
-      content_name: product.title,
-      content_type: 'product',
+      product_name: product.title,
+      product_id: product.id || 'unknown',
     });
     setPurchaseTracked(true);
   }, [error, loading, product, purchaseTracked, sessionId, token]);

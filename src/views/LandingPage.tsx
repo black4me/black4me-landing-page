@@ -22,8 +22,7 @@ const ConsultationSection = dynamic(() => import('../components/sections/Consult
 const NewsletterSection = dynamic(() => import('../components/sections/NewsletterSection'));
 const StickyMobileCTA = dynamic(() => import('../components/sections/StickyMobileCTA'));
 const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'), { loading: () => <div className="h-[200px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
-const LeadMagnet = dynamic(() => import('../components/LeadMagnet'));
-const LeadMagnetPopup = dynamic(() => import('../components/LeadMagnetPopup'));
+
 const HeroVideo = dynamic(() => import('../components/sections/HeroVideo'), { ssr: false });
 const ProductsSection = dynamic(() => import('../components/sections/ProductsSection'), { loading: () => <div className="h-[600px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
 
@@ -230,12 +229,8 @@ export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }
       <FAQSection />
       <FinalCTA />
       
-      {/* Exit Intent / Secondary options pushed to the bottom */}
-      <LeadMagnet />
       <ConsultationSection />
-      {/* Sticky Mobile CTA */}
       <StickyMobileCTA />
-      <LeadMagnetPopup />
     </>
   );
 }

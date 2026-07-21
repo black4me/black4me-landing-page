@@ -38,19 +38,19 @@ function TrackingScriptsInner({ gtmId, gaId, metaPixelId, tiktokPixelId }: Track
     const query = searchParams.toString();
     const pagePath = query ? `${pathname}?${query}` : pathname;
 
-    if (typeof window.gtag === 'function' && gaId) {
-      window.gtag('config', gaId, {
+    if (typeof (window as any).gtag === 'function' && gaId) {
+      (window as any).gtag('config', gaId, {
         page_path: pagePath,
         page_title: document.title,
       });
     }
 
-    if (typeof window.fbq === 'function' && metaPixelId) {
-      window.fbq('track', 'PageView');
+    if (typeof (window as any).fbq === 'function' && metaPixelId) {
+      (window as any).fbq('track', 'PageView');
     }
 
-    if (typeof window.ttq?.page === 'function' && tiktokPixelId) {
-      window.ttq.page();
+    if (typeof (window as any).ttq?.page === 'function' && tiktokPixelId) {
+      (window as any).ttq.page();
     }
   }, [gaId, isLoaded, metaPixelId, pathname, searchParams, tiktokPixelId]);
 
