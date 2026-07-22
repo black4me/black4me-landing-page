@@ -5,7 +5,24 @@ import { supabaseAdmin } from '../../lib/supabase-admin';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
 
+export async function getEmailSettings() {
+  const { data } = await supabaseAdmin.from('site_settings').select('*');
+  const settings: Record<string, string> = {};
+  if (data) {
+    data.forEach(s => settings[s.key] = s.value);
+  }
+  return {
+    author_photo_url: settings.author_photo_url || '',
+    author_name: settings.author_name || 'جاسم محمد',
+    social_whatsapp_url: settings.social_whatsapp_url || 'https://wa.me/96879191793',
+    social_instagram_url: settings.social_instagram_url || 'https://www.instagram.com/black4mee/',
+    social_support_email: settings.social_support_email || 'black4mestore@gmail.com',
+  };
+}
+
+
 export async function sendWelcomeEmail(email: string, name: string, orderId: string) {
+  const emailSettings = await getEmailSettings();
   try {
     if (!process.env.RESEND_API_KEY) {
       console.warn('RESEND_API_KEY missing, skipping email to', email);
@@ -107,42 +124,47 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
                     </table>
 
                     <!-- Founder Note -->
-                    <div style="border-right: 3px solid #6C3BFF; padding-right: 15px; margin-top: 20px;">
-                      <p style="color: #cccccc; font-style: italic; line-height: 1.6; margin: 0 0 15px 0;">
-                        "ط£ط´ظƒط±ظƒ ط´ط®طµظٹط§ظ‹ ط¹ظ„ظ‰ ط«ظ‚طھظƒ ط¨ظ…ظ†طھط¬ط§طھظ†ط§. ظ„ظ‚ط¯ ط¨ظ†ظٹظ†ط§ ظ‡ط°ط§ ط§ظ„ظ†ط¸ط§ظ… ط¨ظƒظ„ ط´ط؛ظپ ظˆط§ظ‡طھظ…ط§ظ… ط¨ط£ط¯ظ‚ ط§ظ„طھظپط§طµظٹظ„ ظ„ظ†ظ‚ط¯ظ… ظ„ظƒ طھط¬ط±ط¨ط© ط§ط³طھط«ظ†ط§ط¦ظٹط©. ط£طھظ…ظ†ظ‰ ظ„ظƒ ظƒظ„ ط§ظ„طھظˆظپظٹظ‚ ظˆط§ظ„ظ†ط¬ط§ط­طŒ ظˆط£ظ†ط§ ظˆظپط±ظٹظ‚ظٹ ط¯ط§ط¦ظ…ط§ظ‹ ظ‡ظ†ط§ ظ„ط¯ط¹ظ…ظƒ."
-                      </p>
-                      <p style="margin: 0; color: #F5C542; font-weight: bold;">- ط¬ط§ط³ظ… ظ…ط­ظ…ط¯</p>
-                      <p style="margin: 5px 0 0 0; color: #888; font-size: 12px;">ظ…ط¤ط³ط³ BLACK4ME</p>
+                    <div style="border-right: 3px solid #6C3BFF; padding-right: 15px; margin-top: 20px; display: flex; align-items: center; gap: 15px;">
+                      ${emailSettings.author_photo_url ? `<img src="${emailSettings.author_photo_url}" alt="${emailSettings.author_name}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #F5C542;" />` : ''}
+                      <div>
+                        <p style="color: #cccccc; font-style: italic; line-height: 1.6; margin: 0 0 10px 0;">
+                          "أشكرك شخصياً على ثقتك بمنتجاتنا. لقد بنينا هذا النظام بكل شغف واهتمام بأدق التفاصيل لنقدم لك تجربة استثنائية. أتمنى لك كل التوفيق والنجاح، وأنا وفريقي دائماً هنا لدعمك."
+                        </p>
+                        <p style="margin: 0; color: #F5C542; font-weight: bold;">- ${emailSettings.author_name}</p>
+                        <p style="margin: 5px 0 0 0; color: #888; font-size: 12px;">مؤسس BLACK4ME</p>
+                      </div>
                     </div>
                   </td>
                 </tr>
-
                 <!-- Footer / Contact Links -->
                 <tr>
                   <td style="padding: 30px; background-color: #0A0A0A; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
-                    <p style="margin: 0 0 20px 0; color: #888; font-size: 14px;">ظٹط³ط¹ط¯ظ†ط§ طھظˆط§طµظ„ظƒ ظ…ط¹ظ†ط§ ط¹ط¨ط± ط§ظ„ظ‚ظ†ظˆط§طھ ط§ظ„طھط§ظ„ظٹط©:</p>
+                    <p style="margin: 0 0 20px 0; color: #888; font-size: 14px;">يسعدنا تواصلك معنا عبر القنوات التالية:</p>
                     
                     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
                       <tr>
                         <td align="center">
+                          ${emailSettings.social_whatsapp_url ? `
                           <!-- WhatsApp -->
-                          <a href="https://wa.me/96879191793" style="display: inline-block; margin: 0 10px; color: #22C55E; text-decoration: none; font-weight: bold;">
-                            ًں“± ظˆط§طھط³ط§ط¨
-                          </a>
+                          <a href="${emailSettings.social_whatsapp_url}" style="display: inline-block; margin: 0 10px; color: #22C55E; text-decoration: none; font-weight: bold;">
+                            📱 واتساب
+                          </a>` : ''}
+                          ${emailSettings.social_instagram_url ? `
                           <!-- Instagram -->
-                          <a href="https://www.instagram.com/black4mee/?hl=en" style="display: inline-block; margin: 0 10px; color: #E1306C; text-decoration: none; font-weight: bold;">
-                            ًں“¸ ط§ظ†ط³طھط¬ط±ط§ظ… (@black4mee)
-                          </a>
+                          <a href="${emailSettings.social_instagram_url}" style="display: inline-block; margin: 0 10px; color: #E1306C; text-decoration: none; font-weight: bold;">
+                            📸 انستجرام
+                          </a>` : ''}
+                          ${emailSettings.social_support_email ? `
                           <!-- Email -->
-                          <a href="mailto:black4mestore@gmail.com" style="display: inline-block; margin: 0 10px; color: #6C3BFF; text-decoration: none; font-weight: bold;">
-                            âœ‰ï¸ڈ ط§ظ„ط¥ظٹظ…ظٹظ„
-                          </a>
+                          <a href="mailto:${emailSettings.social_support_email}" style="display: inline-block; margin: 0 10px; color: #6C3BFF; text-decoration: none; font-weight: bold;">
+                            ✉️ الإيميل
+                          </a>` : ''}
                         </td>
                       </tr>
                     </table>
                     
                     <p style="margin: 0; color: #555; font-size: 12px;">
-                      آ© ${new Date().getFullYear()} BLACK4ME. ط¬ظ…ظٹط¹ ط§ظ„ط­ظ‚ظˆظ‚ ظ…ط­ظپظˆط¸ط©.
+                      © ${new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
                     </p>
                   </td>
                 </tr>
@@ -169,6 +191,7 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
 }
 
 export async function sendPendingEmail(email: string, name: string, orderId: string) {
+  const emailSettings = await getEmailSettings();
   try {
     if (!process.env.RESEND_API_KEY) {
       console.warn('RESEND_API_KEY missing, skipping pending email to', email);
@@ -241,6 +264,35 @@ export async function sendPendingEmail(email: string, name: string, orderId: str
                     </p>
 
                     <!-- Footer / Contact Links -->
+                <tr>
+                  <td style="padding: 30px; background-color: #0A0A0A; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <p style="margin: 0 0 20px 0; color: #888; font-size: 14px;">يسعدنا تواصلك معنا عبر القنوات التالية:</p>
+                    
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                      <tr>
+                        <td align="center">
+                          ${emailSettings.social_whatsapp_url ? `
+                          <!-- WhatsApp -->
+                          <a href="${emailSettings.social_whatsapp_url}" style="display: inline-block; margin: 0 10px; color: #22C55E; text-decoration: none; font-weight: bold;">
+                            📱 واتساب
+                          </a>` : ''}
+                          ${emailSettings.social_instagram_url ? `
+                          <!-- Instagram -->
+                          <a href="${emailSettings.social_instagram_url}" style="display: inline-block; margin: 0 10px; color: #E1306C; text-decoration: none; font-weight: bold;">
+                            📸 انستجرام
+                          </a>` : ''}
+                          ${emailSettings.social_support_email ? `
+                          <!-- Email -->
+                          <a href="mailto:${emailSettings.social_support_email}" style="display: inline-block; margin: 0 10px; color: #6C3BFF; text-decoration: none; font-weight: bold;">
+                            ✉️ الإيميل
+                          </a>` : ''}
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <p style="margin: 0; color: #555; font-size: 12px;">
+                      © ${new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
+                    </p>
                   </td>
                 </tr>
               </table>
@@ -266,6 +318,7 @@ export async function sendPendingEmail(email: string, name: string, orderId: str
 }
 
 export async function sendAdminNotificationEmail(orderId: string, customerEmail: string, customerName: string, amount: string | number, productName: string) {
+  const emailSettings = await getEmailSettings();
   try {
     if (!process.env.RESEND_API_KEY) return { success: true };
 
@@ -299,6 +352,7 @@ export async function sendAdminNotificationEmail(orderId: string, customerEmail:
 }
 
 export async function sendConsultationEmail(email: string, name: string, startTime: string, title: string) {
+  const emailSettings = await getEmailSettings();
   try {
     if (!process.env.RESEND_API_KEY) return { success: true };
 
@@ -353,3 +407,106 @@ export async function sendConsultationEmail(email: string, name: string, startTi
   }
 }
 
+
+
+export async function sendTestEmail(email: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      return { success: false, error: 'RESEND_API_KEY missing' };
+    }
+    const emailSettings = await getEmailSettings();
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>رسالة اختبار - BLACK4ME</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000000; color: #ffffff;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #0A0A0A; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #111111; border-radius: 16px; overflow: hidden; border: 1px solid rgba(245, 197, 66, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                <!-- Header -->
+                <tr>
+                  <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, rgba(108,59,255,0.1), rgba(245,197,66,0.1)); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <h1 style="margin: 0; color: #F5C542; font-size: 28px; letter-spacing: 2px;">BLACK4ME</h1>
+                    <p style="margin: 10px 0 0 0; color: #888; font-size: 16px;">رسالة اختبار إعدادات الإيميل</p>
+                  </td>
+                </tr>
+
+                <!-- Body -->
+                <tr>
+                  <td style="padding: 40px 30px;">
+                    <h2 style="color: #6C3BFF; margin-top: 0; font-size: 24px;">مرحباً بك! 👋</h2>
+                    <p style="color: #dddddd; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                      هذه رسالة اختبار للتأكد من أن صورة المرسل والروابط تظهر بشكل صحيح في الإيميلات المرسلة من النظام.
+                    </p>
+
+                    <!-- Founder Note -->
+                    <div style="border-right: 3px solid #6C3BFF; padding-right: 15px; margin-top: 20px; display: flex; align-items: center; gap: 15px;">
+                      ${emailSettings.author_photo_url ? `<img src="${emailSettings.author_photo_url}" alt="${emailSettings.author_name}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #F5C542;" />` : ''}
+                      <div>
+                        <p style="color: #cccccc; font-style: italic; line-height: 1.6; margin: 0 0 10px 0;">
+                          "أشكرك شخصياً على ثقتك بمنتجاتنا. لقد بنينا هذا النظام بكل شغف واهتمام بأدق التفاصيل لنقدم لك تجربة استثنائية. أتمنى لك كل التوفيق والنجاح، وأنا وفريقي دائماً هنا لدعمك."
+                        </p>
+                        <p style="margin: 0; color: #F5C542; font-weight: bold;">- ${emailSettings.author_name}</p>
+                        <p style="margin: 5px 0 0 0; color: #888; font-size: 12px;">مؤسس BLACK4ME</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                    <tr>
+                  <td style="padding: 30px; background-color: #0A0A0A; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <p style="margin: 0 0 20px 0; color: #888; font-size: 14px;">يسعدنا تواصلك معنا عبر القنوات التالية:</p>
+                    
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                      <tr>
+                        <td align="center">
+                          ${emailSettings.social_whatsapp_url ? `
+                          <!-- WhatsApp -->
+                          <a href="${emailSettings.social_whatsapp_url}" style="display: inline-block; margin: 0 10px; color: #22C55E; text-decoration: none; font-weight: bold;">
+                            📱 واتساب
+                          </a>` : ''}
+                          ${emailSettings.social_instagram_url ? `
+                          <!-- Instagram -->
+                          <a href="${emailSettings.social_instagram_url}" style="display: inline-block; margin: 0 10px; color: #E1306C; text-decoration: none; font-weight: bold;">
+                            📸 انستجرام
+                          </a>` : ''}
+                          ${emailSettings.social_support_email ? `
+                          <!-- Email -->
+                          <a href="mailto:${emailSettings.social_support_email}" style="display: inline-block; margin: 0 10px; color: #6C3BFF; text-decoration: none; font-weight: bold;">
+                            ✉️ الإيميل
+                          </a>` : ''}
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <p style="margin: 0; color: #555; font-size: 12px;">
+                      © ${new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
+                    </p>
+                  </td>
+                </tr>
+                    
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'BLACK4ME <noreply@black4me.com>',
+      to: email,
+      subject: '🧪 اختبار إعدادات البريد - BLACK4ME',
+      html: htmlContent
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
