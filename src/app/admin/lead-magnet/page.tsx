@@ -1,11 +1,10 @@
 import React from 'react';
-import { CrmOffersTab } from '@/views/admin/CrmOffersTab';
+import { LeadMagnetTab } from '@/views/admin/LeadMagnetTab';
 
 export default function LeadMagnetPage() {
   return (
     <div className="p-6">
-      <CrmOffersTab />
+      <LeadMagnetTab />
     </div>
   );
 }
-

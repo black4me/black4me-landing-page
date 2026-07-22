@@ -67,6 +67,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { id: '/admin/testimonials', label: 'المراجعات', icon: MessageSquare },
     { id: '/admin/content', label: 'المحتوى', icon: BookOpen },
     { id: '/admin/campaigns', label: 'إعدادات التسويق', icon: Mail },
+    { id: '/admin/email-settings', label: 'إعدادات البريد', icon: Mail },
     { id: '/admin/coupons', label: 'إعدادات الكوبونات', icon: Ticket },
     { id: '/admin/pages', label: 'تصميم الصفحات', icon: GitCompare },
     { id: '/admin/blog', label: 'المدونة', icon: BookOpen },

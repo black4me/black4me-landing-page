@@ -228,8 +228,15 @@ export async function registerOfferLead(payload: {
         const { render } = await import('@react-email/render');
         const UnifiedEmail = (await import('../../emails/UnifiedEmail')).default;
 
+        // Fetch site_settings for author photo + name
+        const { data: settingsData } = await supabaseAdmin.from('site_settings').select('*');
+        const settings = (settingsData || []).reduce((acc: any, row: any) => {
+          acc[row.key] = row.value;
+          return acc;
+        }, {} as Record<string, string>);
+
         const emailSubject = offer.email_subject || `🎁 هديتك جاهزة يا ${name} — تحمّل الآن`;
-        const downloadLink = offer.redirect_url || 'https://drive.google.com/drive/folders/14-SIzFYoOu7uIqs4qDNbQF-IrRlG8ker?usp=sharing';
+        const downloadLink = offer.redirect_url || settings.lead_magnet_file_url || 'https://drive.google.com/drive/folders/14-SIzFYoOu7uIqs4qDNbQF-IrRlG8ker?usp=sharing';
 
         const htmlContent = await render(
           UnifiedEmail({
@@ -238,10 +245,10 @@ export async function registerOfferLead(payload: {
             downloadLink,
             blogUrl: 'https://black4me.com/blog',
             newsletterUrl: 'https://black4me.com/#free-gift',
-            instagramUrl: 'https://www.instagram.com/black4mee/',
-            logoUrl: '',
-            authorPhotoUrl: '',
-            authorName: 'جاسم محمد',
+            instagramUrl: settings.social_instagram_url || 'https://www.instagram.com/black4mee/',
+            logoUrl: settings.site_logo,
+            authorPhotoUrl: settings.author_photo_url,
+            authorName: settings.author_name || 'جاسم محمد',
           })
         );
 
