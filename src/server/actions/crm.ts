@@ -226,7 +226,7 @@ export async function registerOfferLead(payload: {
     if (type === 'free_gift' && process.env.RESEND_API_KEY && offer) {
       try {
         const { render } = await import('@react-email/render');
-        const UnifiedEmail = (await import('../../../emails/UnifiedEmail')).default;
+        const UnifiedEmail = (await import('../../emails/UnifiedEmail')).default;
 
         const emailSubject = offer.email_subject || `🎁 هديتك جاهزة يا ${name} — تحمّل الآن`;
         const downloadLink = offer.redirect_url || 'https://drive.google.com/drive/folders/14-SIzFYoOu7uIqs4qDNbQF-IrRlG8ker?usp=sharing';
