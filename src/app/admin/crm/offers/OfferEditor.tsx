@@ -11,6 +11,7 @@ export default function OfferEditor({ initialOffers }: { initialOffers: any[] })
   const [formData, setFormData] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const startNew = () => {
     setFormData({
@@ -103,6 +104,74 @@ export default function OfferEditor({ initialOffers }: { initialOffers: any[] })
               <label className="block text-sm text-gray-400 mb-1">مسار التوجيه بعد التسجيل/الشراء</label>
               <input type="text" value={formData.redirect_url || ''} onChange={e => setFormData({...formData, redirect_url: e.target.value})} className="w-full p-3 rounded-lg bg-black border border-white/10" dir="ltr" />
             </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm text-gray-400 mb-1">صورة العرض / المنتج</label>
+              <div className="flex gap-4 items-center">
+                <input 
+                  type="text" 
+                  value={formData.image_url || ''} 
+                  onChange={e => setFormData({...formData, image_url: e.target.value})} 
+                  placeholder="رابط الصورة أو ارفعها من الزر الجانبي"
+                  className="flex-1 p-3 rounded-lg bg-black border border-white/10" 
+                  dir="ltr" 
+                />
+                <button 
+                  type="button" 
+                  onClick={() => document.getElementById('offerImageUpload')?.click()} 
+                  className="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-4 py-3 rounded-lg transition-all whitespace-nowrap flex items-center gap-2"
+                  disabled={uploadingImage}
+                >
+                  {uploadingImage ? 'جاري الرفع...' : 'رفع صورة'}
+                </button>
+                <input 
+                  id="offerImageUpload" 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*" 
+                  onChange={async (e) => {
+                    try {
+                      if (!e.target.files || e.target.files.length === 0) return;
+                      setUploadingImage(true);
+                      const file = e.target.files[0];
+                      const fd = new FormData();
+                      fd.append('file', file);
+                      fd.append('folder', 'offers');
+                      const res = await fetch('/api/admin/upload-image', { method: 'POST', body: fd });
+                      const result = await res.json();
+                      if (!res.ok || result.error) throw new Error(result.error || 'فشل الرفع');
+                      setFormData({ ...formData, image_url: result.url });
+                    } catch (err: any) {
+                      alert('خطأ: ' + err.message);
+                    } finally {
+                      setUploadingImage(false);
+                    }
+                  }} 
+                />
+              </div>
+              {formData.image_url && (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-400 mb-2">معاينة الصورة:</p>
+                  <img src={formData.image_url} alt="Preview" className="w-32 h-32 object-cover rounded-xl border border-white/10 bg-black" />
+                </div>
+              )}
+            </div>
+
+            {formData.type === 'free_gift' && (
+              <div className="md:col-span-2 bg-black/50 p-4 rounded-xl border border-white/5 space-y-4 mt-2">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>إعدادات أتمتة البريد الإلكتروني للهدية (Email Automation)</span>
+                </h3>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">موضوع البريد الإلكتروني (Email Subject)</label>
+                  <input type="text" value={formData.email_subject || ''} onChange={e => setFormData({...formData, email_subject: e.target.value})} className="w-full p-3 rounded-lg bg-black border border-white/10" placeholder="🎁 هديتك المجانية جاهزة للتحميل" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">نص الرسالة الإلكترونية (Email Body)</label>
+                  <textarea value={formData.email_body || ''} onChange={e => setFormData({...formData, email_body: e.target.value})} className="w-full p-3 rounded-lg bg-black border border-white/10 h-24" placeholder="اكتب هنا محتوى الرسالة الترحيبية..." />
+                </div>
+              </div>
+            )}
+
             <div className="md:col-span-2 flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={formData.is_active || false} onChange={e => setFormData({...formData, is_active: e.target.checked})} className="w-5 h-5 accent-brand-gold" />

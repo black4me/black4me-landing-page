@@ -61,6 +61,8 @@ export async function upsertOffer(offerData: any) {
         timer_start: offerData.timer_start || null,
         timer_end: offerData.timer_end || null,
         redirect_url: offerData.redirect_url,
+        email_subject: offerData.email_subject || '',
+        email_body: offerData.email_body || '',
         display_mode: offerData.display_mode || 'standalone_page',
         updated_at: new Date().toISOString()
       })
