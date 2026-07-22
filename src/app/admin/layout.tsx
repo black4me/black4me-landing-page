@@ -57,6 +57,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const tabs = [
     { id: '/admin/stats', label: 'نظرة عامة', icon: BarChart3 },
+    { id: '/admin/crm', label: 'إدارة العملاء CRM', icon: Users },
     { id: '/admin/products', label: 'المنتجات', icon: Tag },
     { id: '/admin/categories', label: 'التصنيفات', icon: Layers },
     { id: '/admin/orders', label: 'الطلبات', icon: ShoppingBag },

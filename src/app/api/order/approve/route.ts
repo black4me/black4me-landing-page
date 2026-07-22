@@ -5,7 +5,7 @@ import { render } from '@react-email/render';
 import UnifiedEmail from '../../../../emails/UnifiedEmail';
 import React from 'react';
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
 
 export async function POST(req: Request) {
   try {
@@ -86,6 +86,8 @@ export async function POST(req: Request) {
             instagramUrl: 'https://www.instagram.com/black4mee/',
             authorPhotoUrl: settings?.author_photo_url,
             authorName: settings?.author_name || 'جاسم محمد',
+            customerEmail: order.customer_email,
+            tempPassword: 'تم إرسالها مسبقاً' // Or generated if there is an integration
           } as any)
         );
 

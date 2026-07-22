@@ -9,6 +9,7 @@ import {
   CreditCard, ShieldCheck, Lock, CheckCircle2, Sparkles,
   ArrowRight, Loader2, AlertCircle, Tag, Star, RefreshCw
 } from 'lucide-react';
+import * as tracking from '@/lib/tracking';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
@@ -37,6 +38,15 @@ function CheckoutContent() {
   const finalPrice = basePrice - discountAmount;
   const productTitle = actualProduct?.title || 'الحزمة الشاملة';
 
+  useEffect(() => {
+    tracking.trackEvent('CheckoutStarted', {
+      cart_value: finalPrice,
+      currency: 'USD',
+      items: [{ id: productId, name: productTitle }]
+    });
+    tracking.trackEvent('DiscountCodeShown');
+  }, [productId, productTitle, finalPrice]);
+
   // Apply coupon
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) return;
@@ -44,6 +54,7 @@ function CheckoutContent() {
     if (found) {
       setDiscountPercent(found.discountPercent);
       setCouponStatus({ type: 'success', msg: `تم تطبيق خصم ${found.discountPercent}% بنجاح!` });
+      tracking.trackEvent('DiscountCodeUsed', { discount_code: couponCode, discount_value: found.discountPercent });
     } else {
       setDiscountPercent(0);
       setCouponStatus({ type: 'error', msg: 'رمز الخصم غير صالح أو منتهي الصلاحية.' });
@@ -61,6 +72,13 @@ function CheckoutContent() {
     setIsProcessing(true);
 
     try {
+      tracking.trackEvent('InitiateCheckout', {
+        cart_value: finalPrice,
+        currency: 'USD',
+        payment_method: paymentMethod,
+        email: email,
+        customer_name: name
+      });
       const actualProductId = actualProduct?.id || 'prod-main-book';
 
       const endpoint = paymentMethod === 'stripe' ? '/api/checkout/stripe' : '/api/checkout/paypal';
@@ -84,9 +102,21 @@ function CheckoutContent() {
           window.location.href = data.url;
         } else {
           setError(data.error || 'حدث خطأ في بوابة الدفع. يرجى المحاولة مرة أخرى.');
+          tracking.trackEvent('PaymentAttemptFailed', {
+            error_msg: data.error || 'حدث خطأ في بوابة الدفع.',
+            payment_method: paymentMethod,
+            cart_value: finalPrice,
+            currency: 'USD'
+          });
         }
     } catch (err: any) {
       setError('تعذر الاتصال ببوابة الدفع. تحقق من اتصالك بالإنترنت.');
+      tracking.trackEvent('PaymentAttemptFailed', {
+        error_msg: err?.message || 'تعذر الاتصال',
+        payment_method: paymentMethod,
+        cart_value: finalPrice,
+        currency: 'USD'
+      });
     } finally {
       setIsProcessing(false);
     }

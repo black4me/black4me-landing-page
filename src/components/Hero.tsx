@@ -1,6 +1,7 @@
 import React from 'react';
 import { Target, ShieldCheck, Download, Zap, Sparkles, ArrowLeft } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import HeroVideo from './HeroVideo';
 
 interface HeroProps {
   onBuyClick: () => void;
@@ -50,19 +51,17 @@ export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
               </span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] mb-4">
-              {titlePart1} <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F5C542] via-[#F5C542] to-[#6C3BFF] drop-shadow-[0_2px_15px_rgba(245,197,66,0.15)]">
-                {titlePart2}
-              </span>
+            <h1 className="text-4xl md:text-6xl font-bold mt-6 leading-tight mb-4">
+              بدون تسويق كارثة تهدد ثروتك المستقبلية
             </h1>
 
-            <h2 className="text-xl md:text-2xl mt-2 mb-6 text-gray-300 font-bold">
-              {heroSubtitle}
+            <h2 className="text-xl md:text-2xl mt-4 text-gray-300">
+              الكتاب العملي + النظام التعليمي + 6 قوالب جاهزة
             </h2>
 
-            <p className="text-lg sm:text-xl text-white/70 mb-8 max-w-xl leading-relaxed">
-              {heroSupportText}
+            <p className="mt-6 text-lg text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
+              دليل بناء العروض التي لا ترفض وتحويل المهارات إلى أرباح طائلة.
+              من تأليف جاسم محمد — مستشار التسويق الرقمي في BLACK4ME.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
@@ -108,59 +107,9 @@ export default function Hero({ onBuyClick, onExploreClick }: HeroProps) {
             </div>
           </div>
 
-          {/* Left Column: Visual Panel (Interactive stages & Founder card) */}
-          <div className="lg:col-span-5 relative mt-8 lg:mt-0 pb-12">
-            <div className="bg-zinc-900/40 relative border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col overflow-hidden shadow-2xl">
-              {/* Internal subtle dots */}
-              <div className="absolute inset-0 opacity-10 pointer-events-none">
-                <div className="h-full w-full" style={{ backgroundImage: 'radial-gradient(#F5C542 0.5px, transparent 0.5px)', backgroundSize: '15px 15px' }}></div>
-              </div>
-
-              {/* Floating Funnel list styling from Design HTML */}
-              <div className="relative z-10 flex-1 flex flex-col justify-center space-y-4">
-                <div className="p-4 bg-black/60 border border-[#F5C542]/30 rounded-xl flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-[#F5C542]/20 rounded-lg flex items-center justify-center text-[#F5C542] font-mono text-sm font-bold">01</div>
-                    <span className="font-bold text-sm text-white">قراءة الكتاب الاستراتيجي</span>
-                  </div>
-                  <div className="text-[#22C55E] text-xs font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded">مكتمل</div>
-                </div>
-
-                <div className="p-4 bg-black/40 border border-white/10 rounded-xl flex items-center gap-3">
-                  <div className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/40 font-mono text-sm">02</div>
-                  <span className="font-bold text-sm text-white/60">بناء العرض الذي لا يقاوم</span>
-                </div>
-
-                <div className="p-4 bg-black/40 border border-white/10 rounded-xl flex items-center gap-3">
-                  <div className="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center text-white/40 font-mono text-sm">03</div>
-                  <span className="font-bold text-sm text-white/60">إطلاق نظام المبيعات وقمع الدفع</span>
-                </div>
-
-                <div className="p-4 bg-[#6C3BFF]/20 border border-[#6C3BFF]/50 rounded-xl flex items-center justify-between animate-pulse">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-[#6C3BFF] rounded-lg flex items-center justify-center text-white font-bold text-sm">04</div>
-                    <span className="font-bold text-sm text-white">النمو والتوسع القيادي للثروة</span>
-                  </div>
-                  <span className="text-[10px] bg-white/20 text-white font-bold px-2.5 py-1 rounded uppercase tracking-wider">جاري العمل</span>
-                </div>
-
-                {/* Highly Polished Founder Card matching theme */}
-                <div className="bg-black/80 border border-white/10 p-5 rounded-2xl flex items-center gap-4 mt-6">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#6C3BFF]/40 to-black overflow-hidden border border-white/20 flex items-center justify-center text-3xl shadow-lg shrink-0 select-none">
-                    👤
-                  </div>
-                  <div>
-                    <h4 className="text-md font-extrabold text-white">JASIM MOHAMMED</h4>
-                    <p className="text-xs text-white/60 mt-0.5">المؤسس والرئيس التنفيذي للعلامة</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#22C55E] animate-ping" />
-                      <span className="text-[10px] text-[#22C55E] font-black tracking-tight">متاح الآن وجاهز للاستشارة الفنية</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
+          {/* Left Column: Visual Panel (Video) */}
+          <div className="lg:col-span-5 relative mt-8 lg:mt-0 pb-12 flex items-center justify-center">
+            <HeroVideo />
           </div>
 
         </div>

@@ -217,3 +217,21 @@ a:focus-visible {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ??? Input Field Fixes ??? */
+input[type='text'], input[type='email'], input[type='password'], input[type='number'], input[type='tel'], textarea, select {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+  caret-color: var(--color-brand-gold) !important;
+}
+input::placeholder, textarea::placeholder {
+  color: #8a8a8a !important;
+  opacity: 1 !important;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none !important;
+  border-color: var(--color-brand-gold) !important;
+  box-shadow: 0 0 0 1px var(--color-brand-gold) !important;
+  background-color: #222222 !important;
+}

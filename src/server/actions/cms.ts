@@ -1,17 +1,11 @@
 "use server";
 
-import { unstable_cache } from 'next/cache';
 import { supabaseAdmin } from '../../lib/supabase-admin';
 import { FAQ, Testimonial, SiteSettings, ComparisonItem, FunnelStage, ValueStackItem } from '../../types';
 
-const fetchFAQs = unstable_cache(async () => {
-  const { data } = await supabaseAdmin.from('faqs').select('*').order('order_index', { ascending: true });
-  return data;
-}, ['cms-faqs'], { revalidate: 900, tags: ['faqs'] });
-
 export async function getFAQs(): Promise<FAQ[]> {
   try {
-    const data = await fetchFAQs();
+    const { data } = await supabaseAdmin.from('faqs').select('*').order('order_index', { ascending: true });
     return (data || []).map(row => ({
       id: row.id,
       question: row.question,
@@ -24,14 +18,9 @@ export async function getFAQs(): Promise<FAQ[]> {
   }
 }
 
-const fetchTestimonials = unstable_cache(async () => {
-  const { data } = await supabaseAdmin.from('testimonials').select('*').eq('is_approved', true).order('created_at', { ascending: false });
-  return data;
-}, ['cms-testimonials'], { revalidate: 900, tags: ['testimonials'] });
-
 export async function getTestimonials(): Promise<Testimonial[]> {
   try {
-    const data = await fetchTestimonials();
+    const { data } = await supabaseAdmin.from('testimonials').select('*').eq('is_approved', true).order('created_at', { ascending: false });
     return (data || []).map(row => ({
       id: row.id,
       customerName: row.customer_name,
@@ -47,14 +36,9 @@ export async function getTestimonials(): Promise<Testimonial[]> {
   }
 }
 
-const fetchSiteSettings = unstable_cache(async () => {
-  const { data } = await supabaseAdmin.from('site_settings').select('*');
-  return data;
-}, ['cms-site-settings'], { revalidate: 900, tags: ['settings'] });
-
 export async function getSiteSettings(): Promise<Partial<SiteSettings>> {
   try {
-    const data = await fetchSiteSettings();
+    const { data } = await supabaseAdmin.from('site_settings').select('*');
     const settings: any = {};
     if (data) {
       data.forEach(item => {
@@ -68,14 +52,9 @@ export async function getSiteSettings(): Promise<Partial<SiteSettings>> {
   }
 }
 
-const fetchComparisonItems = unstable_cache(async () => {
-  const { data } = await supabaseAdmin.from('comparison_items').select('*').order('order_index', { ascending: true });
-  return data;
-}, ['cms-comparison'], { revalidate: 900, tags: ['comparisons'] });
-
 export async function getComparisonItems(): Promise<ComparisonItem[]> {
   try {
-    const data = await fetchComparisonItems();
+    const { data } = await supabaseAdmin.from('comparison_items').select('*').order('order_index', { ascending: true });
     return (data || []).map(row => ({
       id: row.id,
       aspect: row.aspect,
@@ -88,14 +67,9 @@ export async function getComparisonItems(): Promise<ComparisonItem[]> {
   }
 }
 
-const fetchFunnelStages = unstable_cache(async () => {
-  const { data } = await supabaseAdmin.from('funnel_stages').select('*').order('num', { ascending: true });
-  return data;
-}, ['cms-funnels'], { revalidate: 900, tags: ['funnels'] });
-
 export async function getFunnelStages(): Promise<FunnelStage[]> {
   try {
-    const data = await fetchFunnelStages();
+    const { data } = await supabaseAdmin.from('funnel_stages').select('*').order('num', { ascending: true });
     return (data || []).map(row => ({
       id: row.id,
       num: row.num,
@@ -110,14 +84,9 @@ export async function getFunnelStages(): Promise<FunnelStage[]> {
   }
 }
 
-const fetchValueStackItems = unstable_cache(async () => {
-  const { data } = await supabaseAdmin.from('value_stack_items').select('*').order('order_index', { ascending: true });
-  return data;
-}, ['cms-valuestack'], { revalidate: 900, tags: ['valuestack'] });
-
 export async function getValueStackItems(): Promise<ValueStackItem[]> {
   try {
-    const data = await fetchValueStackItems();
+    const { data } = await supabaseAdmin.from('value_stack_items').select('*').order('order_index', { ascending: true });
     return (data || []).map(row => ({
       id: row.id,
       name: row.name,

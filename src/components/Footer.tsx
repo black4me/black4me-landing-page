@@ -47,7 +47,7 @@ export default function Footer() {
               <li>
                 <a href="https://marketing-academy-liard.vercel.app/" target="_blank" rel="noopener noreferrer"
                   className="hover:text-brand-gold transition flex items-center gap-1.5">
-                  🎓 أكاديمية التسويق (للمشتركين)
+                  🎓 أكاديمية التسويق (منصة تعليمية مجانية)
                 </a>
               </li>
             </ul>

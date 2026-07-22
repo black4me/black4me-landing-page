@@ -2,6 +2,7 @@
 
 import { headers } from 'next/headers';
 import { supabaseAdmin } from '../../lib/supabase-admin';
+import crypto from 'crypto';
 
 export async function trackEvent(payload: {
   eventType: string;
@@ -15,6 +16,7 @@ export async function trackEvent(payload: {
     const headersList = await headers();
     const userAgent = headersList.get('user-agent') || '';
     const ip = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || 'unknown';
+    const sourceUrl = headersList.get('referer') || '';
 
     // Simple parsing for browser and device from User-Agent
     let browser = 'Unknown';
@@ -28,25 +30,55 @@ export async function trackEvent(payload: {
     else if (/safari/i.test(userAgent)) browser = 'Safari';
     else if (/edg/i.test(userAgent)) browser = 'Edge';
 
-    // 1. Log event in Supabase
-    const { error: eventError } = await supabaseAdmin.from('events').insert([{
-      event_type: payload.eventType,
-      user_email: payload.userEmail || null,
-      ip_address: ip,
-      device,
-      browser,
-      utm_source: payload.utmSource || null,
-      utm_medium: payload.utmMedium || null,
-      utm_campaign: payload.utmCampaign || null,
-      parameters: payload.parameters || {},
+    const eventParams = payload.parameters || {};
+    
+    // Resolve lead_id
+    let leadId = eventParams.lead_id;
+    if (!leadId && payload.userEmail) {
+      const { data: lead } = await supabaseAdmin
+        .from('leads')
+        .select('id')
+        .eq('email', payload.userEmail)
+        .single();
+      if (lead) leadId = lead.id;
+    }
+
+    // 1. Log event in crm.events
+    const { error: eventError } = await supabaseAdmin.schema('crm').from('events').insert([{
+      event_name: payload.eventType,
+      lead_id: leadId || null,
+      metadata: {
+        ...eventParams,
+        ip_address: ip,
+        device,
+        browser,
+        utm_source: payload.utmSource || null,
+        utm_medium: payload.utmMedium || null,
+        utm_campaign: payload.utmCampaign || null,
+        user_agent: userAgent,
+        source_url: sourceUrl
+      }
     }]);
 
     if (eventError) {
-      console.error('Tracking DB Error:', eventError);
-      await logError('supabase', eventError.message, payload);
+      console.error('Tracking DB Error (events):', eventError);
     }
 
-    // 2. Send global event to Activepieces BI/Tracking Webhook
+    // 2. Log event in crm.lead_timeline if lead is known
+    if (leadId) {
+      const description = generateTimelineDescription(payload.eventType, eventParams);
+      await supabaseAdmin.schema('crm').from('lead_timeline').insert([{
+        lead_id: leadId,
+        event_type: payload.eventType,
+        description: description,
+        metadata: eventParams
+      }]);
+    }
+
+    // 3. Send to Meta Conversions API (CAPI)
+    await sendToMetaConversionsAPI(payload, ip, userAgent, sourceUrl);
+
+    // 4. Send global event to Activepieces BI/Tracking Webhook
     if (process.env.ACTIVEPIECES_WEBHOOK_URL_EVENTS) {
       try {
         await fetch(process.env.ACTIVEPIECES_WEBHOOK_URL_EVENTS, {
@@ -61,7 +93,7 @@ export async function trackEvent(payload: {
             utm_source: payload.utmSource || null,
             utm_medium: payload.utmMedium || null,
             utm_campaign: payload.utmCampaign || null,
-            parameters: payload.parameters || {},
+            parameters: eventParams,
             timestamp: new Date().toISOString()
           }),
         });
@@ -78,6 +110,78 @@ export async function trackEvent(payload: {
   }
 }
 
+function generateTimelineDescription(eventType: string, params: any): string {
+  switch(eventType) {
+    case 'Purchase': return `Purchased product: ${params.product_name || 'Unknown'} for ${params.cart_value} ${params.currency || 'USD'}`;
+    case 'LeadMagnetClaimed': return `Claimed lead magnet: ${params.offer_name || 'Free Gift'}`;
+    case 'InitiateCheckout': return `Started checkout for ${params.product_name || 'cart'}`;
+    case 'CheckoutAbandoned': return `Abandoned checkout for ${params.product_name || 'cart'}`;
+    case 'NewsletterSignup': return `Signed up for newsletter`;
+    default: return `Performed action: ${eventType}`;
+  }
+}
+
+async function sendToMetaConversionsAPI(payload: any, ip: string, userAgent: string, sourceUrl: string) {
+  const FB_PIXEL_ID = '1672604016775353';
+  const CAPI_TOKEN = process.env.META_CAPI_TOKEN;
+
+  if (!CAPI_TOKEN) {
+    console.log('Skipping Meta CAPI: META_CAPI_TOKEN is not configured.');
+    return;
+  }
+
+  const eventParams = payload.parameters || {};
+  const unixTime = eventParams.event_time || Math.floor(Date.now() / 1000);
+
+  // Hash user data as required by Meta CAPI
+  const hash = (str?: string) => str ? crypto.createHash('sha256').update(str.trim().toLowerCase()).digest('hex') : undefined;
+
+  const userData: any = {
+    client_ip_address: ip,
+    client_user_agent: userAgent,
+    em: hash(payload.userEmail),
+    ph: hash(eventParams.phone)
+  };
+
+  const customData: any = {
+    value: eventParams.cart_value || undefined,
+    currency: eventParams.currency || (eventParams.cart_value ? 'USD' : undefined),
+    content_name: eventParams.product_name || undefined,
+    content_ids: eventParams.product_id ? [eventParams.product_id] : undefined,
+  };
+
+  const capiPayload = {
+    data: [
+      {
+        event_name: payload.eventType,
+        event_time: unixTime,
+        action_source: "website",
+        event_source_url: eventParams.page_url || sourceUrl,
+        user_data: userData,
+        custom_data: customData,
+      }
+    ]
+  };
+
+  try {
+    const response = await fetch(`https://graph.facebook.com/v19.0/${FB_PIXEL_ID}/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${CAPI_TOKEN}`
+      },
+      body: JSON.stringify(capiPayload)
+    });
+
+    const result = await response.json();
+    if (result.error) {
+      console.error('Meta CAPI Error:', result.error);
+    }
+  } catch (err) {
+    console.error('Failed to send to Meta CAPI:', err);
+  }
+}
+
 export async function logError(service: string, message: string, payload: any) {
   try {
     await supabaseAdmin.from('error_logs').insert([{
@@ -90,30 +194,19 @@ export async function logError(service: string, message: string, payload: any) {
   }
 }
 
-export async function upsertUser(payload: {
-  email: string;
-  name?: string;
-  phone?: string;
-  country?: string;
-  revenue?: number;
-  status?: string;
-}) {
+export async function upsertUser(payload: { email: string; name?: string; phone?: string; country?: string; revenue?: number; status?: string; }) {
   try {
-    // Check if user exists
-    const { data: user } = await supabaseAdmin.from('users').select('*').eq('email', payload.email).single();
-
+    const { data: user } = await supabaseAdmin.from("users").select("*").eq("email", payload.email).single();
     if (user) {
-      // Update
       const newTotal = Number(user.total_revenue || 0) + (payload.revenue || 0);
-      await supabaseAdmin.from('users').update({
+      await supabaseAdmin.from("users").update({
         last_visit: new Date().toISOString(),
         total_revenue: newTotal,
-        clv: newTotal, // Simple CLV equals total revenue for now
-        status: payload.status || user.status,
-      }).eq('id', user.id);
+        clv: newTotal,
+        status: payload.status || user.status
+      }).eq("id", user.id);
     } else {
-      // Insert
-      await supabaseAdmin.from('users').insert([{
+      await supabaseAdmin.from("users").insert([{
         email: payload.email,
         name: payload.name || null,
         phone: payload.phone || null,
@@ -122,10 +215,10 @@ export async function upsertUser(payload: {
         last_visit: new Date().toISOString(),
         total_revenue: payload.revenue || 0,
         clv: payload.revenue || 0,
-        status: payload.status || 'lead',
+        status: payload.status || "lead"
       }]);
     }
   } catch (e) {
-    console.error('Failed to upsert user:', e);
+    console.error("Failed to upsert user:", e);
   }
 }

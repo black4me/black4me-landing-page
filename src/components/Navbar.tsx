@@ -48,12 +48,8 @@ export default function Navbar() {
             <img src={siteSettings.site_logo} alt="BLACK4ME" className="h-10 object-contain hover:scale-105 transition" />
           ) : (
             <>
-              <span className="w-10 h-10 rounded-xl bg-brand-gold text-brand-black font-black flex items-center justify-center font-mono hover:scale-105 transition shadow-lg shadow-brand-gold/10 text-sm" aria-hidden="true">
-                B4M
-              </span>
               <div className="text-right flex flex-col justify-center">
                 <span className="font-mono text-lg font-black tracking-widest leading-none block text-white">BLACK4ME</span>
-                <span className="text-[9px] text-brand-gold font-medium block mt-0.5">JASIM MOHAMMED</span>
               </div>
             </>
           )}

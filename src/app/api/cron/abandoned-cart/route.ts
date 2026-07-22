@@ -3,7 +3,7 @@ import { supabase } from '../../../../lib/supabase';
 import { Resend } from 'resend';
 import { sendToActivepieces } from '../../../../lib/activepieces';
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
 
 export async function GET(req: Request) {
   // Protect cron endpoint (Vercel sets this header for cron requests)

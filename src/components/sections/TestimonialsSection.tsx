@@ -11,7 +11,7 @@ const fallbackTestimonials = [
     name: 'فيصل الشمري',
     role: 'مؤسس متجر إلكتروني',
     location: 'الرياض، السعودية',
-    avatar: 'ف',
+    image: '/images/testimonials/faisal.webp',
     rating: 5,
     date: 'مايو 2026',
     result: '23 عميل في 60 يوم',
@@ -25,7 +25,7 @@ const fallbackTestimonials = [
     name: 'مريم الصايغ',
     role: 'مستشارة موارد بشرية مستقلة',
     location: 'دبي، الإمارات',
-    avatar: 'م',
+    image: '/images/testimonials/maryam.webp',
     rating: 5,
     date: 'أبريل 2026',
     result: 'دخل مضاعف 3 مرات',
@@ -39,7 +39,7 @@ const fallbackTestimonials = [
     name: 'عبدالرحمن الكواري',
     role: 'مدرب لياقة بدنية',
     location: 'الدوحة، قطر',
-    avatar: 'ع',
+    image: '/images/testimonials/abdulrahman.webp',
     rating: 5,
     date: 'مارس 2026',
     result: 'دخل تضاعف 3× في 90 يوم',
@@ -53,7 +53,7 @@ const fallbackTestimonials = [
     name: 'سارة عبدالله',
     role: 'مصممة جرافيك مستقلة',
     location: 'الكويت',
-    avatar: 'س',
+    image: '/images/testimonials/sara.webp',
     rating: 5,
     date: 'أبريل 2026',
     result: 'أول 5000$ في الشهر الثاني',
@@ -67,7 +67,7 @@ const fallbackTestimonials = [
     name: 'أحمد خالد',
     role: 'صاحب شركة خدمات قانونية',
     location: 'القاهرة، مصر',
-    avatar: 'أ',
+    image: '/images/testimonials/ahmed.webp',
     rating: 5,
     date: 'مايو 2026',
     result: '15 عميل جديد من Funnel',
@@ -81,7 +81,7 @@ const fallbackTestimonials = [
     name: 'نورة المطيري',
     role: 'مدربة تطوير ذات',
     location: 'جدة، السعودية',
-    avatar: 'ن',
+    image: '/images/testimonials/noura.webp',
     rating: 5,
     date: 'مارس 2026',
     result: 'أطلقت كورسها الأول بـ 11K$',
@@ -95,7 +95,7 @@ const fallbackTestimonials = [
     name: 'محمد البلوشي',
     role: 'مطور تطبيقات مستقل',
     location: 'مسقط، عُمان',
-    avatar: 'م',
+    image: '/images/testimonials/mohammed.webp',
     rating: 5,
     date: 'فبراير 2026',
     result: 'عقد بـ 8000$ من صفحة هبوط واحدة',
@@ -109,7 +109,7 @@ const fallbackTestimonials = [
     name: 'ليلى الزهراني',
     role: 'صاحبة بوتيك أزياء',
     location: 'الرياض، السعودية',
-    avatar: 'ل',
+    image: '/images/testimonials/laila.webp',
     rating: 5,
     date: 'أبريل 2026',
     result: 'مبيعات أونلاين ارتفعت 4 أضعاف',
@@ -123,7 +123,7 @@ const fallbackTestimonials = [
     name: 'خالد العنزي',
     role: 'مستشار مالي',
     location: 'الكويت',
-    avatar: 'خ',
+    image: '/images/testimonials/khaled.webp',
     rating: 5,
     date: 'مايو 2026',
     result: '200% نمو في قاعدة العملاء',
@@ -137,7 +137,7 @@ const fallbackTestimonials = [
     name: 'رنا الجابري',
     role: 'مدربة تغذية وصحة',
     location: 'عمّان، الأردن',
-    avatar: 'ر',
+    image: '/images/testimonials/rana.webp',
     rating: 5,
     date: 'مارس 2026',
     result: 'اشتركت 47 عميلة جديدة في شهر',
@@ -223,8 +223,11 @@ export default function TestimonialsSection({ reviewCount = 0, aggregateRating =
                 {/* Author */}
                 <div className="flex items-center justify-between border-t border-brand-white/5 pt-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-brand-purple/20 flex items-center justify-center text-sm font-bold text-brand-purple-light" aria-hidden="true">
-                      {t.avatar}
+                    <div className="w-10 h-10 rounded-full bg-brand-purple/20 flex items-center justify-center text-sm font-bold text-brand-purple-light overflow-hidden" aria-hidden="true">
+                      {t.image ? (
+                        <img src={t.image} alt={t.name} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
+                      ) : null}
+                      <span className={t.image ? "hidden" : ""}>{t.name.charAt(0)}</span>
                     </div>
                     <div>
                       <span className="text-sm font-bold text-white block">{t.name}</span>

@@ -6,10 +6,20 @@ import Image from 'next/image';
 import { ArrowLeft, TrendingUp, Radio, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
+import * as tracking from '@/lib/tracking';
 
 export default function ConsultationSection() {
   const router = useRouter();
   const { siteSettings } = useApp();
+
+  React.useEffect(() => {
+    tracking.trackEvent('ServiceViewed', {
+      content_name: 'Consultation',
+      content_type: 'service',
+      value: 49,
+      currency: 'USD'
+    });
+  }, []);
 
   return (
     <section id="consultations-section" className="section-padding bg-[#050505] border-y border-white/5" dir="rtl" aria-labelledby="consultation-heading">
@@ -65,18 +75,20 @@ export default function ConsultationSection() {
           {/* Left Side - Portrait & Booking Box */}
           <div className="lg:col-span-5 relative">
             <div className="bg-[#111111] border border-white/10 rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
-               <div className="relative h-[400px] md:h-[500px] w-full bg-[#1a1a1a]">
+               <div className="relative h-[400px] md:h-[500px] w-full">
                  <Image 
                    src={siteSettings?.author_image || "/images/jassim-author.jpg"} 
                    alt="استشارة جاسم محمد" 
                    fill
                    className="object-cover object-top" 
                  />
-                 <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/20 to-transparent"></div>
                </div>
                
                <button 
-                 onClick={() => router.push('/checkout?mode=consultation')}
+                 onClick={() => {
+                   tracking.trackEvent('CTAButtonClicked', { button_name: 'Consultation_Checkout', destination: '/checkout' });
+                   router.push('/checkout?mode=consultation');
+                 }}
                  className="bg-[#ceae88] hover:bg-[#b89b78] p-6 flex items-center justify-between transition-colors group w-full text-right"
                  aria-label="احجز موعد استشارتك الآن"
                >
