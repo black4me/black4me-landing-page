@@ -5,6 +5,22 @@ import { upsertOffer } from '../../../../server/actions/offers';
 import { Save, Plus, Edit2, Link as LinkIcon, ExternalLink, Settings } from 'lucide-react';
 import Link from 'next/link';
 
+// Helpers to handle timezone correctly for datetime-local input
+const toLocalString = (isoString?: string | null) => {
+  if (!isoString) return '';
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) return '';
+  const offset = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - offset).toISOString().substring(0, 16);
+};
+
+const toUTCString = (localString: string) => {
+  if (!localString) return null;
+  const d = new Date(localString);
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString();
+};
+
 export default function OfferEditor({ initialOffers }: { initialOffers: any[] }) {
   const [offers, setOffers] = useState(initialOffers);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -186,7 +202,13 @@ export default function OfferEditor({ initialOffers }: { initialOffers: any[] })
             {formData.enable_timer && (
               <div className="md:col-span-2">
                 <label className="block text-sm text-gray-400 mb-1">تاريخ انتهاء المؤقت</label>
-                <input type="datetime-local" value={formData.timer_end ? formData.timer_end.substring(0, 16) : ''} onChange={e => setFormData({...formData, timer_end: new Date(e.target.value).toISOString()})} className="w-full p-3 rounded-lg bg-black border border-white/10" dir="ltr" />
+                <input 
+                  type="datetime-local" 
+                  value={toLocalString(formData.timer_end)} 
+                  onChange={e => setFormData({...formData, timer_end: toUTCString(e.target.value)})} 
+                  className="w-full p-3 rounded-lg bg-black border border-white/10" 
+                  dir="ltr" 
+                />
               </div>
             )}
           </div>
