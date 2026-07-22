@@ -29,7 +29,7 @@ export async function subscribeToNewsletter(payload: { name: string; email: stri
       status: 'lead'
     });
 
-    const { error } = await supabaseAdmin.from('subscribers').insert([{ name, email, country }]);
+    const { error } = await supabaseAdmin.from('subscribers').insert([{ name, email }]);
     if (error) {
       return { success: false, message: 'حدث خطأ أثناء التسجيل. حاول مرة أخرى.' };
     }

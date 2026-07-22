@@ -196,7 +196,7 @@ export async function registerOfferLead(payload: {
       if (!existingSub) {
         await supabaseAdmin
           .from('subscribers')
-          .insert([{ name, email, country: 'Unknown' }]);
+          .insert([{ name, email }]);
       }
     } catch (e) {
       console.error('Failed to add to subscribers:', e);
