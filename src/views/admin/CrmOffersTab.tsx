@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Plus, Edit2, Trash2, Save, Upload, Link as LinkIcon, 
   ExternalLink, Eye, EyeOff, Calendar, Clock, ToggleLeft, 
-  ToggleRight, Gift, FileText, CheckCircle, AlertTriangle 
+  ToggleRight, Gift, FileText, CheckCircle, AlertTriangle, Mail
 } from 'lucide-react';
 import { getOfferPages, saveOfferPage, deleteOfferPage, OfferPage } from '../../server/actions/crm';
 
@@ -51,6 +51,8 @@ export function CrmOffersTab() {
       enable_timer: false,
       timer_end: '',
       redirect_url: '',
+      email_subject: '🎁 هديتك المجانية جاهزة للتحميل المباشر',
+      email_body: 'شكراً لاهتمامك بـ BLACK4ME! لقد قمنا بتجهيز الهدية الحصرية خصيصاً لك.\nيمكنك تحميلها الآن وبدء استخدامها فوراً.',
     });
     setIsEditing(true);
     setAlert(null);
@@ -122,6 +124,8 @@ export function CrmOffersTab() {
       enable_timer: currentOffer.enable_timer ?? false,
       timer_end: currentOffer.timer_end ? new Date(currentOffer.timer_end).toISOString() : null,
       redirect_url: currentOffer.redirect_url || '',
+      email_subject: currentOffer.email_subject || '',
+      email_body: currentOffer.email_body || '',
     };
 
     const res = await saveOfferPage(offerData);
@@ -328,6 +332,38 @@ export function CrmOffersTab() {
                 </div>
               )}
             </div>
+
+            {/* Custom Email subject & body automation */}
+            {currentOffer.type === 'free_gift' && (
+              <div className="bg-[#17171c] p-4 rounded-2xl border border-white/5 space-y-4 md:col-span-2">
+                <h5 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-brand-gold" />
+                  <span>إعدادات أتمتة البريد الإلكتروني للهدية (Email Automation)</span>
+                </h5>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1.5 font-bold">موضوع البريد الإلكتروني (Email Subject)</label>
+                  <input
+                    type="text"
+                    name="email_subject"
+                    value={currentOffer.email_subject || ''}
+                    onChange={handleInputChange}
+                    placeholder="🎁 هديتك المجانية جاهزة للتحميل"
+                    className="w-full px-4 py-2.5 bg-[#1c1c24] border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-gold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1.5 font-bold">نص الرسالة الإلكترونية (Email Body)</label>
+                  <textarea
+                    name="email_body"
+                    rows={4}
+                    value={currentOffer.email_body || ''}
+                    onChange={handleInputChange}
+                    placeholder="اكتب هنا محتوى الرسالة الترحيبية..."
+                    className="w-full px-4 py-2.5 bg-[#1c1c24] border border-white/10 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-brand-gold resize-none"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Timer controls */}
             <div className="bg-[#17171c] p-4 rounded-2xl border border-white/5 space-y-4 md:col-span-2">

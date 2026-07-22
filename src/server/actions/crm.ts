@@ -18,6 +18,8 @@ export interface OfferPage {
   timer_end?: string | null;
   redirect_url?: string;
   display_mode?: string;
+  email_subject?: string;
+  email_body?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -32,7 +34,6 @@ export async function getOfferPages(): Promise<OfferPage[]> {
 
     // Fallback/check if we need schema specification
     if (error) {
-      // Try with explicit schema if default search path doesn't include crm
       const { data: crmData, error: crmError } = await supabaseAdmin
         .schema('crm')
         .from('offer_pages')
@@ -60,7 +61,6 @@ export async function getOfferPageBySlug(slug: string): Promise<OfferPage | null
       .single();
 
     if (error) {
-      // Try without schema schema override if client setup handles search path
       const { data: defaultData, error: defaultError } = await supabaseAdmin
         .from('offer_pages')
         .select('*')
@@ -92,6 +92,8 @@ export async function saveOfferPage(offer: OfferPage): Promise<{ success: boolea
       enable_timer: offer.enable_timer,
       timer_end: offer.timer_end || null,
       redirect_url: offer.redirect_url || '',
+      email_subject: offer.email_subject || '',
+      email_body: offer.email_body || '',
       updated_at: new Date().toISOString(),
     };
 
@@ -154,6 +156,9 @@ export async function registerOfferLead(payload: {
   try {
     const { name, email, slug, offerId, type, utmSource, utmMedium, utmCampaign } = payload;
 
+    // Fetch offer page first to get email details
+    const offer = await getOfferPageBySlug(slug);
+
     // 1. Record lead in crm.leads
     const { error: leadError } = await supabaseAdmin
       .schema('crm')
@@ -180,7 +185,85 @@ export async function registerOfferLead(payload: {
       status: 'lead'
     });
 
-    // 3. Track events in public.events
+    // 3. Register to public.subscribers (enables general newsletter lists)
+    try {
+      const { data: existingSub } = await supabaseAdmin
+        .from('subscribers')
+        .select('id')
+        .eq('email', email)
+        .single();
+      
+      if (!existingSub) {
+        await supabaseAdmin
+          .from('subscribers')
+          .insert([{ name, email, country: 'Unknown' }]);
+      }
+    } catch (e) {
+      console.error('Failed to add to subscribers:', e);
+    }
+
+    // 4. Trigger activepieces webhook (Automation flow trigger)
+    if (process.env.ACTIVEPIECES_WEBHOOK_URL_NEWSLETTER) {
+      try {
+        await fetch(process.env.ACTIVEPIECES_WEBHOOK_URL_NEWSLETTER, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'new_offer_lead',
+            name,
+            email,
+            slug,
+            type,
+            timestamp: new Date().toISOString()
+          }),
+        });
+      } catch (e) {
+        console.error('Failed to push to Activepieces newsletter webhook:', e);
+      }
+    }
+
+    // 5. Trigger email delivery via Resend for free gifts
+    if (type === 'free_gift' && process.env.RESEND_API_KEY && offer) {
+      try {
+        const { render } = await import('@react-email/render');
+        const UnifiedEmail = (await import('../../../emails/UnifiedEmail')).default;
+
+        const emailSubject = offer.email_subject || `🎁 هديتك جاهزة يا ${name} — تحمّل الآن`;
+        const downloadLink = offer.redirect_url || 'https://drive.google.com/drive/folders/14-SIzFYoOu7uIqs4qDNbQF-IrRlG8ker?usp=sharing';
+
+        const htmlContent = await render(
+          UnifiedEmail({
+            userFirstname: name,
+            type: 'gift',
+            downloadLink,
+            blogUrl: 'https://black4me.com/blog',
+            newsletterUrl: 'https://black4me.com/#free-gift',
+            instagramUrl: 'https://www.instagram.com/black4mee/',
+            logoUrl: '',
+            authorPhotoUrl: '',
+            authorName: 'جاسم محمد',
+          })
+        );
+
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'جاسم محمد — BLACK4ME <noreply@black4me.com>',
+            to: email,
+            subject: emailSubject,
+            html: htmlContent
+          })
+        });
+      } catch (err) {
+        console.error('Error sending automated gift email:', err);
+      }
+    }
+
+    // 6. Track events in public.events
     const eventParams = {
       offer_id: offerId,
       slug,
