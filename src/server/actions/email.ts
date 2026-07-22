@@ -1,18 +1,25 @@
 import { Resend } from 'resend';
 import { supabaseAdmin } from '../../lib/supabase-admin';
+import https from 'https';
+import http from 'http';
 
-// Fetch an image URL and return a base64 data URI so Gmail can't block it
+// Fetch an image URL and return a base64 data URI so Gmail can't block it by domain
 async function toBase64DataUri(url: string): Promise<string> {
-  try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) return '';
-    const contentType = res.headers.get('content-type') || 'image/jpeg';
-    const arrayBuffer = await res.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString('base64');
-    return `data:${contentType};base64,${base64}`;
-  } catch {
-    return '';
-  }
+  return new Promise((resolve) => {
+    const lib = url.startsWith('https') ? https : http;
+    lib.get(url, { timeout: 5000 }, (res) => {
+      if (res.statusCode !== 200) { resolve(''); return; }
+      const chunks: Buffer[] = [];
+      res.on('data', (chunk: Buffer) => chunks.push(chunk));
+      res.on('end', () => {
+        const buf = Buffer.concat(chunks);
+        const contentType = res.headers['content-type'] || 'image/jpeg';
+        resolve(`data:${contentType};base64,${buf.toString('base64')}`);
+      });
+      res.on('error', () => resolve(''));
+    }).on('error', () => resolve(''))
+      .on('timeout', function(this: any) { this.destroy(); resolve(''); });
+  });
 }
 
 async function getEmailSettings() {
