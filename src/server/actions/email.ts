@@ -1,6 +1,20 @@
 import { Resend } from 'resend';
 import { supabaseAdmin } from '../../lib/supabase-admin';
 
+// Fetch an image URL and return a base64 data URI so Gmail can't block it
+async function toBase64DataUri(url: string): Promise<string> {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return '';
+    const contentType = res.headers.get('content-type') || 'image/jpeg';
+    const arrayBuffer = await res.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString('base64');
+    return `data:${contentType};base64,${base64}`;
+  } catch {
+    return '';
+  }
+}
+
 async function getEmailSettings() {
   const { data } = await supabaseAdmin
     .from('site_settings')
@@ -16,6 +30,7 @@ async function getEmailSettings() {
   const settings: any = {
     author_name: 'جاسم محمد',
     author_photo_url: '',
+    author_photo_base64: '',
     social_whatsapp_url: '',
     social_instagram_url: '',
     social_support_email: 'support@black4me.com'
@@ -25,6 +40,11 @@ async function getEmailSettings() {
     data.forEach(item => {
       settings[item.key] = item.value;
     });
+  }
+
+  // Convert photo to base64 so Gmail renders it regardless of domain
+  if (settings.author_photo_url) {
+    settings.author_photo_base64 = await toBase64DataUri(settings.author_photo_url);
   }
 
   return settings;
@@ -47,8 +67,8 @@ const generateEmailHtml = (emailSettings: any, title: string, bodyContent: strin
           <!-- Header / Profile -->
           <tr>
             <td align="center" style="padding: 40px 30px 20px; text-align: center;">
-              ${emailSettings.author_photo_url ? 
-                `<img src="${emailSettings.author_photo_url}" alt="${emailSettings.author_name}" width="64" height="64" style="border-radius: 50%; margin: 0 auto 10px; display: block; object-fit: cover; border: 1px solid #EAEAEA;" />`
+              ${(emailSettings.author_photo_base64 || emailSettings.author_photo_url) ? 
+                `<img src="${emailSettings.author_photo_base64 || emailSettings.author_photo_url}" alt="${emailSettings.author_name}" width="80" height="80" style="border-radius: 50%; margin: 0 auto 10px; display: block; border: 2px solid #EAEAEA; object-fit: cover;" />`
                 : 
                 `<div style="width: 64px; height: 64px; border-radius: 50%; background-color: #F3F4F6; margin: 0 auto 10px; display: table; border: 1px solid #EAEAEA;">
                     <p style="font-size: 28px; font-weight: bold; color: #555; margin: 0; display: table-cell; vertical-align: middle; text-align: center;">
