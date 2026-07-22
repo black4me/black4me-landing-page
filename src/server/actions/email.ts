@@ -74,17 +74,8 @@ const generateEmailHtml = (emailSettings: any, title: string, bodyContent: strin
           <!-- Header / Profile -->
           <tr>
             <td align="center" style="padding: 40px 30px 20px; text-align: center;">
-              ${(emailSettings.author_photo_base64 || emailSettings.author_photo_url) ? 
-                `<img src="${emailSettings.author_photo_base64 || emailSettings.author_photo_url}" alt="${emailSettings.author_name}" width="80" height="80" style="border-radius: 50%; margin: 0 auto 10px; display: block; border: 2px solid #EAEAEA; object-fit: cover;" />`
-                : 
-                `<div style="width: 64px; height: 64px; border-radius: 50%; background-color: #F3F4F6; margin: 0 auto 10px; display: table; border: 1px solid #EAEAEA;">
-                    <p style="font-size: 28px; font-weight: bold; color: #555; margin: 0; display: table-cell; vertical-align: middle; text-align: center;">
-                      ${emailSettings.author_name ? emailSettings.author_name.charAt(0) : 'ج'}
-                    </p>
-                  </div>`
-              }
-              <p style="font-size: 16px; font-weight: bold; color: #111111; margin: 0 0 2px;">${emailSettings.author_name}</p>
-              <p style="font-size: 13px; color: #6B7280; margin: 0;">مؤسس BLACK4ME</p>
+              <p style="font-size: 20px; font-weight: bold; color: #111111; margin: 0 0 4px;">${emailSettings.author_name || 'جاسم محمد'}</p>
+              <p style="font-size: 14px; color: #6B7280; margin: 0;">مؤسس BLACK4ME</p>
             </td>
           </tr>
 
