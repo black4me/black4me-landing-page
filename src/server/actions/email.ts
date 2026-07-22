@@ -57,14 +57,22 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
           <tr>
             <td align="center">
               <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #111111; border-radius: 16px; overflow: hidden; border: 1px solid rgba(245, 197, 66, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                <!-- Header -->
+                <!-- Header / Author Profile -->
                 <tr>
-                  <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, rgba(108,59,255,0.1), rgba(245,197,66,0.1)); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <h1 style="margin: 0; color: #F5C542; font-size: 28px; letter-spacing: 2px;">BLACK4ME</h1>
-                    <p style="margin: 10px 0 0 0; color: #888; font-size: 16px;">ظپط§طھظˆط±ط© ظˆطھط£ظƒظٹط¯ ط·ظ„ط¨ظƒ</p>
+                  <td align="center" style="padding: 40px 30px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    ${emailSettings.author_photo_url ? 
+                      `<img src="${emailSettings.author_photo_url}" alt="${emailSettings.author_name}" width="72" height="72" style="border-radius: 50%; margin: 0 auto 15px; display: block; object-fit: cover; border: 2px solid #F5C542;" />`
+                      : 
+                      `<div style="width: 72px; height: 72px; border-radius: 50%; background-color: #F5C542; margin: 0 auto 15px; display: table;">
+                          <p style="font-size: 36px; font-weight: bold; color: #111; margin: 0; display: table-cell; vertical-align: middle;">
+                            ${emailSettings.author_name ? emailSettings.author_name.charAt(0) : 'ج'}
+                          </p>
+                        </div>`
+                    }
+                    <p style="font-size: 18px; font-weight: bold; color: #FFFFFF; margin: 0 0 5px;">${emailSettings.author_name}</p>
+                    <p style="font-size: 14px; color: #888888; margin: 0;">BLACK4ME — نظام التسويق الذكي</p>
                   </td>
                 </tr>
-
                 <!-- Body -->
                 <tr>
                   <td style="padding: 40px 30px;">
@@ -123,17 +131,7 @@ export async function sendWelcomeEmail(email: string, name: string, orderId: str
                       </tr>
                     </table>
 
-                    <!-- Founder Note -->
-                    <div style="border-right: 3px solid #6C3BFF; padding-right: 15px; margin-top: 20px; display: flex; align-items: center; gap: 15px;">
-                      ${emailSettings.author_photo_url ? `<img src="${emailSettings.author_photo_url}" alt="${emailSettings.author_name}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #F5C542;" />` : ''}
-                      <div>
-                        <p style="color: #cccccc; font-style: italic; line-height: 1.6; margin: 0 0 10px 0;">
-                          "أشكرك شخصياً على ثقتك بمنتجاتنا. لقد بنينا هذا النظام بكل شغف واهتمام بأدق التفاصيل لنقدم لك تجربة استثنائية. أتمنى لك كل التوفيق والنجاح، وأنا وفريقي دائماً هنا لدعمك."
-                        </p>
-                        <p style="margin: 0; color: #F5C542; font-weight: bold;">- ${emailSettings.author_name}</p>
-                        <p style="margin: 5px 0 0 0; color: #888; font-size: 12px;">مؤسس BLACK4ME</p>
-                      </div>
-                    </div>
+                    <!-- (Founder Note Removed to favor top profile) -->
                   </td>
                 </tr>
                 <!-- Footer / Contact Links -->
@@ -216,14 +214,22 @@ export async function sendPendingEmail(email: string, name: string, orderId: str
           <tr>
             <td align="center">
               <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #111111; border-radius: 16px; overflow: hidden; border: 1px solid rgba(108, 59, 255, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                <!-- Header -->
+                <!-- Header / Author Profile -->
                 <tr>
-                  <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, rgba(108,59,255,0.1), rgba(0,195,255,0.1)); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <h1 style="margin: 0; color: #6C3BFF; font-size: 28px; letter-spacing: 2px;">BLACK4ME</h1>
-                    <p style="margin: 10px 0 0 0; color: #888; font-size: 16px;">طھظ… ط§ط³طھظ„ط§ظ… ط·ظ„ط¨ظƒ</p>
+                  <td align="center" style="padding: 40px 30px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    ${emailSettings.author_photo_url ? 
+                      `<img src="${emailSettings.author_photo_url}" alt="${emailSettings.author_name}" width="72" height="72" style="border-radius: 50%; margin: 0 auto 15px; display: block; object-fit: cover; border: 2px solid #F5C542;" />`
+                      : 
+                      `<div style="width: 72px; height: 72px; border-radius: 50%; background-color: #F5C542; margin: 0 auto 15px; display: table;">
+                          <p style="font-size: 36px; font-weight: bold; color: #111; margin: 0; display: table-cell; vertical-align: middle;">
+                            ${emailSettings.author_name ? emailSettings.author_name.charAt(0) : 'ج'}
+                          </p>
+                        </div>`
+                    }
+                    <p style="font-size: 18px; font-weight: bold; color: #FFFFFF; margin: 0 0 5px;">${emailSettings.author_name}</p>
+                    <p style="font-size: 14px; color: #888888; margin: 0;">BLACK4ME — نظام التسويق الذكي</p>
                   </td>
                 </tr>
-
                 <!-- Body -->
                 <tr>
                   <td style="padding: 40px 30px;">
@@ -428,14 +434,22 @@ export async function sendTestEmail(email: string) {
           <tr>
             <td align="center">
               <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #111111; border-radius: 16px; overflow: hidden; border: 1px solid rgba(245, 197, 66, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                <!-- Header -->
+                <!-- Header / Author Profile -->
                 <tr>
-                  <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, rgba(108,59,255,0.1), rgba(245,197,66,0.1)); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <h1 style="margin: 0; color: #F5C542; font-size: 28px; letter-spacing: 2px;">BLACK4ME</h1>
-                    <p style="margin: 10px 0 0 0; color: #888; font-size: 16px;">رسالة اختبار إعدادات الإيميل</p>
+                  <td align="center" style="padding: 40px 30px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    ${emailSettings.author_photo_url ? 
+                      `<img src="${emailSettings.author_photo_url}" alt="${emailSettings.author_name}" width="72" height="72" style="border-radius: 50%; margin: 0 auto 15px; display: block; object-fit: cover; border: 2px solid #F5C542;" />`
+                      : 
+                      `<div style="width: 72px; height: 72px; border-radius: 50%; background-color: #F5C542; margin: 0 auto 15px; display: table;">
+                          <p style="font-size: 36px; font-weight: bold; color: #111; margin: 0; display: table-cell; vertical-align: middle;">
+                            ${emailSettings.author_name ? emailSettings.author_name.charAt(0) : 'ج'}
+                          </p>
+                        </div>`
+                    }
+                    <p style="font-size: 18px; font-weight: bold; color: #FFFFFF; margin: 0 0 5px;">${emailSettings.author_name}</p>
+                    <p style="font-size: 14px; color: #888888; margin: 0;">BLACK4ME — نظام التسويق الذكي</p>
                   </td>
                 </tr>
-
                 <!-- Body -->
                 <tr>
                   <td style="padding: 40px 30px;">
