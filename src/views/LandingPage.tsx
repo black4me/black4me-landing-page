@@ -22,7 +22,6 @@ const ConsultationSection = dynamic(() => import('../components/sections/Consult
 const NewsletterSection = dynamic(() => import('../components/sections/NewsletterSection'));
 const StickyMobileCTA = dynamic(() => import('../components/sections/StickyMobileCTA'));
 const FinalCTA = dynamic(() => import('../components/sections/FinalCTA'), { loading: () => <div className="h-[200px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
-const LeadMagnet = dynamic(() => import('../components/LeadMagnet'));
 const HeroVideo = dynamic(() => import('../components/sections/HeroVideo'), { ssr: false });
 const ProductsSection = dynamic(() => import('../components/sections/ProductsSection'), { loading: () => <div className="h-[600px] w-full animate-pulse bg-gray-900 rounded-lg" /> });
 
@@ -228,9 +227,20 @@ export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }
       <GuaranteeSection />
       <FAQSection />
       <FinalCTA />
-      
-      {/* Exit Intent / Secondary options pushed to the bottom */}
-      <LeadMagnet />
+
+      {/* Small offer banner — links to /offer/[slug], no form on the homepage */}
+      <div className="bg-brand-purple/10 border-t border-brand-purple/20 py-4 px-6" dir="rtl">
+        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-right">
+          <p className="text-sm text-gray-300">🎁 احصل على هدية مجانية حصرية لمشتركينا الجدد</p>
+          <Link
+            href="/offer/master-class"
+            className="flex-shrink-0 bg-brand-gold hover:bg-yellow-400 text-brand-black text-xs font-bold py-2 px-5 rounded-xl transition-all"
+          >
+            احصل على الهدية المجانية ←
+          </Link>
+        </div>
+      </div>
+
       <ConsultationSection />
       <NewsletterSection />
       <StickyMobileCTA />
