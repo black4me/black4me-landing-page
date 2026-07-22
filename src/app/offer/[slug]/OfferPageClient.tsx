@@ -24,12 +24,45 @@ export default function OfferPageClient({ offer, utmSource, utmMedium, utmCampai
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
   const [isExpired, setIsExpired] = useState(false);
 
-  // Track page view event
+  // Track page view event and heartbeat
   useEffect(() => {
-    // Dispatch custom event for tracking
+    // 1. Initial Page View
+    let sessionId = localStorage.getItem('b4m_session');
+    if (!sessionId) {
+      sessionId = Math.random().toString(36).substring(2, 15);
+      localStorage.setItem('b4m_session', sessionId);
+    }
+    
+    let duration = 0;
+    const startTime = Date.now();
+
+    const trackPageEvent = async (type: string, currentDuration: number) => {
+      try {
+        await fetch('/api/tracking', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            eventType: type,
+            parameters: {
+              offer_slug: offer.slug,
+              page_path: window.location.pathname,
+              session_id: sessionId,
+              duration_seconds: currentDuration,
+              utm_source: utmSource,
+              utm_medium: utmMedium,
+              utm_campaign: utmCampaign
+            }
+          })
+        });
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    // Track initial view
+    trackPageEvent(offer.type === 'free_gift' ? 'GiftView' : 'OfferView', 0);
     console.log(`[Tracking] DynamicOfferViewed: ${offer.slug}`);
     
-    // If Meta Pixel exists in window, fire custom event
     if (typeof window !== 'undefined' && (window as any).fbq) {
       (window as any).fbq('trackCustom', 'DynamicOfferViewed', {
         slug: offer.slug,
@@ -38,7 +71,14 @@ export default function OfferPageClient({ offer, utmSource, utmMedium, utmCampai
       });
     }
 
-    // Set up timer if enabled
+    // 2. Heartbeat every 10 seconds
+    const heartbeatInterval = setInterval(() => {
+      duration = Math.floor((Date.now() - startTime) / 1000);
+      trackPageEvent('Heartbeat', duration);
+    }, 10000);
+
+    // 3. Set up timer if enabled
+    let timerInterval: any;
     if (offer.enable_timer && offer.timer_end) {
       const targetTime = new Date(offer.timer_end).getTime();
 
@@ -60,10 +100,37 @@ export default function OfferPageClient({ offer, utmSource, utmMedium, utmCampai
       };
 
       updateTimer();
-      const interval = setInterval(updateTimer, 1000);
-      return () => clearInterval(interval);
+      timerInterval = setInterval(updateTimer, 1000);
     }
-  }, [offer]);
+
+    // 4. Page Leave
+    const handleBeforeUnload = () => {
+      duration = Math.floor((Date.now() - startTime) / 1000);
+      // We use navigator.sendBeacon for reliable exit tracking if possible, or synchronous fetch
+      const payload = JSON.stringify({
+        eventType: 'PageLeave',
+        parameters: {
+          offer_slug: offer.slug,
+          page_path: window.location.pathname,
+          session_id: sessionId,
+          duration_seconds: duration
+        }
+      });
+      navigator.sendBeacon('/api/tracking', payload);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      clearInterval(heartbeatInterval);
+      if (timerInterval) clearInterval(timerInterval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      
+      // Also track leave on component unmount (SPA navigation)
+      duration = Math.floor((Date.now() - startTime) / 1000);
+      trackPageEvent('PageLeave', duration);
+    };
+  }, [offer, utmSource, utmMedium, utmCampaign]);
 
   const handleInputFocus = () => {
     console.log(`[Tracking] DynamicOfferStarted: ${offer.slug}`);
