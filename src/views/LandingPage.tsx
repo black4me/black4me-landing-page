@@ -228,7 +228,6 @@ export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }
       <GuaranteeSection />
       <FAQSection />
       <FinalCTA />
-<<<<<<< HEAD
 
       {/* Small offer banner — links to /offer/[slug], no form on the homepage */}
       <div className="bg-brand-purple/10 border-t border-brand-purple/20 py-4 px-6" dir="rtl">
@@ -243,9 +242,6 @@ export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }
         </div>
       </div>
 
-=======
-      
->>>>>>> db386d299403942dcfa3477f15be6535f118cfed
       <ConsultationSection />
       <StickyMobileCTA />
     </>
