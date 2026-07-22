@@ -82,7 +82,7 @@ export async function trackEvent(payload: {
         coupon_code: eventParams.coupon_code || null,
         description: description,
         metadata: eventParams,
-        created_at: new Date().toISOString()
+        timestamp: new Date().toISOString()
       }]);
     }
 
@@ -142,7 +142,7 @@ async function handleHeartbeat(leadId: string, pagePath: string, durationSeconds
       .select('id, duration_seconds')
       .eq('lead_id', leadId)
       .in('event_type', ['PageView', 'OfferView', 'GiftView', 'ProductView', 'ServiceView'])
-      .order('created_at', { ascending: false })
+      .order('timestamp', { ascending: false })
       .limit(1)
       .single();
 
@@ -183,7 +183,7 @@ async function triggerHesitationAutomation(leadId: string, offerSlug: string) {
     event_category: 'Strategic',
     offer_slug: offerSlug,
     description: `Hesitation detected on offer: ${offerSlug}. Waited > 3 minutes.`,
-    created_at: new Date().toISOString()
+    timestamp: new Date().toISOString()
   }]);
 
   // 2. Generate unique one-time coupon
@@ -215,7 +215,7 @@ async function triggerHesitationAutomation(leadId: string, offerSlug: string) {
     offer_slug: offerSlug,
     coupon_code: couponCode,
     description: `Auto-generated hesitation coupon: ${couponCode} (15% OFF)`,
-    created_at: new Date().toISOString()
+    timestamp: new Date().toISOString()
   }]);
 
   // Optionally trigger webhook to Activepieces for email dispatch
