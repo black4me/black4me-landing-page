@@ -35,7 +35,7 @@ export async function trackEvent(payload: {
     // Resolve lead_id
     let leadId = eventParams.lead_id;
     if (!leadId && payload.userEmail) {
-      const { data: lead } = await supabaseAdmin
+      const { data: lead } = await supabaseAdmin.schema('crm')
         .from('leads')
         .select('id')
         .eq('email', payload.userEmail)
@@ -199,9 +199,9 @@ async function triggerHesitationAutomation(leadId: string, offerSlug: string) {
   }]);
 
   // Update lead CRM score (+5 for hesitation/high intent)
-  const { data: lead } = await supabaseAdmin.from('leads').select('lead_score, email').eq('id', leadId).single();
+  const { data: lead } = await supabaseAdmin.schema('crm').from('leads').select('lead_score, email').eq('id', leadId).single();
   if (lead) {
-    await supabaseAdmin.from('leads').update({
+    await supabaseAdmin.schema('crm').from('leads').update({
       lead_score: (lead.lead_score || 0) + 5
     }).eq('id', leadId);
   }
