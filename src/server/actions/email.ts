@@ -26,6 +26,12 @@ async function getEmailSettings() {
       settings[item.key] = item.value;
     });
   }
+
+  // Use Next.js Image Proxy to compress large images and bypass Gmail's Supabase domain block
+  if (settings.author_photo_url && settings.author_photo_url.includes('supabase.co')) {
+    settings.author_photo_url = `https://black4me.com/_next/image?url=${encodeURIComponent(settings.author_photo_url)}&w=256&q=75`;
+  }
+
   return settings;
 }
 
@@ -77,7 +83,7 @@ const generateEmailHtml = (emailSettings: any, title: string, bodyContent: strin
           <!-- Footer -->
           <tr>
             <td align="center" style="padding: 30px; background-color: #F9FAFB; border-top: 1px solid #F3F4F6; border-radius: 0 0 12px 12px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 15px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
                 <tr>
                   <td align="center" dir="rtl">
                     ${emailSettings.social_whatsapp_url ? `
@@ -95,6 +101,17 @@ const generateEmailHtml = (emailSettings: any, title: string, bodyContent: strin
                   </td>
                 </tr>
               </table>
+              <div dir="rtl" style="text-align: right; background-color: #F3F4F6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin: 0 0 10px; color: #4B5563; font-size: 13px; font-weight: bold;">تنويه مهم:</p>
+                <p style="margin: 0 0 10px; color: #6B7280; font-size: 13px; line-height: 1.6;">
+                  يرجى عدم الرد على هذا البريد الإلكتروني، لأن noreply@black4me.com مخصص فقط لإرسال الرسائل الآلية ولا يتم استخدامه للدعم أو الرد على الاستفسارات.
+                </p>
+                <p style="margin: 0; color: #6B7280; font-size: 13px; line-height: 1.6;">
+                  إذا كنت بحاجة إلى المساعدة أو ترغب في التواصل معنا، يرجى استخدام:<br>
+                  <strong>واتساب:</strong> +968 7919 1793<br>
+                  <strong>البريد الإلكتروني:</strong> black4mestore@gmail.com
+                </p>
+              </div>
               <p style="margin: 0; color: #9CA3AF; font-size: 12px; text-align: center;">
                 © ${new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
               </p>
