@@ -10,8 +10,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
   db: { schema: 'crm' },
 });
 
-export default async function LeadDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   
   const { data: lead, error } = await supabase
     .from('leads')
@@ -54,24 +54,24 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
   return (
     <div className="p-6 space-y-6">
       {/* 1) Basic Profile */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-[#161b22] p-6 rounded-3xl border border-gray-800">
         <div>
-          <h2 className="text-2xl font-bold">{lead.name || 'Unknown'}</h2>
-          <p className="text-slate-500">{lead.email}</p>
-          <div className="mt-4 flex gap-4 text-sm text-slate-600 dark:text-slate-400">
-            <div><span className="font-semibold text-slate-900 dark:text-slate-200">Source:</span> {lead.source || 'Direct'}</div>
-            <div><span className="font-semibold text-slate-900 dark:text-slate-200">Visits:</span> {timeline.filter((e:any)=>['PageView', 'OfferView'].includes(e.event_type)).length}</div>
-            <div><span className="font-semibold text-slate-900 dark:text-slate-200">Time on site:</span> {totalDurationMinutes} mins</div>
+          <h2 className="text-2xl font-bold text-white">{lead.name || 'Unknown'}</h2>
+          <p className="text-gray-400">{lead.email}</p>
+          <div className="mt-4 flex gap-4 text-sm text-gray-400">
+            <div><span className="font-semibold text-gray-200">Source:</span> {lead.source || 'Direct'}</div>
+            <div><span className="font-semibold text-gray-200">Visits:</span> {timeline.filter((e:any)=>['PageView', 'OfferView'].includes(e.event_type)).length}</div>
+            <div><span className="font-semibold text-gray-200">Time on site:</span> {totalDurationMinutes} mins</div>
           </div>
         </div>
         <div className="text-right mt-4 md:mt-0 flex gap-6">
           <div>
-            <div className="text-sm text-slate-500">Funnel Stage</div>
-            <div className="font-semibold capitalize">{lead.lead_funnel_progress?.[0]?.funnel_stages?.name || 'Awareness'}</div>
+            <div className="text-sm text-gray-400">Funnel Stage</div>
+            <div className="font-semibold capitalize text-white">{lead.lead_funnel_progress?.[0]?.funnel_stages?.name || 'Awareness'}</div>
           </div>
           <div className="text-right">
-            <div className="text-sm text-slate-500">Lead Score</div>
-            <div className={`text-4xl font-black ${lead.lead_score >= 50 ? 'text-red-600' : 'text-slate-800 dark:text-slate-100'}`}>
+            <div className="text-sm text-gray-400">Lead Score</div>
+            <div className={`text-4xl font-black ${lead.lead_score >= 50 ? 'text-red-500' : 'text-white'}`}>
               {lead.lead_score || 0}
             </div>
           </div>
@@ -83,25 +83,25 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
         {/* Left Column: Strategic Summary */}
         <div className="space-y-6">
           {/* 3) Commercial Intent Summary */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
-            <h3 className="font-bold border-b dark:border-slate-800 pb-2 mb-4 flex items-center gap-2">
+          <div className="bg-[#161b22] p-6 rounded-3xl border border-gray-800">
+            <h3 className="font-bold border-b border-gray-800 pb-2 mb-4 flex items-center gap-2 text-white">
               <Target size={18} className="text-blue-500"/> Commercial Intent
             </h3>
             
             <div className="space-y-4 text-sm">
               <div>
-                <span className="text-slate-500 block">Top Interest:</span>
-                <span className="font-semibold">{mostViewedOffers.length > 0 ? mostViewedOffers[0][0] : 'None'}</span>
+                <span className="text-gray-400 block">Top Interest:</span>
+                <span className="font-semibold text-white">{mostViewedOffers.length > 0 ? mostViewedOffers[0][0] : 'None'}</span>
               </div>
               
               <div>
-                <span className="text-slate-500 block">Checkout Started?</span>
-                <span className="font-semibold">{timeline.some((e:any) => e.event_type === 'CheckoutStarted') ? 'Yes' : 'No'}</span>
+                <span className="text-gray-400 block">Checkout Started?</span>
+                <span className="font-semibold text-white">{timeline.some((e:any) => e.event_type === 'CheckoutStarted') ? 'Yes' : 'No'}</span>
               </div>
               
               <div>
-                <span className="text-slate-500 block">Purchased?</span>
-                <span className={`font-semibold ${hasPurchased ? 'text-green-500' : 'text-orange-500'}`}>
+                <span className="text-gray-400 block">Purchased?</span>
+                <span className={`font-semibold ${hasPurchased ? 'text-green-400' : 'text-orange-400'}`}>
                   {hasPurchased ? 'Yes' : 'No'}
                 </span>
               </div>
@@ -116,13 +116,13 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
           </div>
           
           {/* 4) Coupon Usage */}
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
-            <h3 className="font-bold border-b dark:border-slate-800 pb-2 mb-4 flex items-center gap-2">
+          <div className="bg-[#161b22] p-6 rounded-3xl border border-gray-800">
+            <h3 className="font-bold border-b border-gray-800 pb-2 mb-4 flex items-center gap-2 text-white">
               <Tag size={18} className="text-emerald-500"/> Coupons & Offers
             </h3>
             
             <div className="mb-4">
-              <span className="text-xs text-slate-500 uppercase block mb-1">Coupons Interacted</span>
+              <span className="text-xs text-gray-500 uppercase block mb-1">Coupons Interacted</span>
               {Array.from(couponsUsed).length > 0 ? (
                 <div className="flex gap-2 flex-wrap">
                   {Array.from(couponsUsed).map((c: any) => (
@@ -130,16 +130,16 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
                   ))}
                 </div>
               ) : (
-                <span className="text-sm text-slate-500">No coupons used</span>
+                <span className="text-sm text-gray-500">No coupons used</span>
               )}
             </div>
 
-            <div className="mt-4 pt-4 border-t dark:border-slate-800">
-              <span className="text-xs text-slate-500 uppercase block mb-2">Value Ladder State</span>
+            <div className="mt-4 pt-4 border-t border-gray-800">
+              <span className="text-xs text-gray-500 uppercase block mb-2">Value Ladder State</span>
               {lead.lead_offer_state?.map((s: any, idx: number) => (
                 <div key={idx} className="flex justify-between text-sm py-1">
-                  <span className="capitalize">{s.ladder_level.replace('_', ' ')}</span>
-                  <span className={`font-semibold ${s.status === 'purchased' || s.status === 'accepted' ? 'text-green-600' : 'text-slate-500'}`}>
+                  <span className="capitalize text-gray-300">{s.ladder_level.replace('_', ' ')}</span>
+                  <span className={`font-semibold ${s.status === 'purchased' || s.status === 'accepted' ? 'text-green-400' : 'text-gray-500'}`}>
                     {s.status}
                   </span>
                 </div>
@@ -150,48 +150,48 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
 
         {/* Right Column: Unified Timeline */}
         {/* 2) Activity Timeline */}
-        <div className="md:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
-          <h3 className="font-bold border-b dark:border-slate-800 pb-2 mb-4 flex items-center gap-2">
+        <div className="md:col-span-2 bg-[#161b22] p-6 rounded-3xl border border-gray-800">
+          <h3 className="font-bold border-b border-gray-800 pb-2 mb-4 flex items-center gap-2 text-white">
             <Clock size={18} /> Activity Timeline
           </h3>
-          <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 dark:before:via-slate-800 before:to-transparent">
+          <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-700 before:to-transparent">
             {timeline?.map((event: any) => {
-              const eventDate = new Date(event.created_at);
+              const eventDate = new Date(event.created_at || event.timestamp);
               const isStrategic = event.event_category === 'Strategic' || event.event_type.includes('Hesitation');
               
               return (
                 <div key={event.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 group-[.is-active]:bg-emerald-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-800 bg-[#0d1117] text-gray-400 group-[.is-active]:bg-emerald-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
                     <Search size={16} />
                   </div>
-                  <div className={`w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-slate-50 dark:bg-slate-800/50 p-4 rounded border ${isStrategic ? 'border-red-500/50 bg-red-500/5' : 'border-slate-200 dark:border-slate-800'} shadow-sm`}>
+                  <div className={`w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-[#0a0a0a] p-4 rounded-2xl border ${isStrategic ? 'border-red-500/30 bg-red-500/5' : 'border-gray-800'} shadow-sm`}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className={`font-bold text-sm ${isStrategic ? 'text-red-500' : 'text-slate-800 dark:text-slate-200'}`}>{event.event_type}</span>
-                      <time className="text-xs font-mono text-slate-400">
+                      <span className={`font-bold text-sm ${isStrategic ? 'text-red-400' : 'text-white'}`}>{event.event_type}</span>
+                      <time className="text-xs font-mono text-gray-500">
                         {eventDate.toLocaleDateString()} {eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}
                       </time>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{event.description}</p>
+                    <p className="text-sm text-gray-300">{event.description}</p>
                     
                     {/* Rich Meta Tags */}
                     <div className="mt-3 flex flex-wrap gap-2">
                       {event.duration_seconds > 0 && (
-                        <span className="px-2 py-0.5 rounded text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+                        <span className="px-2 py-0.5 rounded text-xs bg-gray-800 text-gray-300">
                           ⏱ {event.duration_seconds}s
                         </span>
                       )}
                       {event.offer_slug && (
-                        <span className="px-2 py-0.5 rounded text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <span className="px-2 py-0.5 rounded text-xs bg-blue-500/10 text-blue-400">
                           🎯 {event.offer_slug}
                         </span>
                       )}
                       {event.coupon_code && (
-                        <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <span className="px-2 py-0.5 rounded text-xs bg-emerald-500/10 text-emerald-400">
                           🎟 {event.coupon_code}
                         </span>
                       )}
                       {event.page_path && (
-                        <span className="px-2 py-0.5 rounded text-xs bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                        <span className="px-2 py-0.5 rounded text-xs bg-purple-500/10 text-purple-400">
                           🔗 {event.page_path}
                         </span>
                       )}

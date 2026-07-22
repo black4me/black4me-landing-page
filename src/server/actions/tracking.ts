@@ -249,7 +249,7 @@ function generateTimelineDescription(eventType: string, params: any): string {
 }
 
 async function sendToMetaConversionsAPI(payload: any, ip: string, userAgent: string, sourceUrl: string) {
-  const FB_PIXEL_ID = '1672604016775353';
+  const FB_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '4076837489211517';
   const CAPI_TOKEN = process.env.META_CAPI_TOKEN;
 
   if (!CAPI_TOKEN) {
