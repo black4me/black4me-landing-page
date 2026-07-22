@@ -27,11 +27,6 @@ async function getEmailSettings() {
     });
   }
 
-  // Use Next.js Image Proxy to compress large images and bypass Gmail's Supabase domain block
-  if (settings.author_photo_url && settings.author_photo_url.includes('supabase.co')) {
-    settings.author_photo_url = `https://black4me.com/_next/image?url=${encodeURIComponent(settings.author_photo_url)}&w=256&q=75`;
-  }
-
   return settings;
 }
 
@@ -168,7 +163,7 @@ export async function sendLeadMagnetEmail(email: string, downloadLink: string) {
   }
 }
 
-export async function sendWelcomeEmail(email: string) {
+export async function sendWelcomeEmail(email: string, name?: string, orderId?: string) {
   try {
     if (!process.env.RESEND_API_KEY) {
       return { success: false, error: 'RESEND_API_KEY missing' };
@@ -303,6 +298,61 @@ export async function sendTestEmail(email: string) {
       html: htmlContent
     });
 
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function sendAdminNotificationEmail(
+  orderId: string,
+  customerEmail: string,
+  customerName: string,
+  amount: number,
+  productTitle: string
+) {
+  try {
+    if (!process.env.RESEND_API_KEY) return { success: false };
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'BLACK4ME <noreply@black4me.com>',
+      to: 'black4mestore@gmail.com',
+      subject: `✅ طلب جديد #${orderId}`,
+      html: `<div dir="rtl" style="font-family: sans-serif; padding: 20px;">
+        <h2>✅ تم استلام طلب جديد!</h2>
+        <p><strong>رقم الطلب:</strong> ${orderId}</p>
+        <p><strong>العميل:</strong> ${customerName} (${customerEmail})</p>
+        <p><strong>المنتج:</strong> ${productTitle}</p>
+        <p><strong>المبلغ:</strong> ${amount.toFixed(2)} USD</p>
+      </div>`
+    });
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function sendPendingEmail(email: string, name: string, orderId: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) return { success: false };
+    const emailSettings = await getEmailSettings();
+    const body = `
+      <h2 style="color:#111; margin-top:0; font-size:20px;">شكراً لطلبك! ⏳</h2>
+      <p style="color:#374151; font-size:16px; line-height:1.8;">
+        مرحباً ${name}! لقد استلمنا طلبك رقم <strong>${orderId}</strong> وهو قيد المعالجة.
+      </p>
+      <p style="color:#374151; font-size:16px; line-height:1.8;">
+        سيتم تأكيد طلبك خلال 24 ساعة. إذا كان لديك أي استفسار لا تتردد في التواصل معنا.
+      </p>
+    `;
+    const htmlContent = generateEmailHtml(emailSettings, 'تأكيد الطلب - BLACK4ME', body);
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'BLACK4ME <noreply@black4me.com>',
+      to: email,
+      subject: '⏳ طلبك قيد المعالجة - BLACK4ME',
+      html: htmlContent
+    });
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };

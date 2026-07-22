@@ -5,7 +5,8 @@ import Script from 'next/script';
 import { useEffect } from 'react';
 import * as tracking from '@/lib/tracking';
 
-const FB_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '477403128777165';
+const FB_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '4076837489211517';
+const IS_DEV = process.env.NODE_ENV === 'development';
 
 export default function MetaPixel() {
   const pathname = usePathname();
@@ -14,11 +15,23 @@ export default function MetaPixel() {
   useEffect(() => {
     // We already track PageView in the script tag for initial load.
     // This hook handles subsequent route changes.
-    tracking.trackEvent('PageView', {
-      page_path: pathname,
-      page_url: window.location.href,
-    });
+    if (!IS_DEV) {
+      tracking.trackEvent('PageView', {
+        page_path: pathname,
+        page_url: window.location.href,
+      });
+      // Fire client-side pixel event
+      if (typeof window !== 'undefined' && (window as any).fbq) {
+        (window as any).fbq('track', 'PageView');
+      }
+    } else {
+      console.log('[Dev Mode] Suppressed Meta Pixel tracking for PageView');
+    }
   }, [pathname, searchParams]);
+
+  if (IS_DEV) {
+    return null;
+  }
 
   return (
     <>
