@@ -189,14 +189,13 @@ async function triggerHesitationAutomation(leadId: string, offerSlug: string) {
   // 2. Generate unique one-time coupon
   const couponCode = `COMEBACK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
   
-  // Create coupon in public.coupons
   await supabaseAdmin.from('coupons').insert([{
     code: couponCode,
-    discount_type: 'percentage',
-    discount_value: 15,
-    max_uses: 1,
+    type: 'percentage',
+    value: 15,
+    usage_limit: 1,
     is_active: true,
-    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+    end_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
   }]);
 
   // Update lead CRM score (+5 for hesitation/high intent)
