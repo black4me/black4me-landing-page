@@ -450,27 +450,15 @@ export async function sendTestEmail(email: string) {
                     <p style="font-size: 14px; color: #888888; margin: 0;">BLACK4ME — نظام التسويق الذكي</p>
                   </td>
                 </tr>
-                <!-- Body -->
-                <tr>
-                  <td style="padding: 40px 30px;">
-                    <h2 style="color: #6C3BFF; margin-top: 0; font-size: 24px;">مرحباً بك! 👋</h2>
-                    <p style="color: #dddddd; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
-                      هذه رسالة اختبار للتأكد من أن صورة المرسل والروابط تظهر بشكل صحيح في الإيميلات المرسلة من النظام.
-                    </p>
-
-                    <!-- Founder Note -->
-                    <div style="border-right: 3px solid #6C3BFF; padding-right: 15px; margin-top: 20px; display: flex; align-items: center; gap: 15px;">
-                      ${emailSettings.author_photo_url ? `<img src="${emailSettings.author_photo_url}" alt="${emailSettings.author_name}" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #F5C542;" />` : ''}
-                      <div>
-                        <p style="color: #cccccc; font-style: italic; line-height: 1.6; margin: 0 0 10px 0;">
-                          "أشكرك شخصياً على ثقتك بمنتجاتنا. لقد بنينا هذا النظام بكل شغف واهتمام بأدق التفاصيل لنقدم لك تجربة استثنائية. أتمنى لك كل التوفيق والنجاح، وأنا وفريقي دائماً هنا لدعمك."
-                        </p>
-                        <p style="margin: 0; color: #F5C542; font-weight: bold;">- ${emailSettings.author_name}</p>
-                        <p style="margin: 5px 0 0 0; color: #888; font-size: 12px;">مؤسس BLACK4ME</p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
+                  <!-- Body -->
+                  <tr>
+                    <td style="padding: 40px 30px;">
+                      <h2 style="color: #6C3BFF; margin-top: 0; font-size: 24px;">مرحباً بك! 👋</h2>
+                      <p style="color: #dddddd; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+                        هذه رسالة اختبار لعرض صورة المرسل. لقد تم تحديث القالب لضمان ظهور الصورة في أعلى الرسالة بشكل مثالي.
+                      </p>
+                    </td>
+                  </tr>
                     <tr>
                   <td style="padding: 30px; background-color: #0A0A0A; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
                     <p style="margin: 0 0 20px 0; color: #888; font-size: 14px;">يسعدنا تواصلك معنا عبر القنوات التالية:</p>
