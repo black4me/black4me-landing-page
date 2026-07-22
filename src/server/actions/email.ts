@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { supabaseAdmin } from './supabase';
+import { supabaseAdmin } from '../../lib/supabase-admin';
 
 async function getEmailSettings() {
   const { data } = await supabaseAdmin
