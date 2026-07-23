@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../../../lib/supabase-admin';
-import { sendWelcomeEmail } from '../../../../../server/actions/email';
+import { sendWelcomeEmail, sendReviewRequestEmail } from '../../../../../server/actions/email';
 
 const generateAccessToken = async (clientId: string, secret: string, apiBase: string) => {
   if (!clientId || !secret) {
@@ -180,6 +180,7 @@ export async function POST(req: Request) {
         // Send welcome email using unified function
         if (customerEmail) {
           await sendWelcomeEmail(customerEmail, customerName || '', orderID);
+          await sendReviewRequestEmail(customerEmail, customerName || '', 'product', orderID, productTitle);
         }
 
         return NextResponse.json({

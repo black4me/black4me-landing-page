@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../lib/supabase-admin';
-import { sendConsultationEmail } from '../../../server/actions/email';
+import { sendConsultationEmail, sendReviewRequestEmail } from '../../../server/actions/email';
 
 import { Resend } from 'resend';
 
@@ -102,34 +102,7 @@ export async function POST(req: NextRequest) {
 
       if (customerEmail) {
         try {
-          await resend.emails.send({
-            from: 'BLACK4ME <noreply@black4me.com>',
-            to: customerEmail,
-            subject: '⭐ شاركنا تجربتك بعد الاستشارة مع الأستاذ جاسم',
-            html: `
-              <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111; line-height: 1.6; padding: 20px;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                  <h1 style="color: #000; letter-spacing: 2px; font-weight: 900; margin: 0;">BLACK4ME</h1>
-                </div>
-                
-                <h2 style="color: #000; font-size: 20px; border-bottom: 2px solid #f5c542; padding-bottom: 8px;">مرحباً ${customerName}،</h2>
-                
-                <p>نأمل أن تكون قد استفدت بشكل كامل من جلستك الاستشارية الاستراتيجية مع الأستاذ <strong>جاسم محمد</strong> اليوم.</p
-                
-                <p>يهمنا جداً معرفة رأيك وتجربتك ومدى وضوح خطة العمل لك الآن. رأيك يساعدنا على تحسين خدماتنا وتقديم المزيد من القيمة.</p>
-                
-                <div style="text-align: center; margin: 35px 0;">
-                  <a href="https://tally.so/r/xX0d5d" style="background-color: #000; color: #fff; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">تقديم مراجعة ما بعد الاستشارة 📝</a>
-                </div>
-                
-                <p style="color: #555; font-size: 14px;">تعبئة النموذج لن تستغرق أكثر من دقيقتين، وتصنع فرقاً كبيراً في توثيق قصص النجاح لدينا.</p>
-                
-                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-                
-                <p style="color: #888; font-size: 14px;">مع أطيب التحيات،<br/><strong>فريق الدعم — BLACK4ME</strong></p>
-              </div>
-            `
-          });
+          await sendReviewRequestEmail(customerEmail, customerName, 'consultation', uid, 'جلسة استشارة شخصية');
         } catch (emailErr: any) {
           console.error('Failed to send post-consultation email:', emailErr.message);
         }

@@ -148,11 +148,32 @@ const fallbackTestimonials = [
   },
 ];
 
-export default function TestimonialsSection({ reviewCount = 0, aggregateRating = "5.0" }: { reviewCount?: number; aggregateRating?: string }) {
+export default function TestimonialsSection({ 
+  productId,
+  serviceType,
+  reviewCount = 0, 
+  aggregateRating = "5.0" 
+}: { 
+  productId?: string;
+  serviceType?: 'product' | 'consultation' | 'general';
+  reviewCount?: number; 
+  aggregateRating?: string 
+}) {
   const { testimonials } = useApp();
 
+  // Filter testimonials based on passed props
+  const filteredTestimonials = testimonials.filter(t => {
+    if (productId) {
+      return t.productId === productId;
+    }
+    if (serviceType) {
+      return t.serviceType === serviceType;
+    }
+    return true;
+  });
+
   // Use DB testimonials if available, otherwise use detailed fallback list
-  const displayTestimonials = testimonials.length >= 3 ? testimonials : null;
+  const displayTestimonials = filteredTestimonials.length >= 1 ? filteredTestimonials : null;
 
   return (
     <section id="testimonials-section" className="section-padding bg-surface-1 border-y border-brand-white/5" dir="rtl" aria-labelledby="testimonials-heading">

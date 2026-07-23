@@ -30,10 +30,10 @@ export default function ModerationAdmin() {
     
     if (commentsData) setComments(commentsData);
 
-    // Fetch reviews
+    // Fetch reviews (testimonials)
     const { data: reviewsData } = await supabase
-      .from('blog_reviews')
-      .select('*, blog_posts(title)')
+      .from('testimonials')
+      .select('*, products(title)')
       .eq('status', statusFilter)
       .order('created_at', { ascending: false });
       
@@ -41,13 +41,18 @@ export default function ModerationAdmin() {
   };
 
   const handleAction = async (type: 'comment' | 'review', id: string, action: 'approve' | 'reject' | 'hide') => {
-    const table = type === 'comment' ? 'blog_comments' : 'blog_reviews';
+    const table = type === 'comment' ? 'blog_comments' : 'testimonials';
     const newStatus = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'hidden';
 
     // Update status
+    const updateData: any = { status: newStatus };
+    if (table === 'testimonials') {
+      updateData.is_approved = action === 'approve';
+    }
+
     const { error: updateError } = await supabase
       .from(table)
-      .update({ status: newStatus })
+      .update(updateData)
       .eq('id', id);
 
     if (updateError) {
@@ -98,8 +103,8 @@ export default function ModerationAdmin() {
              <div className="flex-1">
                 <div className="flex items-start justify-between mb-2">
                    <div>
-                      <h4 className="text-white font-bold text-sm">{item.user_name}</h4>
-                      <p className="text-gray-500 text-xs">{item.user_email}</p>
+                      <h4 className="text-white font-bold text-sm">{item.user_name || item.customer_name}</h4>
+                      <p className="text-gray-500 text-xs">{item.user_email || item.country || 'لا يوجد بريد'}</p>
                    </div>
                    <span className="flex items-center gap-1 text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-md">
                       <Clock className="w-3 h-3"/>
@@ -112,12 +117,21 @@ export default function ModerationAdmin() {
                 )}
 
                 <div className="bg-[#0a0a0a] p-3 rounded-lg text-gray-300 text-sm mb-3">
-                   {item.content || <span className="text-gray-600 italic">لا يوجد محتوى نصي</span>}
+                   {type === 'comment' ? (item.content || <span className="text-gray-600 italic">لا يوجد محتوى نصي</span>) : (item.comment || <span className="text-gray-600 italic">لا يوجد محتوى نصي</span>)}
                 </div>
 
                 <div className="text-xs text-gray-500 flex items-center gap-2">
-                   <span className="font-bold text-gray-400">المقال:</span>
-                   {item.blog_posts?.title || 'مقال غير معروف'}
+                   {type === 'comment' ? (
+                     <>
+                       <span className="font-bold text-gray-400">المقال:</span>
+                       {item.blog_posts?.title || 'مقال غير معروف'}
+                     </>
+                   ) : (
+                     <>
+                       <span className="font-bold text-gray-400">المنتج/الخدمة:</span>
+                       {item.products?.title || (item.service_type === 'consultation' ? 'استشارة شخصية' : 'عام')}
+                     </>
+                   )}
                 </div>
              </div>
 

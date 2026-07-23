@@ -3,7 +3,7 @@
 import { supabaseAdmin } from '../../lib/supabase-admin';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { Order, NewsletterSubscriber, Consultation, Coupon, Testimonial } from '../../types';
-import { sendWelcomeEmail } from './email';
+import { sendWelcomeEmail, sendReviewRequestEmail } from './email';
 
 export async function updateAdminSiteSetting(key: string, value: string) {
   try {
@@ -129,7 +129,11 @@ export async function getAllTestimonials(): Promise<Testimonial[]> {
       country: row.country,
       rating: row.rating,
       comment: row.comment,
-      isApproved: row.is_approved,
+      isApproved: row.status === 'approved',
+      status: row.status || 'pending',
+      serviceType: row.service_type || 'general',
+      productId: row.product_id,
+      userEmail: row.user_email,
       createdAt: row.created_at,
     }));
   } catch (error) {
@@ -197,6 +201,7 @@ export async function approveOrder(orderId: string): Promise<{ success: boolean;
 
     // 5. Send welcome email (which contains the password if it's their first time, or just login link)
     await sendWelcomeEmail(order.customer_email, order.customer_name || '', orderId);
+    await sendReviewRequestEmail(order.customer_email, order.customer_name || '', 'product', orderId, productTitle);
 
     return { success: true };
   } catch (err: any) {

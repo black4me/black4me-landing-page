@@ -69,9 +69,9 @@ const FALLBACK_FAQS: FAQ[] = [
 ];
 
 const FALLBACK_TESTIMONIALS: Testimonial[] = [
-  { id: 'test-1', customerName: 'فيصل الشمري', country: 'المملكة العربية السعودية', rating: 5, comment: 'قرأت مئات الكتب في التسويق لكن هذا الكتاب يقدم خريطة عملية مبنية للسوق الخليجي. تغير مستوى مبيعاتي بالكامل.', isApproved: true, createdAt: new Date(2026, 5, 15).toISOString() },
-  { id: 'test-2', customerName: 'مريم الصايغ', country: 'دولة الإمارات العربية المتحدة', rating: 5, comment: 'محتوى استثنائي ومرتب بعناية. الفصول تشرح بدقة كيف تصنع نظام مبيعات مؤتمت مستدام. الهدية المرفقة كنز مالي حقيقي.', isApproved: true, createdAt: new Date(2026, 5, 18).toISOString() },
-  { id: 'test-3', customerName: 'عبدالرحمن الكواري', country: 'دولة قطر', rating: 5, comment: 'الكتاب فتح عيني على ثغرات خطيرة كنت أقوم بها في عملي. أنصح بشدة باقتناء الحزمة ومتابعة الاستشارات.', isApproved: true, createdAt: new Date(2026, 5, 21).toISOString() },
+  { id: 'test-1', customerName: 'فيصل الشمري', country: 'المملكة العربية السعودية', rating: 5, comment: 'قرأت مئات الكتب في التسويق لكن هذا الكتاب يقدم خريطة عملية مبنية للسوق الخليجي. تغير مستوى مبيعاتي بالكامل.', isApproved: true, status: 'approved', serviceType: 'general', createdAt: new Date(2026, 5, 15).toISOString() },
+  { id: 'test-2', customerName: 'مريم الصايغ', country: 'دولة الإمارات العربية المتحدة', rating: 5, comment: 'محتوى استثنائي ومرتب بعناية. الفصول تشرح بدقة كيف تصنع نظام مبيعات مؤتمت مستدام. الهدية المرفقة كنز مالي حقيقي.', isApproved: true, status: 'approved', serviceType: 'general', createdAt: new Date(2026, 5, 18).toISOString() },
+  { id: 'test-3', customerName: 'عبدالرحمن الكواري', country: 'دولة قطر', rating: 5, comment: 'الكتاب فتح عيني على ثغرات خطيرة كنت أقوم بها في عملي. أنصح بشدة باقتناء الحزمة ومتابعة الاستشارات.', isApproved: true, status: 'approved', serviceType: 'general', createdAt: new Date(2026, 5, 21).toISOString() },
 ];
 
 const FALLBACK_SITE_SETTINGS: SiteSettings = {
@@ -148,7 +148,15 @@ interface AppContextType {
   bookConsultation: (consultation: Omit<Consultation, 'id' | 'createdAt' | 'status'>) => void;
   updateConsultationStatus: (id: string, status: Consultation['status']) => void;
   subscribeNewsletter: (name: string, email: string, country: string) => Promise<{ success: boolean; message: string }>;
-  submitTestimonial: (name: string, country: string, rating: number, comment: string) => void;
+  submitTestimonial: (
+    name: string, 
+    country: string, 
+    rating: number, 
+    comment: string, 
+    email?: string, 
+    serviceType?: 'product' | 'consultation' | 'general', 
+    productId?: string | null
+  ) => void;
   approveTestimonial: (id: string) => void;
   rejectTestimonial: (id: string) => void;
   addFAQ: (faq: Omit<FAQ, 'id'>) => void;
@@ -207,7 +215,11 @@ function dbToTestimonial(row: any): Testimonial {
     country: row.country,
     rating: row.rating,
     comment: row.comment,
-    isApproved: row.is_approved ?? false,
+    isApproved: row.status === 'approved',
+    status: row.status || 'pending',
+    serviceType: row.service_type || 'general',
+    productId: row.product_id || null,
+    userEmail: row.user_email || null,
     createdAt: row.created_at,
   };
 }
@@ -539,16 +551,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // ─── Testimonials → Supabase ────────────────────────────────────────────
 
-  const submitTestimonial = async (name: string, country: string, rating: number, comment: string) => {
+  const submitTestimonial = async (
+    name: string, 
+    country: string, 
+    rating: number, 
+    comment: string, 
+    email?: string, 
+    serviceType: 'product' | 'consultation' | 'general' = 'general', 
+    productId?: string | null
+  ) => {
     await supabase.from('testimonials').insert([{
-      customer_name: name, country, rating, comment, is_approved: false,
+      customer_name: name, 
+      country, 
+      rating, 
+      comment, 
+      user_email: email || null,
+      service_type: serviceType,
+      product_id: productId || null,
+      status: 'pending',
+      is_approved: false
     }]);
-    // Don't add to local state since it needs admin approval
   };
 
   const approveTestimonial = async (id: string) => {
-    await supabase.from('testimonials').update({ is_approved: true }).eq('id', id);
-    setTestimonials(prev => prev.map(t => t.id === id ? { ...t, isApproved: true } : t));
+    await supabase.from('testimonials').update({ status: 'approved', is_approved: true }).eq('id', id);
+    setTestimonials(prev => prev.map(t => t.id === id ? { ...t, status: 'approved', isApproved: true } : t));
   };
 
   const rejectTestimonial = async (id: string) => {

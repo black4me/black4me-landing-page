@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '../../../../lib/supabase-admin';
-import { sendWelcomeEmail, sendAdminNotificationEmail } from '../../../../server/actions/email';
+import { sendWelcomeEmail, sendAdminNotificationEmail, sendReviewRequestEmail } from '../../../../server/actions/email';
 import { Redis } from '@upstash/redis';
 import { stripeWebhookSchema } from '../../../../server/validation/webhook.schema';
 
@@ -137,6 +137,7 @@ export async function POST(req: Request) {
         if (!existingOrder) {
           await sendWelcomeEmail(customerEmail, customerName || '', orderId);
           await sendAdminNotificationEmail(orderId, customerEmail, customerName || '', (session.amount_total || 0) / 100, product?.title || 'Unknown Product');
+          await sendReviewRequestEmail(customerEmail, customerName || '', 'product', orderId, product?.title || 'Unknown Product');
         }
       }
     }

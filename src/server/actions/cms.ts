@@ -18,16 +18,35 @@ export async function getFAQs(): Promise<FAQ[]> {
   }
 }
 
-export async function getTestimonials(): Promise<Testimonial[]> {
+export async function getTestimonials(filter?: { productId?: string; serviceType?: string; showOnHomepage?: boolean }): Promise<Testimonial[]> {
   try {
-    const { data } = await supabaseAdmin.from('testimonials').select('*').eq('is_approved', true).order('created_at', { ascending: false });
+    let query = supabaseAdmin
+      .from('testimonials')
+      .select('*')
+      .eq('status', 'approved');
+      
+    if (filter?.productId) {
+      query = query.eq('product_id', filter.productId);
+    }
+    if (filter?.serviceType) {
+      query = query.eq('service_type', filter.serviceType);
+    }
+    if (filter?.showOnHomepage) {
+      query = query.eq('show_on_homepage', true);
+    }
+
+    const { data } = await query.order('created_at', { ascending: false });
     return (data || []).map(row => ({
       id: row.id,
       customerName: row.customer_name,
       country: row.country,
       rating: row.rating,
       comment: row.comment,
-      isApproved: row.is_approved,
+      isApproved: row.status === 'approved',
+      status: row.status,
+      serviceType: row.service_type || 'general',
+      productId: row.product_id,
+      userEmail: row.user_email,
       createdAt: row.created_at,
     }));
   } catch (error) {

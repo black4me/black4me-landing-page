@@ -17,17 +17,8 @@ const generateEmailHtml = (settings, title, bodyContent) => `
           <!-- Header / Profile -->
           <tr>
             <td align="center" style="padding: 40px 30px 20px; text-align: center;">
-              \${emailSettings.author_photo_url ? 
-                \`<img src="\${emailSettings.author_photo_url}" alt="\${emailSettings.author_name}" width="64" height="64" style="border-radius: 50%; margin: 0 auto 10px; display: block; object-fit: cover; border: 1px solid #EAEAEA;" />\`
-                : 
-                \`<div style="width: 64px; height: 64px; border-radius: 50%; background-color: #F3F4F6; margin: 0 auto 10px; display: table; border: 1px solid #EAEAEA;">
-                    <p style="font-size: 28px; font-weight: bold; color: #555; margin: 0; display: table-cell; vertical-align: middle; text-align: center;">
-                      \${emailSettings.author_name ? emailSettings.author_name.charAt(0) : 'ج'}
-                    </p>
-                  </div>\`
-              }
-              <p style="font-size: 16px; font-weight: bold; color: #111111; margin: 0 0 2px;">\${emailSettings.author_name}</p>
-              <p style="font-size: 13px; color: #6B7280; margin: 0;">مؤسس BLACK4ME</p>
+              <p style="font-size: 20px; font-weight: bold; color: #111111; margin: 0 0 4px;">جاسم محمد</p>
+              <p style="font-size: 14px; color: #6B7280; margin: 0;">مؤسس BLACK4ME</p>
             </td>
           </tr>
 
@@ -48,7 +39,7 @@ const generateEmailHtml = (settings, title, bodyContent) => `
           <!-- Footer -->
           <tr>
             <td align="center" style="padding: 30px; background-color: #F9FAFB; border-top: 1px solid #F3F4F6; border-radius: 0 0 12px 12px;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 15px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
                 <tr>
                   <td align="center" dir="rtl">
                     \${emailSettings.social_whatsapp_url ? \`
@@ -66,6 +57,17 @@ const generateEmailHtml = (settings, title, bodyContent) => `
                   </td>
                 </tr>
               </table>
+              <div dir="rtl" style="text-align: right; background-color: #F3F4F6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin: 0 0 10px; color: #4B5563; font-size: 13px; font-weight: bold;">تنويه مهم:</p>
+                <p style="margin: 0 0 10px; color: #6B7280; font-size: 13px; line-height: 1.6;">
+                  يرجى عدم الرد على هذا البريد الإلكتروني، لأن noreply@black4me.com مخصص فقط لإرسال الرسائل الآلية ولا يتم استخدامه للدعم أو الرد على الاستفسارات.
+                </p>
+                <p style="margin: 0; color: #6B7280; font-size: 13px; line-height: 1.6;">
+                  إذا كنت بحاجة إلى المساعدة أو ترغب في التواصل معنا، يرجى استخدام:<br>
+                  <strong>واتساب:</strong> +968 7919 1793<br>
+                  <strong>البريد الإلكتروني:</strong> black4mestore@gmail.com
+                </p>
+              </div>
               <p style="margin: 0; color: #9CA3AF; font-size: 12px; text-align: center;">
                 © \${new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
               </p>
@@ -95,7 +97,7 @@ const leadMagnetBody = `
               </p>
               <p style="color: #111111; font-size: 16px; font-weight: bold; margin-top: 30px;">
                 كل التوفيق،<br>
-                \${emailSettings.author_name}
+                جاسم محمد
               </p>
 `;
 
@@ -114,7 +116,7 @@ const welcomeBody = `
               </div>
               <p style="color: #111111; font-size: 16px; font-weight: bold; margin-top: 30px;">
                 كل التوفيق،<br>
-                \${emailSettings.author_name}
+                جاسم محمد
               </p>
 `;
 
@@ -134,7 +136,7 @@ const consultationCustomerBody = `
               </p>
               <p style="color: #111111; font-size: 16px; font-weight: bold; margin-top: 30px;">
                 أراك قريباً،<br>
-                \${emailSettings.author_name}
+                جاسم محمد
               </p>
 `;
 
@@ -151,7 +153,7 @@ const consultationAdminBody = `
 `;
 
 const testEmailBody = `
-              <h2 style="color: #111111; margin-top: 0; font-size: 20px; font-weight: bold;">رسالة تجريبية 👋</h2>
+              <h2 style="color: #111111; margin-top: 0; font-size: 20px; font-weight: bold;">أنت من المقربين! 👋</h2>
               <p style="color: #374151; font-size: 16px; line-height: 1.8; margin-bottom: 25px;">
                 هذه رسالة اختبار للتأكد من المظهر الجديد للقالب.
               </p>
@@ -159,14 +161,23 @@ const testEmailBody = `
                 تم تحسين الخطوط لتكون أكثر احترافية وأسهل للقراءة. اتجاه النص يبدأ من اليمين بشكل صحيح تماماً. تصميم الرسالة أصبح مشابهاً لتصميم الرسائل الاحترافية ليعطي ثقة ومصداقية أكبر للعملاء.
               </p>
               <p style="color: #111111; font-size: 16px; font-weight: bold; margin-top: 30px;">
-                تحياتي،<br>
-                \${emailSettings.author_name}
+                كل التوفيق،<br>
+                جاسم محمد
               </p>
 `;
 
+const pendingBody = `
+      <h2 style="color:#111; margin-top:0; font-size:20px;">شكراً لطلبك! ⏳</h2>
+      <p style="color:#374151; font-size:16px; line-height:1.8;">
+        مرحباً \${name}! لقد استلمنا طلبك رقم <strong>\${orderId}</strong> وهو قيد المعالجة.
+      </p>
+      <p style="color:#374151; font-size:16px; line-height:1.8;">
+        سيتم تأكيد طلبك خلال 24 ساعة. إذا كان لديك أي استفسار لا تتردد في التواصل معنا.
+      </p>
+`;
 
-const codeContent = \`import { Resend } from 'resend';
-import { supabaseAdmin } from './supabase';
+const codeContent = `import { Resend } from 'resend';
+import { supabaseAdmin } from '../../lib/supabase-admin';
 
 async function getEmailSettings() {
   const { data } = await supabaseAdmin
@@ -174,7 +185,6 @@ async function getEmailSettings() {
     .select('key, value')
     .in('key', [
       'author_name',
-      'author_photo_url',
       'social_whatsapp_url',
       'social_instagram_url',
       'social_support_email'
@@ -182,14 +192,13 @@ async function getEmailSettings() {
 
   const settings: any = {
     author_name: 'جاسم محمد',
-    author_photo_url: '',
     social_whatsapp_url: '',
     social_instagram_url: '',
     social_support_email: 'support@black4me.com'
   };
 
   if (data) {
-    data.forEach(item => {
+    data.forEach((item: any) => {
       settings[item.key] = item.value;
     });
   }
@@ -198,9 +207,8 @@ async function getEmailSettings() {
 
 export async function sendLeadMagnetEmail(email: string, downloadLink: string) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      return { success: false, error: 'RESEND_API_KEY missing' };
-    }
+    if (!process.env.RESEND_API_KEY) return { success: false, error: 'RESEND_API_KEY missing' };
+    
     const emailSettings = await getEmailSettings();
     const htmlContent = \`${generateEmailHtml(null, "الهدية المجانية من BLACK4ME", leadMagnetBody)}\`;
 
@@ -214,16 +222,14 @@ export async function sendLeadMagnetEmail(email: string, downloadLink: string) {
 
     return { success: true };
   } catch (err: any) {
-    console.error('Error sending email:', err.message);
     return { success: false, error: err.message };
   }
 }
 
 export async function sendWelcomeEmail(email: string) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      return { success: false, error: 'RESEND_API_KEY missing' };
-    }
+    if (!process.env.RESEND_API_KEY) return { success: false, error: 'RESEND_API_KEY missing' };
+    
     const emailSettings = await getEmailSettings();
     const htmlContent = \`${generateEmailHtml(null, "مرحباً بك في BLACK4ME", welcomeBody)}\`;
 
@@ -237,20 +243,17 @@ export async function sendWelcomeEmail(email: string) {
 
     return { success: true };
   } catch (err: any) {
-    console.error('Error sending welcome email:', err.message);
     return { success: false, error: err.message };
   }
 }
 
 export async function sendConsultationEmail(email: string, name: string, dateStr: string, title: string) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      return { success: false, error: 'RESEND_API_KEY missing' };
-    }
+    if (!process.env.RESEND_API_KEY) return { success: false, error: 'RESEND_API_KEY missing' };
+    
     const emailSettings = await getEmailSettings();
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    // Email to Customer
     const customerHtmlContent = \`${generateEmailHtml(null, "تأكيد حجز الاستشارة", consultationCustomerBody)}\`;
 
     await resend.emails.send({
@@ -260,7 +263,6 @@ export async function sendConsultationEmail(email: string, name: string, dateStr
       html: customerHtmlContent
     });
 
-    // Email to Admin
     const adminEmail = 'black4mestore@gmail.com';
     const adminHtmlContent = \`${consultationAdminBody}\`;
 
@@ -273,18 +275,16 @@ export async function sendConsultationEmail(email: string, name: string, dateStr
 
     return { success: true };
   } catch (err: any) {
-    console.error('Error sending consultation email:', err.message);
     return { success: false, error: err.message };
   }
 }
 
 export async function sendTestEmail(email: string) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      return { success: false, error: 'RESEND_API_KEY missing' };
-    }
+    if (!process.env.RESEND_API_KEY) return { success: false, error: 'RESEND_API_KEY missing' };
+    
     const emailSettings = await getEmailSettings();
-    const htmlContent = \`${generateEmailHtml(null, "اختبار إعدادات البريد - BLACK4ME", testEmailBody)}\`;
+    const htmlContent = \`${generateEmailHtml(null, "اختبار القالب الجديد - BLACK4ME", testEmailBody)}\`;
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
@@ -299,7 +299,49 @@ export async function sendTestEmail(email: string) {
     return { success: false, error: err.message };
   }
 }
-\`;
+
+export async function sendAdminNotificationEmail(orderId: string, customerEmail: string, customerName: string, amount: number, productTitle: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) return { success: false };
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'BLACK4ME <noreply@black4me.com>',
+      to: 'black4mestore@gmail.com',
+      subject: \`✅ طلب جديد #\${orderId}\`,
+      html: \`<div dir="rtl" style="font-family: sans-serif; padding: 20px;">
+        <h2>✅ تم استلام طلب جديد!</h2>
+        <p><strong>رقم الطلب:</strong> \${orderId}</p>
+        <p><strong>العميل:</strong> \${customerName} (\${customerEmail})</p>
+        <p><strong>المنتج:</strong> \${productTitle}</p>
+        <p><strong>المبلغ:</strong> \${amount.toFixed(2)} USD</p>
+      </div>\`
+    });
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function sendPendingEmail(email: string, name: string, orderId: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) return { success: false };
+    
+    const emailSettings = await getEmailSettings();
+    const htmlContent = \`${generateEmailHtml(null, "تأكيد الطلب - BLACK4ME", pendingBody)}\`;
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'BLACK4ME <noreply@black4me.com>',
+      to: email,
+      subject: '⏳ طلبك قيد المعالجة - BLACK4ME',
+      html: htmlContent
+    });
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+`;
 
 fs.writeFileSync('src/server/actions/email.ts', codeContent, 'utf8');
 console.log('Successfully updated email.ts templates!');

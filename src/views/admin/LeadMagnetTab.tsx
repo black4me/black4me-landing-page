@@ -1,9 +1,7 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { uploadImageAdmin, getSignedUploadUrlAdmin } from '../../server/actions/admin';
-import { Save, Upload, Link as LinkIcon, MessageSquare, Instagram, Mail, FileText, UserCircle, Camera } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { Upload, FileText, MessageSquare } from 'lucide-react';
 
 export function LeadMagnetTab() {
   const { siteSettings, updateSiteSetting } = useApp();
@@ -15,11 +13,8 @@ export function LeadMagnetTab() {
     social_instagram_url: siteSettings.social_instagram_url || '',
     social_whatsapp_url: siteSettings.social_whatsapp_url || '',
     social_support_email: siteSettings.social_support_email || '',
-    author_photo_url: siteSettings.author_photo_url || '',
     author_name: siteSettings.author_name || 'جاسم محمد',
   });
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const [uploadingFile, setUploadingFile] = useState(false);
 
@@ -31,7 +26,6 @@ export function LeadMagnetTab() {
       social_instagram_url: siteSettings.social_instagram_url || '',
       social_whatsapp_url: siteSettings.social_whatsapp_url || '',
       social_support_email: siteSettings.social_support_email || '',
-      author_photo_url: siteSettings.author_photo_url || '',
       author_name: siteSettings.author_name || 'جاسم محمد',
     });
   }, [siteSettings]);
@@ -52,7 +46,6 @@ export function LeadMagnetTab() {
       setUploadingFile(true);
       const file = e.target.files[0];
 
-      // Use API route — avoids Server Action 4.5MB Vercel limit
       const fd = new FormData();
       fd.append('file', file);
       fd.append('folder', 'lead_magnet');
@@ -78,45 +71,12 @@ export function LeadMagnetTab() {
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      if (!e.target.files || e.target.files.length === 0) return;
-      setUploadingPhoto(true);
-      const file = e.target.files[0];
-
-      // Use API route directly — avoids Next.js Server Action 4.5MB limit and "Failed to fetch"
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('folder', 'author_photo');
-
-      const res = await fetch('/api/admin/upload-image', {
-        method: 'POST',
-        body: fd,
-      });
-
-      const result = await res.json();
-
-      if (!res.ok || result.error) {
-        throw new Error(result.error || 'فشل رفع الصورة');
-      }
-
-      setFormData(prev => ({ ...prev, author_photo_url: result.url }));
-      updateSiteSetting('author_photo_url', result.url);
-      alert('تم رفع الصورة الشخصية بنجاح! ✅');
-    } catch (error: any) {
-      alert('خطأ أثناء رفع الصورة: ' + error.message);
-    } finally {
-      setUploadingPhoto(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-bold text-white">إعدادات الهدية المجانية (Lead Magnet)</h3>
         <p className="text-xs text-gray-500">قم برفع ملف الهدية وتخصيص محتوى البريد الإلكتروني الذي يصل للعملاء.</p>
       </div>
-
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* File Upload Section */}

@@ -69,6 +69,10 @@ export interface Testimonial {
   rating: number; // 1-5
   comment: string;
   isApproved: boolean;
+  status: 'pending' | 'approved' | 'rejected' | 'hidden';
+  serviceType: 'product' | 'consultation' | 'general';
+  productId?: string | null;
+  userEmail?: string | null;
   createdAt: string;
 }
 
