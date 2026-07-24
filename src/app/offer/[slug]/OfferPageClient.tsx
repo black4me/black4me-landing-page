@@ -10,9 +10,11 @@ interface OfferPageClientProps {
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
+  utmContent?: string;
+  utmTerm?: string;
 }
 
-export default function OfferPageClient({ offer, utmSource, utmMedium, utmCampaign }: OfferPageClientProps) {
+export default function OfferPageClient({ offer, utmSource, utmMedium, utmCampaign, utmContent, utmTerm }: OfferPageClientProps) {
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,27 +38,20 @@ export default function OfferPageClient({ offer, utmSource, utmMedium, utmCampai
     let duration = 0;
     const startTime = Date.now();
 
-    const trackPageEvent = async (type: string, currentDuration: number) => {
-      try {
-        await fetch('/api/tracking', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            eventType: type,
-            parameters: {
-              offer_slug: offer.slug,
-              page_path: window.location.pathname,
-              session_id: sessionId,
-              duration_seconds: currentDuration,
-              utm_source: utmSource,
-              utm_medium: utmMedium,
-              utm_campaign: utmCampaign
-            }
-          })
+    const trackPageEvent = (type: string, currentDuration: number) => {
+      import('@/lib/tracking').then(tracking => {
+        tracking.trackEvent(type as any, {
+          offer_slug: offer.slug,
+          page_path: window.location.pathname,
+          session_id: sessionId,
+          duration_seconds: currentDuration,
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          utm_content: utmContent,
+          utm_term: utmTerm
         });
-      } catch (e) {
-        // ignore
-      }
+      });
     };
 
     // Track initial view
@@ -130,15 +125,15 @@ export default function OfferPageClient({ offer, utmSource, utmMedium, utmCampai
       duration = Math.floor((Date.now() - startTime) / 1000);
       trackPageEvent('PageLeave', duration);
     };
-  }, [offer, utmSource, utmMedium, utmCampaign]);
+  }, [offer, utmSource, utmMedium, utmCampaign, utmContent, utmTerm]);
 
   const handleInputFocus = () => {
     console.log(`[Tracking] DynamicOfferStarted: ${offer.slug}`);
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('trackCustom', 'DynamicOfferStarted', {
+    import('@/lib/tracking').then(tracking => {
+      tracking.trackEvent('DynamicOfferStarted', {
         slug: offer.slug
       });
-    }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -158,7 +153,9 @@ export default function OfferPageClient({ offer, utmSource, utmMedium, utmCampai
         type: offer.type,
         utmSource,
         utmMedium,
-        utmCampaign
+        utmCampaign,
+        utmContent,
+        utmTerm
       });
 
       if (!res.success) {

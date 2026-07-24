@@ -300,6 +300,12 @@ function dbToCoupon(row: any): Coupon {
     id: row.id,
     code: row.code,
     discountPercent: row.discount_percentage,
+    discountType: row.discount_type || 'percentage',
+    discountValue: row.discount_value !== undefined ? row.discount_value : row.discount_percentage,
+    productId: row.product_id,
+    expiryDate: row.expiry_date,
+    maxUses: row.max_uses,
+    usedCount: row.used_count || 0,
     isActive: row.is_active ?? true,
   };
 }
@@ -715,7 +721,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const addCoupon = async (couponData: Omit<Coupon, 'id'>) => {
     const { data, error } = await supabase.from('coupons').insert([{
       code: couponData.code,
-      discount_percentage: couponData.discountPercent,
+      discount_percentage: couponData.discountPercent, // Legacy
+      discount_type: couponData.discountType || 'percentage',
+      discount_value: couponData.discountValue ?? couponData.discountPercent,
+      product_id: couponData.productId || null,
+      expiry_date: couponData.expiryDate || null,
+      max_uses: couponData.maxUses || null,
       is_active: couponData.isActive
     }]).select();
     if (!error && data) setCoupons(prev => [...prev, dbToCoupon(data[0])]);
@@ -725,6 +736,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const payload: any = {};
     if (couponData.code !== undefined) payload.code = couponData.code;
     if (couponData.discountPercent !== undefined) payload.discount_percentage = couponData.discountPercent;
+    if (couponData.discountType !== undefined) payload.discount_type = couponData.discountType;
+    if (couponData.discountValue !== undefined) payload.discount_value = couponData.discountValue;
+    if (couponData.productId !== undefined) payload.product_id = couponData.productId;
+    if (couponData.expiryDate !== undefined) payload.expiry_date = couponData.expiryDate;
+    if (couponData.maxUses !== undefined) payload.max_uses = couponData.maxUses;
     if (couponData.isActive !== undefined) payload.is_active = couponData.isActive;
     await supabase.from('coupons').update(payload).eq('id', id);
     setCoupons(prev => prev.map(c => c.id === id ? { ...c, ...couponData } : c));

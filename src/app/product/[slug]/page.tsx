@@ -34,10 +34,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   }
 
   const { data: reviews } = await supabase
-    .from('product_reviews')
+    .from('testimonials')
     .select('*')
     .eq('product_id', product.id)
-    .eq('is_approved', true)
+    .eq('status', 'approved')
     .order('created_at', { ascending: false });
 
   return (

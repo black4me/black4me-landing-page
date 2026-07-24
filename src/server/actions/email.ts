@@ -850,3 +850,327 @@ export async function sendReviewRequestEmail(
     return { success: false, error: err.message };
   }
 }
+
+export async function sendLeadMagnetEmail1(email: string, name: string, downloadLink: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) return { success: false, error: 'RESEND_API_KEY missing' };
+    
+    const emailSettings = await getEmailSettings();
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>هديتك الحصرية بانتظارك: نظام التسويق الرقمي الذكي 🎁</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FAFAFA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FAFAFA; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #EAEAEA; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+          
+          <!-- Header / Profile -->
+          <tr>
+            <td align="center" style="padding: 40px 30px 20px; text-align: center;">
+              <p style="font-size: 20px; font-weight: bold; color: #111111; margin: 0 0 4px;">جاسم محمد</p>
+              <p style="font-size: 14px; color: #6B7280; margin: 0;">مؤسس BLACK4ME</p>
+            </td>
+          </tr>
+
+          <!-- Separator -->
+          <tr>
+            <td align="center" style="padding: 0 30px;">
+              <hr style="border: 0; border-top: 1px solid #F3F4F6; margin: 0;" />
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td dir="rtl" align="right" style="padding: 30px; text-align: right; direction: rtl; color: #374151; font-size: 16px; line-height: 1.8;">
+              <p>يا هلا بك والله 👋</p>
+              <p>أنا جاسم محمد، واليوم يسعدني جداً انضمامك لمنصتنا.</p>
+              <p>التسويق الرقمي اليوم مو مجرد إعلانات تدفع ميزانيتها وتنتظر حظك؛ هو نظام دقيق تبنيه خطوة بخطوة عشان يشتغل لصالحك ويجيب لك مبيعات مستقرة ومستدامة.</p>
+              <p>لقد جهزت لك الهدية المجانية اللي طلبتها بالكامل، وهي تلخص لك أولى الخطوات العملية اللي تحتاج تطبقها من اليوم عشان تحمي ميزانيتك التسويقية وتوجهها صح.</p>
+              <p>تقدر تحمل هديتك مباشرة من الرابط أدناه:</p>
+              <div style="text-align: center; margin: 35px 0;">
+                <a href="${downloadLink}" style="display: inline-block; padding: 14px 32px; background-color: #111111; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                  تحميل الهدية المجانية الآن 🚀
+                </a>
+              </div>
+              <p>أقترح عليك تخصص لها 15 دقيقة هادئة اليوم تقرأها بتركيز، لأن اللي بتتعلمه فيها بيوفر عليك آلاف الريالات الضائعة في تجارب عشوائية.</p>
+              <p>في الرسائل الجاية، بأشاركك أهم الدروس التطبيقية لتسريع نتائجك.</p>
+              <p style="color: #111111; font-size: 16px; font-weight: bold; margin-top: 30px;">
+                أخوك،<br>
+                جاسم محمد — مؤسس BLACK4ME
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding: 30px; background-color: #F9FAFB; border-top: 1px solid #F3F4F6; border-radius: 0 0 12px 12px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                <tr>
+                  <td align="center" dir="rtl">
+                    ${emailSettings.social_whatsapp_url ? `
+                    <a href="${emailSettings.social_whatsapp_url}" style="display: inline-block; margin: 0 8px; color: #4B5563; text-decoration: none; font-size: 14px;">
+                      📱 واتساب
+                    </a>` : ''}
+                    ${emailSettings.social_instagram_url ? `
+                    <a href="${emailSettings.social_instagram_url}" style="display: inline-block; margin: 0 8px; color: #4B5563; text-decoration: none; font-size: 14px;">
+                      📸 انستجرام
+                    </a>` : ''}
+                    ${emailSettings.social_support_email ? `
+                    <a href="mailto:${emailSettings.social_support_email}" style="display: inline-block; margin: 0 8px; color: #4B5563; text-decoration: none; font-size: 14px;">
+                      ✉️ الإيميل
+                    </a>` : ''}
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 0; color: #9CA3AF; font-size: 12px; text-align: center;">
+                © ${new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'جاسم محمد - BLACK4ME <noreply@black4me.com>',
+      to: email,
+      subject: `هديتك الحصرية بانتظارك: نظام التسويق الرقمي الذكي 🎁`,
+      html: htmlContent
+    });
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function sendLeadMagnetEmail2(email: string, name: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) return { success: false, error: 'RESEND_API_KEY missing' };
+    
+    const emailSettings = await getEmailSettings();
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://black4me-landing-page.vercel.app';
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سر صغير: ليش يفشل 90% من التجار في التسويق الرقمي؟ 💡</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FAFAFA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FAFAFA; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #EAEAEA; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+          
+          <!-- Header / Profile -->
+          <tr>
+            <td align="center" style="padding: 40px 30px 20px; text-align: center;">
+              <p style="font-size: 20px; font-weight: bold; color: #111111; margin: 0 0 4px;">جاسم محمد</p>
+              <p style="font-size: 14px; color: #6B7280; margin: 0;">مؤسس BLACK4ME</p>
+            </td>
+          </tr>
+
+          <!-- Separator -->
+          <tr>
+            <td align="center" style="padding: 0 30px;">
+              <hr style="border: 0; border-top: 1px solid #F3F4F6; margin: 0;" />
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td dir="rtl" align="right" style="padding: 30px; text-align: right; direction: rtl; color: #374151; font-size: 16px; line-height: 1.8;">
+              <p>مرحباً بك مجدداً يا صديقي،</p>
+              <p>أتمنى أنك حظيت بفرصة للاطلاع على الهدية العملية اللي أرسلتها لك قبل يومين.</p>
+              <p>خلال متابعتي لقرابة 450 صاحب مشروع ومتجر إلكتروني، لاحظت خلل متكرر يخلي 90% من الحملات الإعلانية تفشل حتى لو كانت الميزانية ضخمة.</p>
+              <p>الخلل مو في المنصة الإعلانية ولا في جودة المنتج..</p>
+              <p>الخلل الحقيقي هو "غياب التشخيص الدقيق".</p>
+              <p>أغلب أصحاب الأعمال يبدأ بالترويج والدفع قبل ما يعرف وين نقاط التسرب الحقيقية في مسار العميل (Funnel). وهذا يخليه يخسر فلوسه على إعلانات غير مربحة.</p>
+              <p>عشان كذا، وبصفتك عضو جديد في مجتمعنا، ودي أختصر عليك هالتعب وأعطيك التشخيص المناسب لمشروعك.</p>
+              <p>تقدر تحجز معي جلسة استشارية تشخيصية مباشرة (60 دقيقة) نضع فيها يدنا على الخلل ونرسم لك خارطة طريق واضحة وقابلة للتطبيق فوراً.</p>
+              <div style="text-align: center; margin: 35px 0;">
+                <a href="${siteUrl}/consultation" style="display: inline-block; padding: 14px 32px; background-color: #111111; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                  احجز جلستك الاستشارية التشخيصية الآن 🗓️
+                </a>
+              </div>
+              <p>إذا كنت تفضل القراءة أولاً، تقدر تطلع على الكتاب الكامل للتسويق من الرابط أدناه:</p>
+              <p style="text-align: center; margin: 20px 0;">
+                <a href="${siteUrl}/product/black-book" style="color: #6C3BFF; text-decoration: underline; font-weight: bold;">تصفح كتاب BLACK4ME للتسويق</a>
+              </p>
+              <p style="color: #111111; font-size: 16px; font-weight: bold; margin-top: 30px;">
+                أخوك،<br>
+                جاسم محمد — مؤسس BLACK4ME
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding: 30px; background-color: #F9FAFB; border-top: 1px solid #F3F4F6; border-radius: 0 0 12px 12px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                <tr>
+                  <td align="center" dir="rtl">
+                    ${emailSettings.social_whatsapp_url ? `
+                    <a href="${emailSettings.social_whatsapp_url}" style="display: inline-block; margin: 0 8px; color: #4B5563; text-decoration: none; font-size: 14px;">
+                      📱 واتساب
+                    </a>` : ''}
+                    ${emailSettings.social_instagram_url ? `
+                    <a href="${emailSettings.social_instagram_url}" style="display: inline-block; margin: 0 8px; color: #4B5563; text-decoration: none; font-size: 14px;">
+                      📸 انستجرام
+                    </a>` : ''}
+                    ${emailSettings.social_support_email ? `
+                    <a href="mailto:${emailSettings.social_support_email}" style="display: inline-block; margin: 0 8px; color: #4B5563; text-decoration: none; font-size: 14px;">
+                      ✉️ الإيميل
+                    </a>` : ''}
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 0; color: #9CA3AF; font-size: 12px; text-align: center;">
+                © ${new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'جاسم محمد - BLACK4ME <noreply@black4me.com>',
+      to: email,
+      subject: `سر صغير: ليش يفشل 90% من التجار في التسويق الرقمي؟ 💡`,
+      html: htmlContent
+    });
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function sendLeadMagnetEmail3(email: string, name: string) {
+  try {
+    if (!process.env.RESEND_API_KEY) return { success: false, error: 'RESEND_API_KEY missing' };
+    
+    const emailSettings = await getEmailSettings();
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://black4me-landing-page.vercel.app';
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>كم يكلفك تأجيل تنظيم تسويق مشروعك؟ ⏳</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FAFAFA; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FAFAFA; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #EAEAEA; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+          
+          <!-- Header / Profile -->
+          <tr>
+            <td align="center" style="padding: 40px 30px 20px; text-align: center;">
+              <p style="font-size: 20px; font-weight: bold; color: #111111; margin: 0 0 4px;">جاسم محمد</p>
+              <p style="font-size: 14px; color: #6B7280; margin: 0;">مؤسس BLACK4ME</p>
+            </td>
+          </tr>
+
+          <!-- Separator -->
+          <tr>
+            <td align="center" style="padding: 0 30px;">
+              <hr style="border: 0; border-top: 1px solid #F3F4F6; margin: 0;" />
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td dir="rtl" align="right" style="padding: 30px; text-align: right; direction: rtl; color: #374151; font-size: 16px; line-height: 1.8;">
+              <p>أهلاً بك،</p>
+              <p>كل يوم يمر بدون نظام تسويق تلقائي وواضح لمشروعك، يعني أمرين:</p>
+              <ol>
+                <li>ميزانية إعلانية تضيع في التخمين دون عوائد واضحة.</li>
+                <li>عملاء مهتمين يروحون لمنافسيك لمجرد أنهم بنوا معهم علاقة أسرع.</li>
+              </ol>
+              <p>الانتظار والتأجيل في التسويق هو التكلفة الأكبر على مشروعك.</p>
+              <p>التسويق الرقمي مو لغز معقد؛ هو مجرد خطوات علمية مرتبة إذا طبقتها صح بتشوف النتائج في حسابك البنكي.</p>
+              <p>عشان نساعدك تبدأ اليوم وبدون أي تردد، وفرت لك خصم خاص وحصري متاح فقط لـ 48 ساعة القادمة لحجز جلستك التشخيصية أو الانضمام للباقة الكاملة.</p>
+              <p>اضغط على الرابط أدناه لحجز موعدك وتطبيق نظام BLACK4ME في مشروعك فوراً:</p>
+              <div style="text-align: center; margin: 35px 0;">
+                <a href="${siteUrl}/consultation" style="display: inline-block; padding: 14px 32px; background-color: #111111; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                  احجز استشارتك الفورية بالخصم الخاص 📈
+                </a>
+              </div>
+              <p>الفرصة متاحة الآن، والتأجيل لن يحل الخلل الحالي. دعنا نبدأ العمل!</p>
+              <p style="color: #111111; font-size: 16px; font-weight: bold; margin-top: 30px;">
+                أخوك،<br>
+                جاسم محمد — مؤسس BLACK4ME
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding: 30px; background-color: #F9FAFB; border-top: 1px solid #F3F4F6; border-radius: 0 0 12px 12px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                <tr>
+                  <td align="center" dir="rtl">
+                    ${emailSettings.social_whatsapp_url ? `
+                    <a href="${emailSettings.social_whatsapp_url}" style="display: inline-block; margin: 0 8px; color: #4B5563; text-decoration: none; font-size: 14px;">
+                      📱 واتساب
+                    </a>` : ''}
+                    ${emailSettings.social_instagram_url ? `
+                    <a href="${emailSettings.social_instagram_url}" style="display: inline-block; margin: 0 8px; color: #4B5563; text-decoration: none; font-size: 14px;">
+                      📸 انستجرام
+                    </a>` : ''}
+                    ${emailSettings.social_support_email ? `
+                    <a href="mailto:${emailSettings.social_support_email}" style="display: inline-block; margin: 0 8px; color: #4B5563; text-decoration: none; font-size: 14px;">
+                      ✉️ الإيميل
+                    </a>` : ''}
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 0; color: #9CA3AF; font-size: 12px; text-align: center;">
+                © ${new Date().getFullYear()} BLACK4ME. جميع الحقوق محفوظة.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    await resend.emails.send({
+      from: 'جاسم محمد - BLACK4ME <noreply@black4me.com>',
+      to: email,
+      subject: `كم يكلفك تأجيل تنظيم تسويق مشروعك؟ ⏳`,
+      html: htmlContent
+    });
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+

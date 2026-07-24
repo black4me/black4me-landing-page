@@ -86,7 +86,13 @@ export interface FAQ {
 export interface Coupon {
   id?: string;
   code: string;
-  discountPercent: number;
+  discountPercent: number; // Legacy or calculated value
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
+  productId?: string | null;
+  expiryDate?: string | null;
+  maxUses?: number | null;
+  usedCount?: number;
   isActive: boolean;
 }
 

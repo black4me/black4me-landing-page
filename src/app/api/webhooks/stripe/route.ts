@@ -70,36 +70,56 @@ export async function POST(req: Request) {
 
       if (customerEmail && productId) {
         const stripeSessionId = session.id;
+        const internalOrderId = session.metadata?.internal_order_id;
+        const couponCode = session.metadata?.coupon_code;
 
-        const { data: existingOrder, error: existingOrderError } = await supabaseAdmin
-          .from('orders')
-          .select('id')
-          .eq('payment_gateway', 'stripe')
-          .eq('receipt_url', stripeSessionId)
-          .maybeSingle();
+        let orderId = internalOrderId;
+        let wasAlreadyCompleted = false;
 
-        if (existingOrderError) {
-          throw existingOrderError;
+        if (internalOrderId) {
+          const { data: currentOrder } = await supabaseAdmin.from('orders').select('status').eq('id', internalOrderId).single();
+          if (currentOrder?.status === 'completed') {
+            wasAlreadyCompleted = true;
+          } else {
+            await supabaseAdmin.from('orders').update({ status: 'completed', receipt_url: stripeSessionId }).eq('id', internalOrderId);
+          }
+        } else {
+          const { data: existingOrder, error: existingOrderError } = await supabaseAdmin
+            .from('orders')
+            .select('id, status')
+            .eq('payment_gateway', 'stripe')
+            .eq('receipt_url', stripeSessionId)
+            .maybeSingle();
+
+          if (existingOrderError) throw existingOrderError;
+
+          if (existingOrder) {
+            orderId = existingOrder.id;
+            if (existingOrder.status === 'completed') wasAlreadyCompleted = true;
+            else await supabaseAdmin.from('orders').update({ status: 'completed' }).eq('id', orderId);
+          } else {
+            const { data: orderData, error: orderInsertError } = await supabaseAdmin.from('orders').insert([{
+              customer_email: customerEmail,
+              customer_name: customerName || '',
+              product_id: productId,
+              amount: (session.amount_total || 0) / 100,
+              payment_gateway: 'stripe',
+              status: 'completed',
+              receipt_url: stripeSessionId,
+              coupon_code: couponCode || null,
+            }]).select('id').single();
+
+            if (orderInsertError || !orderData) throw orderInsertError || new Error('Failed to create order');
+            orderId = orderData.id;
+          }
         }
 
-        let orderId = existingOrder?.id;
-
-        if (!orderId) {
-          const { data: orderData, error: orderInsertError } = await supabaseAdmin.from('orders').insert([{
-            customer_email: customerEmail,
-            customer_name: customerName || '',
-            product_id: productId,
-            amount: (session.amount_total || 0) / 100,
-            payment_gateway: 'stripe',
-            status: 'completed',
-            receipt_url: stripeSessionId,
-          }]).select('id').single();
-
-          if (orderInsertError || !orderData) {
-            throw orderInsertError || new Error('Failed to create order');
+        // Increment coupon use count if newly completed
+        if (!wasAlreadyCompleted && couponCode) {
+          const { data: cData } = await supabaseAdmin.from('coupons').select('used_count').eq('code', couponCode).maybeSingle();
+          if (cData) {
+            await supabaseAdmin.from('coupons').update({ used_count: (cData.used_count || 0) + 1 }).eq('code', couponCode);
           }
-
-          orderId = orderData.id;
         }
 
         const { data: product } = await supabaseAdmin
@@ -134,7 +154,7 @@ export async function POST(req: Request) {
           }
         }
 
-        if (!existingOrder) {
+        if (!wasAlreadyCompleted) {
           await sendWelcomeEmail(customerEmail, customerName || '', orderId);
           await sendAdminNotificationEmail(orderId, customerEmail, customerName || '', (session.amount_total || 0) / 100, product?.title || 'Unknown Product');
           await sendReviewRequestEmail(customerEmail, customerName || '', 'product', orderId, product?.title || 'Unknown Product');

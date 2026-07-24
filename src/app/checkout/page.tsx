@@ -24,7 +24,7 @@ function CheckoutContent() {
   const [email, setEmail] = useState('');
   const [country, setCountry] = useState('المملكة العربية السعودية');
   const [couponCode, setCouponCode] = useState('');
-  const [discountPercent, setDiscountPercent] = useState(0);
+  const [validatedCoupon, setValidatedCoupon] = useState<{ originalPrice: number; discountAmount: number; finalPrice: number } | null>(null);
   const [couponStatus, setCouponStatus] = useState<{ type: 'success' | 'error' | null; msg: string }>({ type: null, msg: '' });
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal'>('stripe');
   const [receiptUrl, setReceiptUrl] = useState('');
@@ -33,9 +33,10 @@ function CheckoutContent() {
 
   // Pricing
   const basePrice = actualProduct?.salePrice || actualProduct?.price || 49;
-  const originalPrice = actualProduct?.price || 199;
-  const discountAmount = Math.round((basePrice * discountPercent) / 100);
-  const finalPrice = basePrice - discountAmount;
+  const originalPrice = validatedCoupon ? validatedCoupon.originalPrice : basePrice;
+  const discountAmount = validatedCoupon ? validatedCoupon.discountAmount : 0;
+  const finalPrice = validatedCoupon ? validatedCoupon.finalPrice : basePrice;
+  const discountPercent = originalPrice > 0 ? Math.round((discountAmount / originalPrice) * 100) : 0;
   const productTitle = actualProduct?.title || 'الحزمة الشاملة';
 
   useEffect(() => {
@@ -47,17 +48,30 @@ function CheckoutContent() {
     tracking.trackEvent('DiscountCodeShown');
   }, [productId, productTitle, finalPrice]);
 
-  // Apply coupon
-  const handleApplyCoupon = () => {
+  // Apply coupon via API
+  const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
-    const found = coupons.find(c => c.code.toLowerCase() === couponCode.toLowerCase() && c.isActive);
-    if (found) {
-      setDiscountPercent(found.discountPercent);
-      setCouponStatus({ type: 'success', msg: `تم تطبيق خصم ${found.discountPercent}% بنجاح!` });
-      tracking.trackEvent('DiscountCodeUsed', { discount_code: couponCode, discount_value: found.discountPercent });
-    } else {
-      setDiscountPercent(0);
-      setCouponStatus({ type: 'error', msg: 'رمز الخصم غير صالح أو منتهي الصلاحية.' });
+    
+    setCouponStatus({ type: null, msg: 'جاري التحقق...' });
+    try {
+      const res = await fetch('/api/checkout/validate-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couponCode, productId: actualProduct.id }),
+      });
+      const data = await res.json();
+      
+      if (data.valid) {
+        setValidatedCoupon(data);
+        setCouponStatus({ type: 'success', msg: data.msg || 'تم تطبيق الخصم بنجاح!' });
+        tracking.trackEvent('DiscountCodeUsed', { discount_code: couponCode, discount_value: data.discountValue });
+      } else {
+        setValidatedCoupon(null);
+        setCouponStatus({ type: 'error', msg: data.msg || 'رمز الخصم غير صالح.' });
+      }
+    } catch (err) {
+      setValidatedCoupon(null);
+      setCouponStatus({ type: 'error', msg: 'حدث خطأ أثناء التحقق من الكوبون.' });
     }
   };
 
@@ -88,11 +102,10 @@ function CheckoutContent() {
         body: JSON.stringify({
           productId: actualProductId,
           title: productTitle,
-          price: finalPrice,
           customerEmail: email,
           customerName: name,
           customerCountry: country,
-          couponCode: couponCode,
+          couponCode: validatedCoupon ? couponCode : undefined,
         }),
       });
 

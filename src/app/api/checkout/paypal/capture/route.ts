@@ -70,13 +70,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: captureData.message || 'PayPal capture failed' }, { status: 502 });
     }
 
-    if (captureData.status === 'COMPLETED') {
+      if (captureData.status === 'COMPLETED') {
       // Extract custom metadata we passed earlier
       const purchaseUnit = captureData.purchase_units[0];
       const customId = purchaseUnit.custom_id;
       let productId = '';
       let customerEmail = '';
       let customerName = '';
+      let internalOrderId = '';
+      let couponCode = '';
 
       if (customId) {
         try {
@@ -84,6 +86,8 @@ export async function POST(req: Request) {
           productId = parsed.product_id;
           customerEmail = parsed.customer_email;
           customerName = parsed.customer_name || '';
+          internalOrderId = parsed.internal_order_id || '';
+          couponCode = parsed.coupon_code || '';
         } catch (e) {
           console.error("Failed to parse custom_id", customId);
         }
@@ -103,29 +107,43 @@ export async function POST(req: Request) {
       }
 
       const amount = Number(purchaseUnit.payments.captures[0].amount.value);
+      let wasAlreadyCompleted = false;
 
-      // Check if order already exists (idempotency)
-      const { data: existingOrder } = await supabaseAdmin
-        .from('orders')
-        .select('id')
-        .eq('id', orderID)
-        .single();
-
-      if (!existingOrder) {
-        // Save to Supabase
-        const { error: orderInsertError } = await supabaseAdmin.from('orders').insert({
-          id: orderID,
-          customer_email: customerEmail,
-          customer_name: customerName,
-          product_id: productId || 'unknown',
-          amount: amount,
-          payment_gateway: 'paypal',
-          status: 'completed',
-        });
-
-        if (orderInsertError) {
-          throw orderInsertError;
+      if (internalOrderId) {
+        const { data: currentOrder } = await supabaseAdmin.from('orders').select('status').eq('id', internalOrderId).single();
+        if (currentOrder?.status === 'completed') {
+          wasAlreadyCompleted = true;
+        } else {
+          await supabaseAdmin.from('orders').update({ status: 'completed' }).eq('id', internalOrderId);
         }
+      } else {
+        // Fallback if internal_order_id is missing
+        const { data: existingOrder } = await supabaseAdmin.from('orders').select('id, status').eq('id', orderID).maybeSingle();
+        if (existingOrder) {
+          if (existingOrder.status === 'completed') wasAlreadyCompleted = true;
+          else await supabaseAdmin.from('orders').update({ status: 'completed' }).eq('id', orderID);
+        } else {
+          const { error: orderInsertError } = await supabaseAdmin.from('orders').insert({
+            id: orderID, // legacy fallback uses paypal ID
+            customer_email: customerEmail,
+            customer_name: customerName,
+            product_id: productId || 'unknown',
+            amount: amount,
+            payment_gateway: 'paypal',
+            status: 'completed',
+            coupon_code: couponCode || null,
+          });
+          if (orderInsertError) throw orderInsertError;
+        }
+      }
+
+      // Increment coupon use count if newly completed
+      if (!wasAlreadyCompleted && couponCode) {
+        const { data: cData } = await supabaseAdmin.from('coupons').select('used_count').eq('code', couponCode).maybeSingle();
+        if (cData) {
+          await supabaseAdmin.from('coupons').update({ used_count: (cData.used_count || 0) + 1 }).eq('code', couponCode);
+        }
+      }
 
         // Add to subscribers
         const { error: subscriberError } = await supabaseAdmin.from('subscribers').upsert(
@@ -169,7 +187,7 @@ export async function POST(req: Request) {
           product_id: productDbId,
           product_title: productTitle,
           file_url: fileUrl,
-          order_id: orderID,
+          order_id: internalOrderId || orderID,
           payment_gateway: 'paypal',
         });
 
@@ -178,9 +196,9 @@ export async function POST(req: Request) {
         }
 
         // Send welcome email using unified function
-        if (customerEmail) {
-          await sendWelcomeEmail(customerEmail, customerName || '', orderID);
-          await sendReviewRequestEmail(customerEmail, customerName || '', 'product', orderID, productTitle);
+        if (!wasAlreadyCompleted) {
+          await sendWelcomeEmail(customerEmail, customerName || '', internalOrderId || orderID);
+          await sendReviewRequestEmail(customerEmail, customerName || '', 'product', internalOrderId || orderID, productTitle);
         }
 
         return NextResponse.json({
@@ -193,10 +211,7 @@ export async function POST(req: Request) {
         });
       }
 
-      return NextResponse.json({ success: true });
-    }
-
-    return NextResponse.json({ error: 'Capture failed or not completed' }, { status: 400 });
+      return NextResponse.json({ error: 'Capture failed or not completed' }, { status: 400 });
 
   } catch (err: any) {
     console.error('PayPal Capture Error:', err);

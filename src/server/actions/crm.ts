@@ -152,9 +152,11 @@ export async function registerOfferLead(payload: {
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
+  utmContent?: string;
+  utmTerm?: string;
 }) {
   try {
-    const { name, email, slug, offerId, type, utmSource, utmMedium, utmCampaign } = payload;
+    const { name, email, slug, offerId, type, utmSource, utmMedium, utmCampaign, utmContent, utmTerm } = payload;
 
     // Fetch offer page first to get email details
     const offer = await getOfferPageBySlug(slug);
@@ -171,6 +173,8 @@ export async function registerOfferLead(payload: {
         utm_source: utmSource || null,
         utm_medium: utmMedium || null,
         utm_campaign: utmCampaign || null,
+        utm_content: utmContent || null,
+        utm_term: utmTerm || null,
         status: 'new'
       }]);
 

@@ -14,8 +14,15 @@ type CheckoutProduct = {
 };
 
 type CouponRecord = {
+  id: string;
   code: string;
   discount_percentage: number;
+  discount_type?: 'percentage' | 'fixed';
+  discount_value?: number;
+  product_id?: string | null;
+  expiry_date?: string | null;
+  max_uses?: number | null;
+  used_count?: number;
   is_active: boolean;
 };
 
@@ -72,12 +79,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid product price' }, { status: 400 });
     }
 
-    let discountPercent = 0;
+    let discountAmount = 0;
+    let appliedCouponCode = null;
+    let appliedDiscountType = null;
+    let appliedDiscountValue = null;
 
     if (normalizedCouponCode) {
       const { data: coupon, error: couponError } = await supabaseAdmin
         .from('coupons')
-        .select('code, discount_percentage, is_active')
+        .select('*')
         .eq('code', normalizedCouponCode)
         .eq('is_active', true)
         .maybeSingle<CouponRecord>();
@@ -86,14 +96,51 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 });
       }
 
-      if (!coupon) {
-        return NextResponse.json({ error: 'Invalid coupon code' }, { status: 400 });
-      }
+      if (coupon) {
+        let valid = true;
+        if (coupon.product_id && coupon.product_id !== productId) valid = false;
+        if (coupon.expiry_date && new Date(coupon.expiry_date) < new Date()) valid = false;
+        if (coupon.max_uses && (coupon.used_count || 0) >= coupon.max_uses) valid = false;
 
-      discountPercent = Math.max(0, Math.min(100, Number(coupon.discount_percentage) || 0));
+        if (valid) {
+          appliedCouponCode = coupon.code;
+          appliedDiscountType = coupon.discount_type || 'percentage';
+          appliedDiscountValue = coupon.discount_value !== undefined && coupon.discount_value !== null ? coupon.discount_value : coupon.discount_percentage;
+
+          if (appliedDiscountType === 'percentage') {
+            discountAmount = basePrice * (appliedDiscountValue / 100);
+          } else if (appliedDiscountType === 'fixed') {
+            discountAmount = appliedDiscountValue;
+          }
+        }
+      }
     }
 
-    const finalPrice = Math.max(0, Number((basePrice * (1 - discountPercent / 100)).toFixed(2)));
+    let finalPrice = basePrice - discountAmount;
+    if (finalPrice < 0) finalPrice = 0;
+    
+    // Create pending internal order
+    const { data: internalOrder, error: orderInsertError } = await supabaseAdmin.from('orders').insert({
+      customer_email: normalizedEmail,
+      customer_name: customerName || '',
+      product_id: productId,
+      amount: finalPrice,
+      original_amount: basePrice,
+      discount_amount: discountAmount,
+      final_amount: finalPrice,
+      coupon_code: appliedCouponCode,
+      discount_type: appliedDiscountType,
+      discount_value: appliedDiscountValue,
+      status: 'pending',
+      payment_gateway: 'stripe',
+      currency: 'USD'
+    }).select('id').single();
+
+    if (orderInsertError || !internalOrder) {
+      console.error('Failed to create pending order:', orderInsertError);
+      return NextResponse.json({ error: 'Failed to initialize order' }, { status: 500 });
+    }
+
     const unitAmount = Math.round(finalPrice * 100);
 
     if (unitAmount <= 0) {
@@ -120,14 +167,20 @@ export async function POST(req: Request) {
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.black4me.com'}/thankyou?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.black4me.com'}/`,
       metadata: {
-        product_id: productId, // CRITICAL: This is passed to the webhook
+        internal_order_id: internalOrder.id,
+        product_id: productId,
         customer_email: normalizedEmail,
         customer_name: customerName || '',
         customer_country: customerCountry || '',
-        coupon_code: normalizedCouponCode,
+        coupon_code: appliedCouponCode || '',
+        original_amount: basePrice.toFixed(2),
+        discount_amount: discountAmount.toFixed(2),
         final_price: finalPrice.toFixed(2),
       },
     });
+
+    // Link session to order
+    await supabaseAdmin.from('orders').update({ receipt_url: session.id }).eq('id', internalOrder.id);
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {

@@ -101,6 +101,16 @@ function ThankYouContent() {
     );
   }
 
+  const handleCtaClick = (target: string) => {
+    trackEvent('ThankYouOfferClicked', {
+      product_name: product?.title || 'unknown',
+      target_cta: target
+    });
+  };
+
+  const isBook = !!product?.file_url;
+  const isBundle = !isBook && !isPendingSpaceremit;
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-2xl mx-auto" dir="rtl">
       <div className="w-24 h-24 bg-brand-green/10 text-brand-green rounded-3xl flex items-center justify-center mb-8 mx-auto shadow-lg shadow-brand-green/10">
@@ -124,41 +134,84 @@ function ThankYouContent() {
         </p>
       )}
 
-      {product?.file_url ? (
-        <div className="glass-gold rounded-3xl p-8 w-full mb-12">
-          <h3 className="text-xl font-bold text-white mb-3">وصول فوري للمنتج</h3>
-          <p className="text-sm text-gray-400 mb-8">يمكنك تنزيل الكتاب والقوالب مباشرة من الرابط أدناه.</p>
-          <a 
-            href={product.file_url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="cta-glow flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-brand-gold hover:bg-yellow-400 text-brand-black font-black rounded-2xl transition-all"
-          >
-            <Download className="w-5 h-5" />
-            <span>تنزيل الملفات الآن</span>
-          </a>
+      {isBook ? (
+        <div className="glass-gold rounded-3xl p-8 w-full mb-12 text-right space-y-6">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-3">تحميل الكتاب والملحقات</h3>
+            <p className="text-sm text-gray-400 mb-4">يمكنك تنزيل الكتاب والقوالب المرفقة مباشرة من الرابط أدناه.</p>
+            <a 
+              href={product.file_url || '#'} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => handleCtaClick('download_book')}
+              className="cta-glow inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-3 bg-brand-gold hover:bg-yellow-400 text-brand-black font-black rounded-2xl transition-all"
+            >
+              <Download className="w-5 h-5" />
+              <span>تنزيل الملفات الآن</span>
+            </a>
+          </div>
+
+          <div className="border-t border-white/5 pt-6 space-y-4">
+            <span className="text-xs text-brand-gold font-black uppercase tracking-wider">🎯 الخطوة التالية المقترحة:</span>
+            <h4 className="text-lg font-bold text-white">هل تريد تطبيق محتوى الكتاب عملياً على مشروعك؟</h4>
+            <div className="space-y-3">
+              <Link
+                href="/consultation"
+                onClick={() => handleCtaClick('book_consultation')}
+                className="w-full py-4 px-6 rounded-2xl bg-brand-gold hover:bg-yellow-400 text-black font-black text-base flex items-center justify-between transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 shrink-0" />
+                  <span>احجز جلسة لتطبيق ما تعلمته من الكتاب</span>
+                </div>
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+
+              <Link
+                href="/product/black-digital-marketing-bundle"
+                onClick={() => handleCtaClick('view_bundle')}
+                className="w-full py-4 px-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold text-sm flex items-center justify-between transition-all"
+              >
+                <span>استكشف الباقة المتكاملة للتسويق الرقمي</span>
+                <ArrowLeft className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
         </div>
-      ) : product?.id === 'prod-consultation' ? (
-        <div className="glass-gold rounded-3xl p-8 w-full mb-12 border-brand-gold/30">
-          <h3 className="text-xl font-bold text-white mb-3">الخطوة الأخيرة: احجز موعدك</h3>
-          <p className="text-sm text-gray-400 mb-8">اختر اليوم والوقت المناسب لك لإجراء جلسة الاستشارة المباشرة عبر الفيديو.</p>
-          <a 
-            href="https://calendar.notion.so/meet/black4me/di783v4a" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="cta-glow flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-4 bg-brand-gold hover:bg-yellow-400 text-brand-black font-black rounded-2xl transition-all shadow-lg"
-          >
-            <Calendar className="w-5 h-5" />
-            <span>افتح التقويم لاختيار الموعد</span>
-          </a>
+      ) : isBundle ? (
+        <div className="glass-gold rounded-3xl p-8 w-full mb-12 text-right space-y-6">
+          <div className="space-y-4">
+            <span className="text-xs text-brand-gold font-black uppercase tracking-wider">🚀 الخطوة الأولى لبدء رحلتك:</span>
+            <h4 className="text-lg font-bold text-white">ابدأ رحلتك التعليمية معنا اليوم</h4>
+            <div className="space-y-3">
+              <Link
+                href="/portal"
+                onClick={() => handleCtaClick('login_portal')}
+                className="w-full py-4 px-6 rounded-2xl bg-brand-gold hover:bg-yellow-400 text-black font-black text-base flex items-center justify-between transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 shrink-0" />
+                  <span>ابدأ الدخول إلى الأكاديمية الآن</span>
+                </div>
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+
+              <Link
+                href="/blog"
+                onClick={() => handleCtaClick('watch_welcome')}
+                className="w-full py-4 px-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold text-sm flex items-center justify-between transition-all"
+              >
+                <span>شاهد رسالة البداية أو الخطوة الأولى</span>
+                <ArrowLeft className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="glass rounded-3xl p-8 w-full mb-12">
           <h3 className="text-lg font-bold text-white mb-2">الخطوة القادمة</h3>
           <p className="text-sm text-gray-400">
-            {isPendingSpaceremit 
-              ? "سنقوم بمراجعة إيصال التحويل قريباً. سيصلك إشعار بالبريد الإلكتروني فور تفعيل الحساب."
-              : "سيتم إرسال تفاصيل الدخول إلى المنصة التعليمية وحجز موعد الاستشارة على بريدك الإلكتروني قريباً."}
+            سنقوم بمراجعة إيصال التحويل قريباً. سيصلك إشعار بالبريد الإلكتروني فور تفعيل الحساب.
           </p>
         </div>
       )}

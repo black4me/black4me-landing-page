@@ -60,6 +60,49 @@ export async function POST(req: Request) {
       }
     }
 
+    // Enroll in Lead Magnet Sequence (Self-healing registration)
+    try {
+      let { data: seq } = await supabase.from('message_sequences').select('id').eq('name', 'Lead Magnet Sequence').maybeSingle();
+      let seqId = seq?.id;
+      if (!seqId) {
+        const { data: newSeq } = await supabase.from('message_sequences').insert({
+          name: 'Lead Magnet Sequence',
+          description: 'Saves and triggers emails for Lead Magnet claims',
+          trigger_type: 'lead_created',
+          status: 'active'
+        }).select('id').single();
+        if (newSeq) {
+          seqId = newSeq.id;
+          // Create steps
+          await supabase.from('message_sequence_steps').insert([
+            { sequence_id: seqId, step_order: 1, channel: 'email', delay_value: 0, delay_unit: 'minutes', template_key: 'lead_magnet_1' },
+            { sequence_id: seqId, step_order: 2, channel: 'email', delay_value: 24, delay_unit: 'hours', template_key: 'lead_magnet_2' },
+            { sequence_id: seqId, step_order: 3, channel: 'email', delay_value: 72, delay_unit: 'hours', template_key: 'lead_magnet_3' }
+          ]);
+        }
+      }
+
+      if (seqId) {
+        // Check if already enrolled
+        const { data: existingEnroll } = await supabase.from('lead_sequence_enrollments').select('id').eq('lead_id', leadId).eq('sequence_id', seqId).maybeSingle();
+        if (!existingEnroll) {
+          // Schedule next step (Email 2) to be processed after 24 hours
+          const nextTime = new Date();
+          nextTime.setHours(nextTime.getHours() + 24);
+          
+          await supabase.from('lead_sequence_enrollments').insert({
+            lead_id: leadId,
+            sequence_id: seqId,
+            current_step_order: 1, // Email 1 was sent immediately
+            status: 'active',
+            next_step_scheduled_at: nextTime.toISOString()
+          });
+        }
+      }
+    } catch (seqErr) {
+      console.error('Sequence Enrollment Error:', seqErr);
+    }
+
     // 2. Log Integration Event
     // Get Activepieces Integration ID
     const { data: activepieces } = await supabase.from('integrations').select('id').eq('name', 'activepieces').single();
@@ -86,37 +129,9 @@ export async function POST(req: Request) {
 
     // Attempt to send email via Resend if key exists
     if (process.env.RESEND_API_KEY) {
-      const { render } = await import('@react-email/render');
-      const UnifiedEmail = (await import('../../../emails/UnifiedEmail')).default;
-
-      const htmlContent = await render(
-        UnifiedEmail({
-          userFirstname: name,
-          type: 'gift',
-          downloadLink: settings.lead_magnet_file_url || 'https://drive.google.com/drive/folders/14-SIzFYoOu7uIqs4qDNbQF-IrRlG8ker?usp=sharing',
-          blogUrl: 'https://black4me.com/blog',
-          newsletterUrl: 'https://black4me.com/#free-gift',
-          instagramUrl: settings.social_instagram_url || 'https://www.instagram.com/black4mee/',
-          logoUrl: settings.site_logo,
-          authorPhotoUrl: settings.author_photo_url,
-          authorName: settings.author_name || 'جاسم محمد',
-          discountCode: 'WELCOME10', // Added as requested
-        })
-      );
-
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: 'جاسم محمد - BLACK4ME <noreply@black4me.com>',
-          to: email,
-          subject: `هديتك المجانية جاهزة يا ${name} - من جاسم محمد`,
-          html: htmlContent
-        })
-      }).catch(err => console.error('Email send failed:', err));
+      const { sendLeadMagnetEmail1 } = await import('../../../server/actions/email');
+      const downloadLink = settings.lead_magnet_file_url || 'https://drive.google.com/drive/folders/14-SIzFYoOu7uIqs4qDNbQF-IrRlG8ker?usp=sharing';
+      await sendLeadMagnetEmail1(email, name, downloadLink).catch(err => console.error('Email send failed:', err));
     }
 
     return NextResponse.json({ success: true, lead_id: leadId });

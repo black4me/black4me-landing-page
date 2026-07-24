@@ -426,18 +426,34 @@ export function CouponsTab() {
   const { coupons, addCoupon, updateCoupon, deleteCoupon } = useApp();
   const [isAdding, setIsAdding] = useState(false);
   const [editingItem, setEditingItem] = useState<Coupon | null>(null);
-  const [form, setForm] = useState({ code: '', discountPercent: 0, isActive: true });
+  const [form, setForm] = useState<{
+    code: string;
+    discountType: 'percentage' | 'fixed';
+    discountValue: number;
+    productId: string;
+    expiryDate: string;
+    maxUses: number | '';
+    isActive: boolean;
+  }>({ code: '', discountType: 'percentage', discountValue: 0, productId: '', expiryDate: '', maxUses: '', isActive: true });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Default legacy discountPercent to discountValue to keep backward compat
+    const finalForm: any = { ...form };
+    finalForm.discountPercent = form.discountType === 'percentage' ? form.discountValue : 0;
+    if (!finalForm.productId) finalForm.productId = null;
+    if (!finalForm.expiryDate) finalForm.expiryDate = null;
+    if (finalForm.maxUses === '') finalForm.maxUses = null;
+
     if (editingItem) {
-      updateCoupon(editingItem.id!, form);
+      updateCoupon(editingItem.id!, finalForm);
       setEditingItem(null);
     } else {
-      addCoupon(form);
+      addCoupon(finalForm as Omit<Coupon, 'id'>);
       setIsAdding(false);
     }
-    setForm({ code: '', discountPercent: 0, isActive: true });
+    setForm({ code: '', discountType: 'percentage', discountValue: 0, productId: '', expiryDate: '', maxUses: '', isActive: true });
   };
 
   return (
@@ -457,16 +473,35 @@ export function CouponsTab() {
 
       {(isAdding || editingItem) && (
         <form onSubmit={handleSubmit} className="bg-brand-darkgray p-6 rounded-2xl border border-brand-gold/30 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="text-xs text-gray-400 block mb-1">رمز الكوبون</label>
               <input required value={form.code} onChange={e => setForm({...form, code: e.target.value.toUpperCase()})} className="w-full bg-brand-black border border-brand-white/10 p-2 text-white rounded font-mono uppercase" placeholder="SUMMER50" />
             </div>
             <div>
-              <label className="text-xs text-gray-400 block mb-1">نسبة الخصم (%)</label>
-              <input type="number" required max={100} min={1} value={form.discountPercent} onChange={e => setForm({...form, discountPercent: Number(e.target.value)})} className="w-full bg-brand-black border border-brand-white/10 p-2 text-white rounded" />
+              <label className="text-xs text-gray-400 block mb-1">نوع الخصم</label>
+              <select value={form.discountType} onChange={e => setForm({...form, discountType: e.target.value as 'percentage' | 'fixed'})} className="w-full bg-brand-black border border-brand-white/10 p-2 text-white rounded">
+                <option value="percentage">نسبة مئوية (%)</option>
+                <option value="fixed">مبلغ ثابت ($)</option>
+              </select>
             </div>
-            <div className="md:col-span-2 flex items-center gap-2">
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">قيمة الخصم</label>
+              <input type="number" required min={1} value={form.discountValue} onChange={e => setForm({...form, discountValue: Number(e.target.value)})} className="w-full bg-brand-black border border-brand-white/10 p-2 text-white rounded" />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">تخصيص لمنتج معين (اختياري)</label>
+              <input value={form.productId} onChange={e => setForm({...form, productId: e.target.value})} className="w-full bg-brand-black border border-brand-white/10 p-2 text-white rounded font-mono text-xs" placeholder="Product UUID" />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">تاريخ الانتهاء (اختياري)</label>
+              <input type="datetime-local" value={form.expiryDate} onChange={e => setForm({...form, expiryDate: e.target.value})} className="w-full bg-brand-black border border-brand-white/10 p-2 text-white rounded text-xs" />
+            </div>
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">الحد الأقصى للاستخدام (اختياري)</label>
+              <input type="number" min={1} value={form.maxUses} onChange={e => setForm({...form, maxUses: e.target.value ? Number(e.target.value) : ''})} className="w-full bg-brand-black border border-brand-white/10 p-2 text-white rounded" placeholder="عدد المرات" />
+            </div>
+            <div className="md:col-span-3 flex items-center gap-2">
               <input type="checkbox" checked={form.isActive} onChange={e => setForm({...form, isActive: e.target.checked})} className="w-4 h-4" />
               <label className="text-xs text-gray-400 block">نشط ومفعل للاستخدام</label>
             </div>
@@ -478,17 +513,37 @@ export function CouponsTab() {
       <div className="grid md:grid-cols-3 gap-4">
         {coupons.map(item => (
           <div key={item.id} className="bg-brand-darkgray p-4 rounded-xl border border-brand-white/5 flex flex-col justify-between items-start gap-4">
-            <div>
-              <div className="flex gap-2 items-center">
+            <div className="w-full">
+              <div className="flex justify-between items-center mb-2">
                 <h4 className="text-white font-mono text-lg font-bold">{item.code}</h4>
                 <span className={`px-2 py-0.5 rounded text-[9px] ${item.isActive ? 'bg-brand-green/20 text-brand-green' : 'bg-brand-red/20 text-brand-red'}`}>
                   {item.isActive ? 'نشط' : 'معطل'}
                 </span>
               </div>
-              <p className="text-brand-purple font-bold mt-1 text-sm">خصم {item.discountPercent}%</p>
+              <p className="text-brand-purple font-bold mt-1 text-sm">
+                خصم: {item.discountType === 'percentage' ? `${item.discountValue || item.discountPercent}%` : `$${item.discountValue}`}
+              </p>
+              {(item.maxUses || item.expiryDate || item.productId) && (
+                <div className="mt-3 bg-brand-black/50 p-2 rounded border border-brand-white/5 space-y-1">
+                  {item.productId && <p className="text-[10px] text-gray-400">المنتج: <span className="font-mono text-gray-300">{item.productId.slice(0, 8)}...</span></p>}
+                  {item.expiryDate && <p className="text-[10px] text-gray-400">ينتهي: <span className="text-gray-300">{new Date(item.expiryDate).toLocaleDateString()}</span></p>}
+                  {item.maxUses && <p className="text-[10px] text-gray-400">الاستخدام: <span className="text-gray-300">{item.usedCount || 0} / {item.maxUses}</span></p>}
+                </div>
+              )}
             </div>
             <div className="flex gap-2 w-full mt-2">
-              <button onClick={() => { setEditingItem(item); setForm({ ...item }); }} className="flex-1 text-center bg-brand-white/5 hover:bg-brand-white/10 text-brand-gold text-[10px] py-1.5 rounded transition">تعديل</button>
+              <button onClick={() => { 
+                setEditingItem(item); 
+                setForm({ 
+                  code: item.code, 
+                  discountType: item.discountType || 'percentage', 
+                  discountValue: item.discountValue || item.discountPercent || 0,
+                  productId: item.productId || '',
+                  expiryDate: item.expiryDate ? new Date(item.expiryDate).toISOString().slice(0, 16) : '',
+                  maxUses: item.maxUses || '',
+                  isActive: item.isActive
+                }); 
+              }} className="flex-1 text-center bg-brand-white/5 hover:bg-brand-white/10 text-brand-gold text-[10px] py-1.5 rounded transition">تعديل</button>
               <button onClick={() => deleteCoupon(item.id!)} className="flex-1 text-center bg-brand-red/10 hover:bg-brand-red/20 text-brand-red text-[10px] py-1.5 rounded transition">حذف</button>
             </div>
           </div>

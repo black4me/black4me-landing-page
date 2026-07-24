@@ -10,8 +10,15 @@ type CheckoutProduct = {
 };
 
 type CouponRecord = {
+  id: string;
   code: string;
   discount_percentage: number;
+  discount_type?: 'percentage' | 'fixed';
+  discount_value?: number;
+  product_id?: string | null;
+  expiry_date?: string | null;
+  max_uses?: number | null;
+  used_count?: number;
   is_active: boolean;
 };
 
@@ -90,12 +97,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid product price' }, { status: 400 });
     }
 
-    let discountPercent = 0;
+    let discountAmount = 0;
+    let appliedCouponCode = null;
+    let appliedDiscountType = null;
+    let appliedDiscountValue = null;
 
     if (normalizedCouponCode) {
       const { data: coupon, error: couponError } = await supabaseAdmin
         .from('coupons')
-        .select('code, discount_percentage, is_active')
+        .select('*')
         .eq('code', normalizedCouponCode)
         .eq('is_active', true)
         .maybeSingle<CouponRecord>();
@@ -104,14 +114,52 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 });
       }
 
-      if (!coupon) {
-        return NextResponse.json({ error: 'Invalid coupon code' }, { status: 400 });
-      }
+      if (coupon) {
+        let valid = true;
+        if (coupon.product_id && coupon.product_id !== productId) valid = false;
+        if (coupon.expiry_date && new Date(coupon.expiry_date) < new Date()) valid = false;
+        if (coupon.max_uses && (coupon.used_count || 0) >= coupon.max_uses) valid = false;
 
-      discountPercent = Math.max(0, Math.min(100, Number(coupon.discount_percentage) || 0));
+        if (valid) {
+          appliedCouponCode = coupon.code;
+          appliedDiscountType = coupon.discount_type || 'percentage';
+          appliedDiscountValue = coupon.discount_value !== undefined && coupon.discount_value !== null ? coupon.discount_value : coupon.discount_percentage;
+
+          if (appliedDiscountType === 'percentage') {
+            discountAmount = basePrice * (appliedDiscountValue / 100);
+          } else if (appliedDiscountType === 'fixed') {
+            discountAmount = appliedDiscountValue;
+          }
+        }
+      }
     }
 
-    const finalPrice = Math.max(0, Number((basePrice * (1 - discountPercent / 100)).toFixed(2)));
+    let finalPrice = basePrice - discountAmount;
+    if (finalPrice < 0) finalPrice = 0;
+    
+    // Create pending internal order
+    const { data: internalOrder, error: orderInsertError } = await supabaseAdmin.from('orders').insert({
+      customer_email: normalizedEmail,
+      customer_name: customerName || '',
+      product_id: productId,
+      amount: finalPrice,
+      original_amount: basePrice,
+      discount_amount: discountAmount,
+      final_amount: finalPrice,
+      coupon_code: appliedCouponCode,
+      discount_type: appliedDiscountType,
+      discount_value: appliedDiscountValue,
+      status: 'pending',
+      payment_gateway: 'paypal',
+      currency: 'USD'
+    }).select('id').single();
+
+    if (orderInsertError || !internalOrder) {
+      console.error('Failed to create pending order:', orderInsertError);
+      return NextResponse.json({ error: 'Failed to initialize order' }, { status: 500 });
+    }
+
+    const priceString = finalPrice.toFixed(2);
 
     if (finalPrice <= 0) {
       return NextResponse.json({ error: 'Invalid checkout amount' }, { status: 400 });
@@ -125,16 +173,18 @@ export async function POST(req: Request) {
         {
           amount: {
             currency_code: 'USD',
-            value: finalPrice.toFixed(2),
+            value: priceString,
           },
           description: product.title,
           custom_id: JSON.stringify({
+            internal_order_id: internalOrder.id,
             product_id: productId,
             customer_email: normalizedEmail,
-            customer_name: customerName,
-            customer_country: customerCountry,
-            coupon_code: normalizedCouponCode,
-            final_price: finalPrice.toFixed(2),
+            customer_name: customerName || '',
+            coupon_code: appliedCouponCode || '',
+            original_amount: basePrice.toFixed(2),
+            discount_amount: discountAmount.toFixed(2),
+            final_price: priceString,
           }),
         },
       ],
@@ -155,9 +205,13 @@ export async function POST(req: Request) {
 
     const data = await response.json();
 
-    if (!response.ok) {
-      return NextResponse.json({ error: data.message || 'Failed to create PayPal order' }, { status: 502 });
+    if (!response.ok || !data.id) {
+      console.error('PayPal Order Error Response:', data);
+      throw new Error(data.message || 'Failed to create PayPal order');
     }
+
+    // Link session to order
+    await supabaseAdmin.from('orders').update({ receipt_url: data.id }).eq('id', internalOrder.id);
 
     if (data.id) {
       // Find the approve link

@@ -67,6 +67,12 @@ export interface DbCoupon {
   id: string;
   code: string;
   discount_percentage: number;
+  discount_type?: 'percentage' | 'fixed';
+  discount_value?: number;
+  product_id?: string | null;
+  expiry_date?: string | null;
+  max_uses?: number | null;
+  used_count?: number;
   is_active: boolean;
 }
 
