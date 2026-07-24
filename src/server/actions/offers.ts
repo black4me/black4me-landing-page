@@ -82,6 +82,19 @@ export async function upsertOffer(offerData: any) {
       return { success: false, error: 'هذا الرابط المختصر مستخدم مسبقاً. يرجى اختيار رابط مختلف.' };
     }
 
+    let oldSlug = null;
+    if (offerData.id) {
+      const { data: existingOffer } = await supabaseAdmin
+        .schema('crm')
+        .from('offer_pages')
+        .select('slug')
+        .eq('id', offerData.id)
+        .single();
+      if (existingOffer) {
+        oldSlug = existingOffer.slug;
+      }
+    }
+
     // 3. Save the offer with the normalized slug
     const { data, error } = await supabaseAdmin
       .schema('crm')
@@ -113,12 +126,10 @@ export async function upsertOffer(offerData: any) {
     }
     
     // Invalidate the cache for this offer page
-    if (offerData.slug) {
-      revalidatePath(`/offer/${offerData.slug}`);
+    if (oldSlug && oldSlug !== normalizedSlug) {
+      revalidatePath(`/offer/${oldSlug}`);
     }
-    if (normalizedSlug !== offerData.slug) {
-      revalidatePath(`/offer/${normalizedSlug}`);
-    }
+    revalidatePath(`/offer/${normalizedSlug}`);
     revalidatePath('/admin/crm/offers');
 
     return { success: true, data };
