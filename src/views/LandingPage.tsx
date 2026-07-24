@@ -203,7 +203,15 @@ function HeroSection({ reviewCount, aggregateRating }: { reviewCount: number; ag
    LANDING PAGE — Main Export
    ═══════════════════════════════════════════════════════════════ */
 
-export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }: { reviewCount?: number; aggregateRating?: string }) {
+export default function LandingPage({ 
+  reviewCount = 0, 
+  aggregateRating = "5.0",
+  freeGiftSlug = "master-class"
+}: { 
+  reviewCount?: number; 
+  aggregateRating?: string;
+  freeGiftSlug?: string;
+}) {
   React.useEffect(() => {
     // PageView is already handled by MetaPixel globally on route change,
     // but we can track a custom OfferViewed here for the main product
@@ -234,7 +242,7 @@ export default function LandingPage({ reviewCount = 0, aggregateRating = "5.0" }
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-right">
           <p className="text-sm text-gray-300">🎁 احصل على هدية مجانية حصرية لمشتركينا الجدد</p>
           <Link
-            href="/offer/master-class"
+            href={`/offer/${freeGiftSlug}`}
             className="flex-shrink-0 bg-brand-gold hover:bg-yellow-400 text-brand-black text-xs font-bold py-2 px-5 rounded-xl transition-all"
           >
             احصل على الهدية المجانية ←

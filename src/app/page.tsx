@@ -31,6 +31,18 @@ export default async function HomePage() {
     aggregateRating = (sum / reviewCount).toFixed(1);
   }
 
+  const { data: latestOffer } = await supabaseAdmin
+    .schema('crm')
+    .from('offer_pages')
+    .select('slug')
+    .eq('type', 'free_gift')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const freeGiftSlug = latestOffer?.slug || 'jasim-mohammed-personal-branding';
+
   const showBanner = settings.enable_top_banner === 'true';
 
   return (
@@ -44,7 +56,11 @@ export default async function HomePage() {
           />
         </div>
       )}
-      <LandingPage reviewCount={reviewCount || 0} aggregateRating={aggregateRating} />
+      <LandingPage 
+        reviewCount={reviewCount || 0} 
+        aggregateRating={aggregateRating} 
+        freeGiftSlug={freeGiftSlug}
+      />
     </>
   );
 }
