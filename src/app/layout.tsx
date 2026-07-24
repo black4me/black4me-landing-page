@@ -40,45 +40,46 @@ export async function generateMetadata(): Promise<Metadata> {
   const { data } = await supabaseAdmin.from('site_settings').select('key, value').in('key', ['hero_title', 'hero_subtitle', 'site_favicon']);
   const settings = data?.reduce((acc: any, row) => ({ ...acc, [row.key]: row.value }), {}) || {};
 
+  const defaultTitle = 'BLACK4ME | جاسم محمد';
+  const defaultDescription = 'التسويق الرقمي | بناء العلامة الشخصية | الأتمتة | الاستشارات | الحلول الرقمية';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.black4me.com';
+
   return {
-    metadataBase: new URL('https://www.black4me.com'),
+    metadataBase: new URL(siteUrl),
     title: {
-      default: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية — كتاب + نظام تعليمي | BLACK4ME',
+      default: defaultTitle,
       template: '%s | BLACK4ME',
     },
-    description: settings.hero_subtitle || 'كتاب عملي + نظام تعليمي + 6 قوالب تسويقية جاهزة. دليل بناء العروض التي لا ترفض. من تأليف جاسم محمد.',
+    description: defaultDescription,
     icons: {
       icon: settings.site_favicon || '/favicon.ico',
       apple: settings.site_favicon || '/favicon.ico',
     },
     keywords: [
-      'كتاب تسويق رقمي',
-      'نظام جذب العملاء',
-      'قوالب تسويق جاهزة',
-      'تسويق إلكتروني عربي',
-      'بناء نظام مبيعات',
+      'التسويق الرقمي',
+      'بناء العلامة الشخصية',
+      'الأتمتة',
+      'الاستشارات',
+      'الحلول الرقمية',
       'جاسم محمد',
       'BLACK4ME',
-      'كتاب بدون التسويق',
-      'نظام تسويقي متكامل',
-      'تسويق رقمي للمبتدئين',
     ],
-    authors: [{ name: 'جاسم محمد', url: 'https://www.black4me.com' }],
+    authors: [{ name: 'جاسم محمد', url: siteUrl }],
     creator: 'جاسم محمد',
     publisher: 'BLACK4ME',
     openGraph: {
       type: 'website',
       locale: 'ar_SA',
-      url: 'https://www.black4me.com',
+      url: siteUrl,
       siteName: 'BLACK4ME',
-      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية — كتاب + نظام تعليمي | BLACK4ME',
-      description: settings.hero_subtitle || 'كتاب عملي + نظام تعليمي + 6 قوالب تسويقية جاهزة. دليل بناء العروض التي لا ترفض. من تأليف جاسم محمد.',
+      title: defaultTitle,
+      description: defaultDescription,
       images: [
         {
-          url: 'https://www.black4me.com/images/book-cover.jpg',
+          url: `${siteUrl}/images/book-cover.jpg`,
           width: 1200,
           height: 630,
-          alt: 'كتاب بدون التسويق كارثة تهدد ثروتك المستقبلية — جاسم محمد',
+          alt: 'BLACK4ME | جاسم محمد',
         },
       ],
     },
@@ -86,9 +87,9 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       site: '@black4me',
       creator: '@black4me',
-      title: settings.hero_title ? `${settings.hero_title} | BLACK4ME` : 'بدون تسويق كارثة تهدد ثروتك المستقبلية — كتاب + نظام تعليمي | BLACK4ME',
-      description: settings.hero_subtitle || 'كتاب عملي + نظام تعليمي + 6 قوالب تسويقية جاهزة. دليل بناء العروض التي لا ترفض. من تأليف جاسم محمد.',
-      images: ['https://www.black4me.com/images/book-cover.jpg'],
+      title: defaultTitle,
+      description: defaultDescription,
+      images: [`${siteUrl}/images/book-cover.jpg`],
     },
     robots: {
       index: true,
@@ -102,10 +103,10 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     alternates: {
-      canonical: 'https://www.black4me.com',
+      canonical: siteUrl,
     },
     verification: {
-      google: process.env.NEXT_PUBLIC_GSC_ID || '',
+      google: '74DHuE556Qb9-QS5PS7hKJsRXL2NR8QQ9eYvAxyx-qk',
     },
   };
 }

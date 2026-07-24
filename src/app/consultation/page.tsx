@@ -3,9 +3,37 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import ConsultationClient from './ConsultationClient';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.black4me.com';
+const title = 'استشارة خاصة مع جاسم محمد | BLACK4ME';
+const description = 'جلسة استشارية تشخيصية لمدة 60 دقيقة نركز فيها على وضع مشروعك والتسويق والأتمتة.';
+const url = `${siteUrl}/consultation`;
+
 export const metadata: Metadata = {
-  title: 'استشارة تسويقية | BLACK4ME',
-  description: 'احجز جلسة استشارية مع الأستاذ جاسم محمد — خطة تسويق مخصصة لمشروعك في 60 دقيقة',
+  title,
+  description,
+  alternates: {
+    canonical: url,
+  },
+  openGraph: {
+    title,
+    description,
+    url,
+    type: 'website',
+    images: [
+      {
+        url: `${siteUrl}/images/book-cover.jpg`,
+        width: 1200,
+        height: 630,
+        alt: title,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+    images: [`${siteUrl}/images/book-cover.jpg`],
+  },
 };
 
 export default async function ConsultationPage() {

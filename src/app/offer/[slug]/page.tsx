@@ -4,6 +4,53 @@ import OfferPageClient from './OfferPageClient';
 
 export const dynamic = 'force-dynamic';
 
+import type { Metadata } from 'next';
+
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const params = await props.params;
+  const slug = params.slug;
+  const offer = await getOfferBySlug(slug);
+
+  if (!offer) {
+    return {
+      title: 'عرض غير متوفر | BLACK4ME',
+    };
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.black4me.com';
+  const url = `${siteUrl}/offer/${slug}`;
+  const title = `${offer.title} | BLACK4ME`;
+  const description = offer.description || 'احصل على هذا العرض الحصري من BLACK4ME.';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+      images: [
+        {
+          url: `${siteUrl}/images/book-cover.jpg`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${siteUrl}/images/book-cover.jpg`],
+    },
+  };
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{
