@@ -92,7 +92,7 @@ export default function OfferEditor({ initialOffers }: { initialOffers: any[] })
               {formData.slug && (
                 <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                   <LinkIcon className="w-3 h-3" />
-                  سيتم حفظه كـ: <span className="text-brand-purple-light ml-1">{formData.slug.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '')}</span>
+                  سيتم حفظه كـ: <span className="text-brand-purple-light ml-1">{formData.slug.toLowerCase().trim().replace(/[\s/_\\]+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '')}</span>
                 </p>
               )}
             </div>

@@ -52,7 +52,7 @@ export async function upsertOffer(offerData: any) {
     const normalizedSlug = offerData.slug
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/[\s/_\\]+/g, '-') // Replace spaces, slashes, and underscores with hyphens
       .replace(/[^a-z0-9-]/g, '') // Remove unauthorized characters (keep a-z, 0-9, and hyphen)
       .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       .replace(/^-+|-+$/g, ''); // Trim hyphens from start and end
