@@ -65,7 +65,7 @@ export default function OfferEditor({ initialOffers }: { initialOffers: any[] })
       }
       setShowForm(false);
     } else {
-      alert('Error saving offer: ' + res.error);
+      alert('خطأ أثناء الحفظ: ' + res.error);
     }
   };
 
@@ -88,7 +88,13 @@ export default function OfferEditor({ initialOffers }: { initialOffers: any[] })
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-400 mb-1">الرابط المختصر (slug)</label>
-              <input type="text" value={formData.slug || ''} onChange={e => setFormData({...formData, slug: e.target.value})} className="w-full p-3 rounded-lg bg-black border border-white/10" dir="ltr" />
+              <input type="text" value={formData.slug || ''} onChange={e => setFormData({...formData, slug: e.target.value})} className="w-full p-3 rounded-lg bg-black border border-white/10 focus:border-brand-purple outline-none transition-colors" dir="ltr" placeholder="مثال: brand-ebook" />
+              {formData.slug && (
+                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                  <LinkIcon className="w-3 h-3" />
+                  سيتم حفظه كـ: <span className="text-brand-purple-light ml-1">{formData.slug.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-').replace(/^-+|-+$/g, '')}</span>
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm text-gray-400 mb-1">نوع العرض</label>
