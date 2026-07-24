@@ -16,7 +16,7 @@ export default function ConsultationSection() {
     tracking.trackEvent('ServiceViewed', {
       content_name: 'Consultation',
       content_type: 'service',
-      value: 49,
+      value: 90,
       currency: 'USD'
     });
   }, []);
@@ -84,11 +84,9 @@ export default function ConsultationSection() {
                  />
                </div>
                
-               <button 
-                 onClick={() => {
-                   tracking.trackEvent('CTAButtonClicked', { button_name: 'Consultation_Checkout', destination: '/checkout' });
-                   router.push('/checkout?mode=consultation');
-                 }}
+               <Link
+                 onClick={() => tracking.trackEvent('CTAButtonClicked', { button_name: 'Consultation_Checkout', destination: 'https://cal.com/black4me/consultation' })}
+                 href="https://cal.com/black4me/consultation?user=black4me&overlayCalendar=true"
                  className="bg-[#ceae88] hover:bg-[#b89b78] p-6 flex items-center justify-between transition-colors group w-full text-right"
                  aria-label="احجز موعد استشارتك الآن"
                >
@@ -97,9 +95,9 @@ export default function ConsultationSection() {
                    <ArrowLeft className="w-5 h-5 group-hover:-translate-x-2 transition-transform" />
                  </span>
                  <span className="text-black font-bold border border-black/30 px-4 py-1.5 rounded-xl text-lg">
-                   $49
+                   $90
                  </span>
-               </button>
+               </Link>
             </div>
           </div>
           
