@@ -21,20 +21,10 @@ export default function TrackingScripts({ gtmId, gaId, metaPixelId, tiktokPixelI
 }
 
 function TrackingScriptsInner({ gtmId, gaId, metaPixelId, tiktokPixelId }: TrackingScriptsProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (!isLoaded) {
-      return;
-    }
-
     const query = searchParams.toString();
     const pagePath = query ? `${pathname}?${query}` : pathname;
 
@@ -52,9 +42,7 @@ function TrackingScriptsInner({ gtmId, gaId, metaPixelId, tiktokPixelId }: Track
     if (typeof (window as any).ttq?.page === 'function' && tiktokPixelId) {
       (window as any).ttq.page();
     }
-  }, [gaId, isLoaded, metaPixelId, pathname, searchParams, tiktokPixelId]);
-
-  if (!isLoaded) return null;
+  }, [gaId, metaPixelId, pathname, searchParams, tiktokPixelId]);
 
   return (
     <>
