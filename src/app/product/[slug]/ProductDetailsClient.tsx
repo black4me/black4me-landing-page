@@ -95,7 +95,8 @@ export default function ProductDetailsClient({ product, initialReviews }: { prod
   };
 
   const images = product.images && product.images.length > 0 ? product.images : [product.file_url].filter(Boolean);
-  const currentImage = images[0]; // Simple gallery for now
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const currentImage = selectedImage || images[0];
 
   const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 3);
 
@@ -148,7 +149,7 @@ export default function ProductDetailsClient({ product, initialReviews }: { prod
             {images.length > 1 && (
               <div className="flex gap-4 overflow-x-auto pb-2">
                 {images.map((img: string, idx: number) => (
-                  <div key={idx} className="w-24 h-24 flex-shrink-0 bg-[#0a0a0a] border border-white/10 rounded-xl overflow-hidden relative cursor-pointer hover:border-brand-gold transition">
+                  <div key={idx} onClick={() => setSelectedImage(img)} className={`w-24 h-24 flex-shrink-0 bg-[#0a0a0a] border ${currentImage === img ? 'border-brand-gold' : 'border-white/10'} rounded-xl overflow-hidden relative cursor-pointer hover:border-brand-gold transition`}>
                      <Image src={img} alt="" fill className="object-cover" />
                   </div>
                 ))}

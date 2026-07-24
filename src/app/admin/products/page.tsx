@@ -113,6 +113,12 @@ export default function ProductsManager() {
 
   const handleProductSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Format slug (replace spaces/special characters with dashes)
+    const formattedSlug = productForm.slug
+      ? productForm.slug.toLowerCase().trim().replace(/[\s\W-]+/g, '-').replace(/^-+|-+$/g, '')
+      : null;
+
     const pData = {
       title: productForm.title,
       description: productForm.description,
@@ -123,7 +129,7 @@ export default function ProductsManager() {
       is_active: productForm.is_active,
       benefits: (productForm.benefits || '').split('\n').filter(Boolean),
       category_id: productForm.category_id || null,
-      slug: productForm.slug || null,
+      slug: formattedSlug,
       images: productForm.images || []
     };
 
@@ -242,8 +248,9 @@ export default function ProductsManager() {
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-400 mb-1.5">الرابط المخصص (Slug) *</label>
-                <input required type="text" value={productForm.slug} onChange={e => setProductForm({slug: e.target.value})}
+                <input required type="text" value={productForm.slug} onChange={e => setProductForm({slug: e.target.value.toLowerCase().replace(/[\s\W-]+/g, '-').replace(/^-+/, '')})}
                   className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#6C3BFF]" dir="ltr" />
+                <p className="text-[10px] text-gray-500 mt-1" dir="ltr">https://black4me.com/product/{productForm.slug || '[slug]'}</p>
               </div>
 
               <div className="sm:col-span-2">
